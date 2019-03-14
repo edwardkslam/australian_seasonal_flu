@@ -20,6 +20,7 @@ if(Sys.info()['sysname']=="Darwin"){
 
 cities<-c("BRISBANE","PERTH","ADELAIDE","SYDNEY","MELBOURNE")
 
+epi_table$city<-factor(epi_table$city,levels = cities)
 first_epi<-epi_table%>%
   subset(.,year!=2009)%>%
   subset(.,first_n_biggest=="Y")
@@ -77,7 +78,14 @@ registerDoParallel(cl)
 
 for(i in 1: length(cities)){
   print(paste("Bootstrapping // Current City = ",cities[i]," // Time elapsed = ", difftime(Sys.time(),start_cl,units="mins"), " mins",sep=""))
-  samples_to_select_1ftn<-sample_n(year_fortnight_1ftn,bootstrap_n,replace=TRUE)
+  
+  min_possible_year<-mean_fortnightly_climate_30years%>%
+    subset(.,city==cities[i])%>%
+    dplyr::group_by(year)%>%
+    dplyr::summarise(n=n())
+  min_possible_year<-min_possible_year$year[min(which(min_possible_year$n==26))]
+  
+  samples_to_select_1ftn<-sample_n(year_fortnight_1ftn%>%subset(.,year>=min_possible_year),bootstrap_n,replace=TRUE)
   samples_to_select_1ftn$city<-cities[i]
   
   bootstrap_sample_list_1ftn[[i]]<-adply(samples_to_select_1ftn,1,function(x){find_preonset_sample(x,1)},
@@ -97,7 +105,7 @@ for(i in 1: length(cities)){
                                                 d.temp_pvalue = t.test(bootstrap_sample_list_1ftn[[i]]$sample_mean_d.temp,preonset_sample_1ftn%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$p.value
   )
   
-  samples_to_select_2ftn<-sample_n(year_fortnight_2ftn,bootstrap_n,replace=TRUE)
+  samples_to_select_2ftn<-sample_n(year_fortnight_2ftn%>%subset(.,year>=min_possible_year),bootstrap_n,replace=TRUE)
   samples_to_select_2ftn$city<-cities[i]
   
   bootstrap_sample_list_2ftn[[i]]<-adply(samples_to_select_2ftn,1,function(x){find_preonset_sample(x,2)},
@@ -117,7 +125,7 @@ for(i in 1: length(cities)){
                                                 d.temp_pvalue = t.test(bootstrap_sample_list_2ftn[[i]]$sample_mean_d.temp,preonset_sample_2ftn%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$p.value
   )
   
-  samples_to_select_3ftn<-sample_n(year_fortnight_3ftn,bootstrap_n,replace=TRUE)
+  samples_to_select_3ftn<-sample_n(year_fortnight_3ftn,bootstrap_n%>%subset(.,year>=min_possible_year),replace=TRUE)
   samples_to_select_3ftn$city<-cities[i]
   
   bootstrap_sample_list_3ftn[[i]]<-adply(samples_to_select_3ftn,1,function(x){find_preonset_sample(x,3)},
@@ -161,7 +169,7 @@ final_results<-final_results%>%mutate(.,
 
 #Bootstrap output
 if(Sys.info()['sysname']=="Windows"){
-  #write.csv(final_results,"C:/Users/el382/Dropbox/PhD/shaman_bootstrap/bootstrap_results.csv",row.names = FALSE)
+  write.csv(final_results,"C:/Users/el382/Dropbox/PhD/shaman_bootstrap/bootstrap_results.csv",row.names = FALSE)
   
 }
 
@@ -339,5 +347,56 @@ ggsave(plot = stacked_climate_plots,filename = paste("C:/Users/el382/Dropbox/PhD
 
 ggsave(plot = stacked_climate_plots,filename = paste("C:/Users/el382/Dropbox/PhD/shaman_bootstrap/start_absolute_humidity_temp_firsts_stacked",".png",sep=""), 
        width=12, height=11,limitsize=FALSE)
+
+
+
+
+
+
+# Supplementary Information Robustness vs Geoghegan et al. (2018) ----------------
+
+#############################################################################################################
+#############################################################################################################
+
+
+# loading in Geoghegan data ---------------------------------------------------------
+
+if(Sys.info()['sysname']=="Windows"){
+  #   1)  For each season and city which Geoghegan has data for (2007-2015), 
+  #       assume that I have misidentified start timing for the LARGEST Influenza Type A epidemic.
+  #       and replace it with their timing 
+  largest_use_geog<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/robustness vs geoghegan timings/largest_use_geog_timing_epi_table.csv")
+  
+  #   2)  For each season and city which Geoghegan has data for (2007-2015), 
+  #       assume that I have misidentified start timing for the EARLIEST ONSET Influenza Type A epidemic.
+  #       and replace it with their timing 
+  earliest_use_geog<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/robustness vs geoghegan timings/earliest_use_geog_timing_epi_table.csv")
+  
+  #   3)  For each season and city which Geoghegan has data for (2007-2015), 
+  #       identify the epidemics within my data set that have poorly defined epidemic time series (ie absence of clear "exponential growth"
+  #       assume that I have misidentified start timing for these Influenza Type A epidemics.
+  #       and replace it with their timing 
+  poorly_defined_used_geog<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/robustness vs geoghegan timings/my_dodgy_time_series_use_geog_timing_epi_table.csv")
+}
+
+if(Sys.info()['sysname']=="Darwin"){
+  #   1)  For each season and city which Geoghegan has data for (2007-2015), 
+  #       assume that I have misidentified start timing for the LARGEST Influenza Type A epidemic.
+  #       and replace it with their timing 
+  largest_use_geog<-read.csv("~/Dropbox/PhD/code for manuscript/robustness vs geoghegan timings/largest_use_geog_timing_epi_table.csv")
+  
+  #   2)  For each season and city which Geoghegan has data for (2007-2015), 
+  #       assume that I have misidentified start timing for the EARLIEST ONSET Influenza Type A epidemic.
+  #       and replace it with their timing 
+  earliest_use_geog<-read.csv("~/Dropbox/PhD/code for manuscript/robustness vs geoghegan timings/earliest_use_geog_timing_epi_table.csv")
+  
+  #   3)  For each season and city which Geoghegan has data for (2007-2015), 
+  #       identify the epidemics within my data set that have poorly defined epidemic time series (ie absence of clear "exponential growth"
+  #       assume that I have misidentified start timing for these Influenza Type A epidemics.
+  #       and replace it with their timing 
+  poorly_defined_used_geog<-read.csv("~/Dropbox/PhD/code for manuscript/robustness vs geoghegan timings/my_dodgy_time_series_use_geog_timing_epi_table.csv")
+}
+
+
 
 
