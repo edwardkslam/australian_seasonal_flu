@@ -46,7 +46,7 @@ if(Sys.info()['sysname']=="Windows"){
 # 1) Ag change and timing (largest_geog_start) ------------------------------
 
 ag_change_start_1<-geog_epi_table%>%
-  subset(.,epi_alarm=="Y" & subtype!="H1pdm09")%>%
+  subset(.,epi_alarm=="Y" & subtype!="H1pdm09" & year!=2009)%>%
   subset(.,!is.na(new_ag_marker))%>%
   ggplot(.,aes(x=as.factor(new_ag_marker),y=largest_geog_start))+
   geom_boxplot(outlier.size=0)+ 
@@ -126,7 +126,7 @@ ggsave(plot = synchrony_plot_overall_1,filename = paste(plot_dir,"largest_geog_a
 
 # 2) Ag change and timing (earliest_geog_start) ------------------------------
 ag_change_start_2<-geog_epi_table%>%
-  subset(.,epi_alarm=="Y" & subtype!="H1pdm09")%>%
+  subset(.,epi_alarm=="Y" & subtype!="H1pdm09"& year!=2009)%>%
   subset(.,!is.na(new_ag_marker))%>%
   ggplot(.,aes(x=as.factor(new_ag_marker),y=earliest_geog_start))+
   geom_boxplot(outlier.size=0)+ 
@@ -207,7 +207,7 @@ ggsave(plot = synchrony_plot_overall_2,filename = paste(plot_dir,"earliest_geog_
 
 # 3) Ag change and timing (poor_timeseries_geog_start) ------------------------------
 ag_change_start_3<-geog_epi_table%>%
-  subset(.,!(year==2009 & subtype!="H1pdm09"))%>%
+  subset(.,epi_alarm=="Y" & subtype!="H1pdm09" & year!=2009)%>%
   subset(.,!is.na(new_ag_marker))%>%
   ggplot(.,aes(x=as.factor(new_ag_marker),y=poor_timeseries_geog_start))+
   geom_boxplot(outlier.size=0)+ 
