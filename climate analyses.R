@@ -79,11 +79,11 @@ year_fortnight_1ftn<-expand.grid(year=c(1985:2015),start=c(8:17))    # start of 
 year_fortnight_1ftn<-year_fortnight_1ftn%>%
   subset(.,year!=2009)
 
-year_fortnight_2ftn<-expand.grid(year=c(1985:2015),start=c(9:18))    # start of 7 = 01 April ; end of 16 = 31 August
+year_fortnight_2ftn<-expand.grid(year=c(1985:2015),start=c(9:17))    # start of 7 = 01 April ; end of 16 = 31 August
 year_fortnight_2ftn<-year_fortnight_2ftn%>%
   subset(.,year!=2009)
 
-year_fortnight_3ftn<-expand.grid(year=c(1985:2015),start=c(10:19))    # start of 7 = 01 April ; end of 16 = 31 August
+year_fortnight_3ftn<-expand.grid(year=c(1985:2015),start=c(10:17))    # start of 7 = 01 April ; end of 16 = 31 August
 year_fortnight_3ftn<-year_fortnight_3ftn%>%
   subset(.,year!=2009)
 

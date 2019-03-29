@@ -7,8 +7,13 @@ library(dplyr)
 library(plyr)
 library(tidyr)
 
-# The following analyses will produce the results and figures discussed in the main text
-# Figure 2 and Table S2
+# The following code will reproduce the climatic factor analyses discussed in the main text:
+# 1)  Comparison of observed climatic fluctuations prior to epidemic onset against typical wintertime
+#     fluctuations using the bootstrap sampling method presented by Shaman (2010)
+#       - The output is a data frame: final_results (Table S1)
+# 2)  Comparison of observed climatic fluctuations prior to epidemic onset against historical averages
+#     typical for that time of the year
+#       - The output is two figures: T_plot and AH-plot (Figure 2)
 
 # Loading data ------------------------------------------------------------
 if(Sys.info()['sysname']=="Windows"){
@@ -29,6 +34,163 @@ epi_table$city<-factor(epi_table$city,levels = cities)
 first_epi<-epi_table%>%
   subset(.,year!=2009)%>%
   subset(.,first_n_biggest=="Y")
+
+
+# Comparison against general wintertime conditions Shaman (2010) ----------
+
+# n week block sampling function
+# find the mean climatic value for n_fortnight before a certain timepoint
+
+find_preonset_sample<-function(x, n_fortnight = 2){
+  x<-as.vector(x)
+  temp<-mean_fortnightly_climate_30years%>%
+    subset(.,city==as.character(x$city) & year==x$year & fortnights_since_start_of_year%in%c((x$start-n_fortnight):(x$start-1)))
+  #print(temp)
+  temp<-temp%>%
+    dplyr::group_by(city,year)%>%
+    dplyr::summarise(start = first(x$start),
+                     mean_AH = mean(mean_AH,na.rm=TRUE),
+                     mean_temp = mean(mean_temp,na.rm = TRUE),
+                     sample_mean_d.AH=mean(d.AH,na.rm=TRUE),
+                     #sample_mean_d.SH=mean(d.SH,na.rm=TRUE),
+                     sample_mean_d.temp=mean(d.temp,na.rm=TRUE),
+                     mean_AH_for_that_fortnight_of_year = mean(mean_AH_for_that_fortnight_of_year,na.rm=TRUE),
+                     mean_RH_for_that_fortnight_of_year = mean(mean_RH_for_that_fortnight_of_year,na.rm=TRUE),
+                     mean_temp_for_that_fortnight_of_year = mean(mean_temp_for_that_fortnight_of_year,na.rm=TRUE))
+  return(data.frame(temp))
+}
+
+# mean climatic conditions in the 2-, 4- and 6- weeks prior to empirically observed epidemic onsets
+preonset_sample_1ftn<-adply(first_epi,1,function(x){find_preonset_sample(x,1)})
+preonset_sample_2ftn<-adply(first_epi,1,function(x){find_preonset_sample(x,2)})
+preonset_sample_3ftn<-adply(first_epi,1,function(x){find_preonset_sample(x,3)})
+
+
+# data frame listing the years and fortnights during "winter", from which bootstrap sample will be drawn from 
+year_fortnight_1ftn<-expand.grid(year=c(1985:2015),start=c(8:17))    # start of 7 = 01 April ; end of 16 = 31 August
+year_fortnight_1ftn<-year_fortnight_1ftn%>%
+  subset(.,year!=2009)
+
+year_fortnight_2ftn<-expand.grid(year=c(1985:2015),start=c(9:17))    # start of 7 = 01 April ; end of 16 = 31 August
+year_fortnight_2ftn<-year_fortnight_2ftn%>%
+  subset(.,year!=2009)
+
+year_fortnight_3ftn<-expand.grid(year=c(1985:2015),start=c(10:17))    # start of 7 = 01 April ; end of 16 = 31 August
+year_fortnight_3ftn<-year_fortnight_3ftn%>%
+  subset(.,year!=2009)
+
+# lists for storing bootstrap samples and summary statistics
+bootstrap_n<-1000000
+bootstrap_sample_list_1ftn<-list()
+bootstrap_sample_list_2ftn<-list()
+bootstrap_sample_list_3ftn<-list()
+
+bootstrap_ttest_results_1ftn<-list()
+bootstrap_ttest_results_2ftn<-list()
+bootstrap_ttest_results_3ftn<-list()
+
+
+
+for(i in 1: length(cities)){
+  min_possible_year<-mean_fortnightly_climate_30years%>%
+    subset(.,city==cities[i])%>%
+    dplyr::group_by(year)%>%
+    dplyr::summarise(n=n())
+  min_possible_year<-min_possible_year$year[min(which(min_possible_year$n==26))]
+  
+  # mean of 2-week block samples
+  sample_means_1ftn<-adply(year_fortnight_1ftn%>%
+                             subset(.,year>=min_possible_year)%>%
+                             dplyr::mutate(city=cities[i]),1,
+                           function(x){find_preonset_sample(x,1)})
+
+  
+  bootstrap_sample_list_1ftn[[i]]<-sample_n(sample_means_1ftn,bootstrap_n,replace=TRUE)
+  
+  
+  bootstrap_ttest_results_1ftn[[i]]<-data.frame(city = cities[i],
+                                                mean_synthetic_sample_mean_d.AH = bootstrap_sample_list_1ftn[[i]]$sample_mean_d.AH %>% mean(),
+                                                mean_emperical_sample_mean_d.AH = preonset_sample_1ftn%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH %>%mean(),
+                                                d.AH_stat = t.test(bootstrap_sample_list_1ftn[[i]]$sample_mean_d.AH,preonset_sample_1ftn%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$statistic,
+                                                d.AH_pvalue = t.test(bootstrap_sample_list_1ftn[[i]]$sample_mean_d.AH,preonset_sample_1ftn%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$p.value,
+                                                mean_synthetic_sample_mean_d.temp = bootstrap_sample_list_1ftn[[i]]$sample_mean_d.temp %>% mean(),
+                                                mean_emperical_sample_mean_d.temp = preonset_sample_1ftn%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp %>%mean(),
+                                                d.temp_stat = t.test(bootstrap_sample_list_1ftn[[i]]$sample_mean_d.temp,preonset_sample_1ftn%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$statistic,
+                                                d.temp_pvalue = t.test(bootstrap_sample_list_1ftn[[i]]$sample_mean_d.temp,preonset_sample_1ftn%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$p.value
+  )
+  
+  # mean of 4-week block samples
+  sample_means_2ftn<-adply(year_fortnight_2ftn%>%
+                             subset(.,year>=min_possible_year)%>%
+                             dplyr::mutate(city=cities[i]),1,
+                           function(x){find_preonset_sample(x,1)})
+  
+  bootstrap_sample_list_2ftn[[i]]<-sample_n(sample_means_2ftn,bootstrap_n,replace=TRUE)
+
+  
+  bootstrap_ttest_results_2ftn[[i]]<-data.frame(city = cities[i],
+                                                mean_synthetic_sample_mean_d.AH = bootstrap_sample_list_2ftn[[i]]$sample_mean_d.AH %>% mean(),
+                                                mean_emperical_sample_mean_d.AH = preonset_sample_2ftn%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH %>%mean(),
+                                                d.AH_stat = t.test(bootstrap_sample_list_2ftn[[i]]$sample_mean_d.AH,preonset_sample_2ftn%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$statistic,
+                                                d.AH_pvalue = t.test(bootstrap_sample_list_2ftn[[i]]$sample_mean_d.AH,preonset_sample_2ftn%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$p.value,
+                                                mean_synthetic_sample_mean_d.temp = bootstrap_sample_list_2ftn[[i]]$sample_mean_d.temp %>% mean(),
+                                                mean_emperical_sample_mean_d.temp = preonset_sample_2ftn%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp %>%mean(),
+                                                d.temp_stat = t.test(bootstrap_sample_list_2ftn[[i]]$sample_mean_d.temp,preonset_sample_2ftn%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$statistic,
+                                                d.temp_pvalue = t.test(bootstrap_sample_list_2ftn[[i]]$sample_mean_d.temp,preonset_sample_2ftn%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$p.value
+  )
+  
+  # mean of 6-week block samples
+  sample_means_3ftn<-adply(year_fortnight_3ftn%>%
+                             subset(.,year>=min_possible_year)%>%
+                             dplyr::mutate(city=cities[i]),1,
+                           function(x){find_preonset_sample(x,1)})
+  
+  bootstrap_sample_list_3ftn[[i]]<-sample_n(sample_means_3ftn,bootstrap_n,replace=TRUE)
+  
+  bootstrap_ttest_results_3ftn[[i]]<-data.frame(city = cities[i],
+                                                mean_synthetic_sample_mean_d.AH = bootstrap_sample_list_3ftn[[i]]$sample_mean_d.AH %>% mean(),
+                                                mean_emperical_sample_mean_d.AH = preonset_sample_3ftn%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH %>%mean(),
+                                                d.AH_stat = t.test(bootstrap_sample_list_3ftn[[i]]$sample_mean_d.AH,preonset_sample_3ftn%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$statistic,
+                                                d.AH_pvalue = t.test(bootstrap_sample_list_3ftn[[i]]$sample_mean_d.AH,preonset_sample_3ftn%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$p.value,
+                                                mean_synthetic_sample_mean_d.temp = bootstrap_sample_list_3ftn[[i]]$sample_mean_d.temp %>% mean(),
+                                                mean_emperical_sample_mean_d.temp = preonset_sample_3ftn%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp %>%mean(),
+                                                d.temp_stat = t.test(bootstrap_sample_list_3ftn[[i]]$sample_mean_d.temp,preonset_sample_3ftn%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$statistic,
+                                                d.temp_pvalue = t.test(bootstrap_sample_list_3ftn[[i]]$sample_mean_d.temp,preonset_sample_3ftn%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$p.value
+  )
+}
+
+# converting the lists to data frames and adding column denoting whether it is 2-/4-/6- week block samples
+bootstrap_ttest_results_1ftn<-ldply(bootstrap_ttest_results_1ftn)
+bootstrap_ttest_results_1ftn$num_preceding_fortnight <- 1
+
+bootstrap_ttest_results_2ftn<-ldply(bootstrap_ttest_results_2ftn)
+bootstrap_ttest_results_2ftn$num_preceding_fortnight <- 2
+
+bootstrap_ttest_results_3ftn<-ldply(bootstrap_ttest_results_3ftn)
+bootstrap_ttest_results_3ftn$num_preceding_fortnight <- 3
+
+
+# Bootstrap results
+final_results<-rbind(bootstrap_ttest_results_1ftn,bootstrap_ttest_results_2ftn,bootstrap_ttest_results_3ftn)
+print(final_results)
+
+final_results<-final_results%>%mutate(.,
+                                      ManuscriptTable_Temp = paste(signif(mean_emperical_sample_mean_d.temp,3),"  (",signif(d.temp_pvalue,3),")",sep=""),
+                                      ManuscriptTable_AH = paste(signif(mean_emperical_sample_mean_d.AH,3),"  (",signif(d.AH_pvalue,3),")",sep=""))
+
+#Bootstrap output
+if(Sys.info()['sysname']=="Windows"){
+  write.csv(final_results,"C:/Users/el382/Dropbox/PhD/shaman_bootstrap/bootstrap_results.csv",row.names = FALSE)
+  
+}
+
+if(Sys.info()['sysname']=="Darwin"){
+  write.csv(final_results,"~/Dropbox/PhD/shaman_bootstrap/bootstrap_results.csv",row.names = FALSE)
+  write.csv(ldply(bootstrap_sample_list_1ftn),"~/Dropbox/PhD/shaman_bootstrap/bootstrap_samples_1ftn.csv",row.names = FALSE)
+  write.csv(ldply(bootstrap_sample_list_2ftn),"~/Dropbox/PhD/shaman_bootstrap/bootstrap_samples_2ftn.csv",row.names = FALSE)
+  write.csv(ldply(bootstrap_sample_list_3ftn),"~/Dropbox/PhD/shaman_bootstrap/bootstrap_samples_3ftn.csv",row.names = FALSE)
+}
+
 
 
 # Comparison against historic climatic values of that particular time of year --------
@@ -202,28 +364,4 @@ AH_plot<-mean_stats%>%
         panel.grid.minor = element_blank())
 
 
-
-# Comparison against general wintertime conditions Shaman (2010) ----------
-
-# n week block sampling function
-# find the mean climatic value for n_fortnight before a certain timepoint
-
-find_preonset_sample<-function(x, n_fortnight = 2){
-  x<-as.vector(x)
-  temp<-mean_fortnightly_climate_30years%>%
-    subset(.,city==as.character(x$city) & year==x$year & fortnights_since_start_of_year%in%c((x$start-n_fortnight):(x$start-1)))
-  #print(temp)
-  temp<-temp%>%
-    dplyr::group_by(city,year)%>%
-    dplyr::summarise(start = first(x$start),
-                     mean_AH = mean(mean_AH,na.rm=TRUE),
-                     mean_temp = mean(mean_temp,na.rm = TRUE),
-                     sample_mean_d.AH=mean(d.AH,na.rm=TRUE),
-                     #sample_mean_d.SH=mean(d.SH,na.rm=TRUE),
-                     sample_mean_d.temp=mean(d.temp,na.rm=TRUE),
-                     mean_AH_for_that_fortnight_of_year = mean(mean_AH_for_that_fortnight_of_year,na.rm=TRUE),
-                     mean_RH_for_that_fortnight_of_year = mean(mean_RH_for_that_fortnight_of_year,na.rm=TRUE),
-                     mean_temp_for_that_fortnight_of_year = mean(mean_temp_for_that_fortnight_of_year,na.rm=TRUE))
-  return(data.frame(temp))
-}
 
