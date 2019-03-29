@@ -21,6 +21,7 @@ if(Sys.info()['sysname']=="Darwin"){
 cities<-c("ADELAIDE","BRISBANE","MELBOURNE","PERTH","SYDNEY")
 
 epi_table$city<-factor(epi_table$city,levels = cities)
+
 first_epi<-epi_table%>%
   subset(.,year!=2009)%>%
   subset(.,first_n_biggest=="Y")
@@ -62,7 +63,7 @@ find_preonset_sample<-function(x, n_fortnight = 2){
 }
 
 preonset_sample_1ftn<-adply(first_epi,1,function(x){find_preonset_sample(x,1)})
-preonset_sample_2ftn<-adply(first_epi,1,function(x){find_preonset_sample(x)})
+preonset_sample_2ftn<-adply(first_epi,1,function(x){find_preonset_sample(x,2)})
 preonset_sample_3ftn<-adply(first_epi,1,function(x){find_preonset_sample(x,3)})
 
 bootstrap_n<-1000000
@@ -209,7 +210,7 @@ if(Sys.info()['sysname']=="Darwin"){
 
 # Defining functions 
 
-#Takes an entry from epidemic table and spits out the climatic values 5 fortnights either side of onset (by default)
+# Takes an entry from epidemic table and spits out the climatic values 5 fortnights either side of onset (by default)
 # mean_AH is the year specific value
 # mean_AH_for_that_fortnight_of_year etc is the 31 year mean value for that particular fortnight of the year
 # d.AH is mean_AH - mean_AH_for_that_fortnight_of_year
@@ -224,7 +225,7 @@ climate_centered<-function(x,y=c(-5,5),point="start"){
   }
   #for use in replicates
   if(point=="earliest_geog"){
-    reference<-x$largest_geog_start
+    reference<-x$earliest_geog_start
   }
   if(point =="largest_geog"){
     reference<-x$largest_geog_start
@@ -1006,7 +1007,7 @@ AH_plot2<-mean_stats2%>%
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())
 
-stacked_climate_plots2<-grid.arrange(AT_plot2,AH_plot1,ncol=1)
+stacked_climate_plots2<-grid.arrange(AT_plot2,AH_plot2,ncol=1)
 
 
 if(Sys.info()['sysname']=="Windows"){

@@ -6,10 +6,9 @@ library(gridExtra)
 library(scales)
 library(dplyr)
 library(plyr)
-# library(ggmap)
 library(tidyr)
 
-epi_table<-read.csv("C:/Users/el382/Dropbox/PhD/shaman_bootstrap/epi_table.csv")
+epi_table<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/epi_table.csv")
 # plots -------------------------------------------------------------------
 
 size_just_earliest<-epi_table %>%
@@ -155,3 +154,48 @@ m2.1<-epi_table %>%
   lmer(formula= (incidence_per_mil) ~ prior_everything_scaled + start + (1|city), data=.)
 
 anova(m2.1,m1.1,m0.1)
+
+
+m0.2<-epi_table %>%
+  subset(.,year!=2009 & epi_alarm=="Y")%>%
+  dplyr::mutate(log_prior = log(prior_everything_scaled + 0.01),
+                log_relative = log(relative_to_first_n_biggest + 0.01))%>%
+  lm(formula= log_relative ~ log_prior, data=.)
+
+m1.2<-epi_table %>%
+  subset(.,year!=2009 & epi_alarm=="Y")%>%
+  dplyr::mutate(log_prior = log(prior_everything_scaled + 0.01),
+                log_relative = log(relative_to_first_n_biggest + 0.01))%>%
+  lmer(formula= log_relative ~ log_prior + (1|city), data=.)
+
+m1a.2<-epi_table %>%
+  subset(.,year!=2009 & epi_alarm=="Y")%>%
+  dplyr::mutate(log_prior = log(prior_everything_scaled + 0.01),
+                log_relative = log(relative_to_first_n_biggest + 0.01))%>%
+  lm(formula= log_relative ~ log_prior+start, data=.)
+
+m2.2<-epi_table %>%
+  subset(.,year!=2009 & epi_alarm=="Y")%>%
+  dplyr::mutate(log_prior = log(prior_everything_scaled + 0.01),
+                log_relative = log(relative_to_first_n_biggest + 0.01))%>%
+  lmer(formula= log_relative ~ log_prior+start + (1|city), data=.)
+
+anova(m2.2,m1.2,m0.2)
+
+
+prioractivity_start_regression_table<-coef(summary(m1a.2))%>%signif(.,3)
+write.csv(prioractivity_start_regression_table,
+          "~/Age structure project/New folder/Timing/surveillance_median_smoothing/W3_A12/by_city/Timing plots/lab_talk/best plots/updated_virdl/prioractivity_start_regression_table.csv",
+          row.names = TRUE)
+
+
+m3a.2<-epi_table %>%
+  subset(.,year!=2009 & epi_alarm=="Y")%>%
+  dplyr::mutate(log_prior = log(prior_everything_scaled + 0.01),
+                log_relative = log(relative_to_first_n_biggest + 0.01))%>%
+  lm(formula= log_relative ~ delay+start, data=.)
+
+delay_start_regression_table<-coef(summary(m3a.2))%>%signif(.,3)
+write.csv(delay_start_regression_table,
+          "~/Age structure project/New folder/Timing/surveillance_median_smoothing/W3_A12/by_city/Timing plots/lab_talk/best plots/updated_virdl/delay_start_regression_table.csv",
+          row.names = TRUE)
