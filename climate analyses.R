@@ -470,7 +470,7 @@ just_geog_bootstrap_ttest_results_3ftn<-list()
 
 for(i in 1: length(cities)){
   temp_bootstrap1<-bootstrap_sample_list_1ftn%>%subset(.,city==cities[i])
-  temp_bootstrap2<-bootstrap_sample_list_1ftn%>%subset(.,city==cities[i])
+  temp_bootstrap2<-bootstrap_sample_list_2ftn%>%subset(.,city==cities[i])
   temp_bootstrap3<-bootstrap_sample_list_3ftn%>%subset(.,city==cities[i])
   
   ##largest geog
@@ -588,7 +588,6 @@ for(i in 1: length(cities)){
   )
   
   #4 just_geog
-  ##largest geog
   just_geog_bootstrap_ttest_results_1ftn[[i]]<-data.frame(city = cities[i],
                                                         mean_synthetic_sample_mean_d.AH = temp_bootstrap1$sample_mean_d.AH %>% mean(),
                                                         mean_emperical_sample_mean_d.AH = just_geog_sample1%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH %>%mean(),

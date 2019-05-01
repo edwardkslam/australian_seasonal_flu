@@ -13,7 +13,7 @@ library(tidyr)
 #       - The output is a data frame: final_results (Table S1)
 # 2)  Comparison of observed climatic fluctuations prior to epidemic onset against historical averages
 #     typical for that time of the year
-#       - The output is two figures: T_plot and AH-plot (Figure 2)
+#       - The output is two plots which are combined to form the figures in the manuscript: T_plot and AH-plot (Figure 2)
 
 # Loading data ------------------------------------------------------------
 if(Sys.info()['sysname']=="Windows"){

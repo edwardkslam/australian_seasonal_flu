@@ -115,6 +115,22 @@ Here we assess (whilst making no corrctions for potential mis-identification dur
 1) epidemic incidence (Figure S20)
 2) probability of successful epidemic initiation (Figure S21 and Table S9)
 
+### robustness vs geoghegan timings/Robustness of climatic analyses using Geoghegan et al (2018) timings.R
+Here we assess the robustness towards potential inaccuracies in our epidemic onset timing estimates, of our analyses on climatic fluctuations preceding epidemic onset. We considered whether or not these preceding climatic fluctuations were
+i)  anomalous when compared with against "typical wintertime" fluctuations using the bootstrap sampling method presented by Shaman (2010).
+ii) anomalous when compared against historical averages that typical for that time of the year.
+
+We incorporate alternative estimates for the onset timing of Influenza A epidemic activity from Geoghegan et al. (2018), based on the following series of assumptions:
+1) For each of the seasons between 2007 and 2015, we assumed that our timing estimate for the DOMINANT influenza A subtype was incorrect and replaced it with estimates from Geoghegan et al. (2018).
+    i) Table S2; ii) Figure S4
+2) For each of the seasons between 2007 and 2015, we assumed that our timing estimate for the EARLIEST influenza A subtype was incorrect and replaced it with estimates from Geoghegan et al. (2018).
+    i) Table S3; ii) Figure S5
+3) For seasons between 2007 and 2015 in which the number of cases for the dominant influenza A subtype were small or it was difficult to discern the period of epidemic from background activity, we assumed that our timing estimate was incorrect and replaced it with estimates from Geoghegan et al. (2018).
+    i) Table S4; ii) Figure S6
+
+We also considered whether or not, more generally, Influenza A epidemic activity was preceded by anomalous fluctuations.
+4) Utilising only the timing estimates by Geoghegan et al. (2018), we assessed if more generally, the onset of influenza A epidemic activity in the seasons from 2007 to 2015 was preceded by periods of anomalous climatic conditions.
+    i) Table S5; ii) Figure S7
 
 ### robustness vs geoghegan timings/Robustness of ag change analyses using Geoghegan et al (2018) timings.R
 Here we assess the robustness towards potential inaccuracies in our epidemic onset timing estimates, of our analyses on the effect of antigenic change on:
