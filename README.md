@@ -88,29 +88,30 @@ poor_timeseries_geog_start = if "poor_timeseries" == Y, "poor_timeseries_geog_st
 firstNbiggest_poor_geog = Y (this antigenic variant caused the epidemic with the earliest "poor_timeseries_geog_start" and largest "poor_timeseries_geog_start" in a particular City and Year) / N
 
 ## Analyses scripts
-### Climatic factors and epidemic onset.R
+### main text analysis scripts/Climatic factors and epidemic onset.R
 This set of analyses considers whether or not the onset of epidemics are preceded with fluctuations in climatic factors that are:
 1) anomalous when compared with against "typical wintertime" fluctuations using the bootstrap sampling method presented by Shaman (2010). The output is a data frame: final_results (Table S1).
 2) anomalous when compared against historical averages that typical for that time of the year. The output is two figures: T_plot and AH-plot (Figure 2).
 
-### Effect of antigenic change.R
+### main text analysis scripts/Effect of antigenic change.R
 Here we assess the effect of antigenic change on:
 1) the size of epidemics (Figure 3)
 2) the onset timing of epidemics (Figure S8)
 3) the temporal synchrony of epidemics across all five cities (Figure S9)
 
-### Effect of antigenic change no corrections.R
+### main text analysis scripts/Effect of prior immunity.R
+Here we assess the effect of accumulated antigenic-variant specific immunity on:
+1) epidemic incidence (Figure 4)
+2) probability of successful epidemic initiation (Figure S16 and Table S6)
+
+
+### main text analysis without phylogenetic informed corrections/Effect of antigenic change no corrections.R
 Here we assess (whilst making no corrctions for potential mis-identification during antigenic characterisation) the effect of antigenic change on:
 1) the size of epidemics (Figure S17)
 2) the onset timing of epidemics (Figure S18)
 3) the temporal synchrony of epidemics across all five cities (Figure S19)
 
-### Effect of prior immunity.R
-Here we assess the effect of accumulated antigenic-variant specific immunity on:
-1) epidemic incidence (Figure 4)
-2) probability of successful epidemic initiation (Figure S16 and Table S6)
-
-### Effect of prior immunity no corrections.R
+### main text analysis without phylogenetic informed corrections/Effect of prior immunity no corrections.R
 Here we assess (whilst making no corrctions for potential mis-identification during antigenic characterisation) the effect of accumulated antigenic-variant specific immunity on:
 1) epidemic incidence (Figure S20)
 2) probability of successful epidemic initiation (Figure S21 and Table S9)
@@ -139,7 +140,7 @@ Here we assess the robustness towards potential inaccuracies in our epidemic ons
 i) the onset timing of epidemics \
 ii) the the temporal synchrony of epidemics across all five cities
 
-We incorporate alternative estimates for the onset timing of Influenza A epidemic activity from Geoghegan et al. (2018), based on the following series of assumptions: 
+We incorporate alternative estimates for the onset timing of Influenza A epidemic activity from Geoghegan et al. (2018), based on the following series of assumptions:
 1) For each of the seasons between 2007 and 2015, we assumed that our timing estimate for the DOMINANT influenza A subtype was incorrect and replaced it with estimates from Geoghegan et al. (2018). \
     i) Figure S10 ; ii) Figure S11
 2) For each of the seasons between 2007 and 2015, we assumed that our timing estimate for the EARLIEST influenza A subtype was incorrect and replaced it with estimates from Geoghegan et al. (2018). \
