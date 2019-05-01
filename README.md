@@ -13,7 +13,7 @@ The column names are as follows:\
 "specimen_date" = Collection Date of submitted specimen\
 "reference_strain" = Antigenic variant of submitted specimen, based on comparison against current vaccine reference strain by HI assay\
 "agree_with_phylogenetic_analyses" = Y/N\
-"assumed_antigenic_variant" = Assumed antigenic variant of submitted specimen, given potential errors in HI testing.\
+"assumed_antigenic_variant" = Assumed antigenic variant of submitted specimen, given potential errors in HI testing. \
 
 As mentioned in the Materials and Methods, since the Southern Hemisphere’s influenza vaccine composition are updated every September (typically after the end of the influenza season in Australia), viruses characterised by HI during the preceding season may have been misidentified.  To account for this potential source of bias, we compared the antigenic characterization data against phylogenetic data. In particular, we identified two potential instances of misidentification of A/H3 viruses in 2004 and 2005.  In these seasons, there is evidence to suggest that the newly emerging antigenic variant had already replaced its predecessor so all A/H3 cases are assumed to be attributable to the new variant.
 
@@ -24,23 +24,23 @@ For each of antigenic variants recorded in a given season and city, we used the 
 
 "epi_table.csv" contains the summary statistics for each of the epidemics identified, over the study period from 01/01/2000 to 31/12/15.
 
-"city" = City
-"strain_year" = Concatenated string formed from reference_strain and year
-"year" = Year
-"subtype" = Virus Subtype
-"reference_strain" = "assumed_antigenic_variant" of submitted specimen
-"epi_alarm" = Y (above-baseline levels of epidemic activity detected) / N
-"start" = Fortnight in which above-baseline levels of activity is first detected
-"epi_counts" = Total Number of specimens collected over the period of epidemic-levels of activity (as defined by algorithm)
-"incidence_per_mil" = "epi_counts" divided by the city-specific Annual Estimated Resident Population
-"epi_fractional_counts" = "epi_counts" divided by total "epi_counts" across epidemics of all subtypes in that "city" and "year"
-"new_ag_marker" = 1 (first epidemic of an antigenic variant) / 0 (subsequent epidemics) / NA (antigenic variant emerged before the start of study period)
-"first_detection_of_new_ag" = 1 (first detection of an antigenic variant irrespective of whether or not there was above-baseline levels of activity) / 0 (subsequent detections) / NA (antigenic variant emerged before the start of study period)
-"first_n_biggest" = Y (this antigenic variant caused the epidemic with earliest "start" and largest "incidence_per_mil" in a particular City and Year) / N
-"relative_to_first_n_biggest" = "epi_counts" divided by the largest "epi_counts" value for that particular "year" and "city"
-"delay" = difference between "start" and the earliest "start" value for that particular "year" and "city"
-"prior_everything_scaled" = sum of all specimens of other subtypes with "specimen_dates" prior to "start"
-"mean_epi_size" = mean of "incidence_per_mil" across all epidemics of all subtypes, within that particular "city"
+"city" = City \
+"strain_year" = Concatenated string formed from reference_strain and year \
+"year" = Year \
+"subtype" = Virus Subtype \
+"reference_strain" = "assumed_antigenic_variant" of submitted specimen \
+"epi_alarm" = Y (above-baseline levels of epidemic activity detected) / N \
+"start" = Fortnight in which above-baseline levels of activity is first detected \
+"epi_counts" = Total Number of specimens collected over the period of epidemic-levels of activity (as defined by algorithm) \
+"incidence_per_mil" = "epi_counts" divided by the city-specific Annual Estimated Resident Population \
+"epi_fractional_counts" = "epi_counts" divided by total "epi_counts" across epidemics of all subtypes in that "city" and "year" \
+"new_ag_marker" = 1 (first epidemic of an antigenic variant) / 0 (subsequent epidemics) / NA (antigenic variant emerged before the start of study period) \
+"first_detection_of_new_ag" = 1 (first detection of an antigenic variant irrespective of whether or not there was above-baseline levels of activity) / 0 (subsequent detections) / NA (antigenic variant emerged before the start of study period) \
+"first_n_biggest" = Y (this antigenic variant caused the epidemic with earliest "start" and largest "incidence_per_mil" in a particular City and Year) / N \
+"relative_to_first_n_biggest" = "epi_counts" divided by the largest "epi_counts" value for that particular "year" and "city" \
+"delay" = difference between "start" and the earliest "start" value for that particular "year" and "city" \
+"prior_everything_scaled" = sum of all specimens of other subtypes with "specimen_dates" prior to "start" \
+"mean_epi_size" = mean of "incidence_per_mil" across all epidemics of all subtypes, within that particular "city" \
 
 ### epi_table_no_corrections.csv
 Here, we make no assumptions about the existence of potential mis-identifications: "reference_strain" in "epi_table_no_corrections.csv" is derived from "reference_strain" in "raw_data.csv".
@@ -48,44 +48,44 @@ Here, we make no assumptions about the existence of potential mis-identification
 ### mean_fortnightly_climate_30years.csv
 For each of the five cities, daily mean temperature (°C) and relative humidity (%) values from 1985 to 2015 were retrieved from TuTiempo (https://en.tutiempo.net/).  We then calculated the mean absolute humidity (g/m3) values for each two-week period over the 31 years.  The "historic average" mean climatic values for each of the 26 two-week periods of the year were also calculated.
 
-"city" = City
-"year" = Year
-"fortnights_since_start_of_year" = The fortnight  of the year (ranges from 1 to 26)
+"city" = City \
+"year" = Year \
+"fortnights_since_start_of_year" = The fortnight  of the year (ranges from 1 to 26) \
 
-"mean_AH" = mean absolute humidity (g/m3) for that particular "fortnights_since_start_of_year", "year" and "city"
-"mean_RH" = mean relative humidity (%) for that particular "fortnights_since_start_of_year", "year" and "city"
-"mean_temp" = mean temperature humidity (oC) for that particular "fortnights_since_start_of_year", "year" and "city"
+"mean_AH" = mean absolute humidity (g/m3) for that particular "fortnights_since_start_of_year", "year" and "city" \
+"mean_RH" = mean relative humidity (%) for that particular "fortnights_since_start_of_year", "year" and "city" \
+"mean_temp" = mean temperature humidity (oC) for that particular "fortnights_since_start_of_year", "year" and "city" \
 
-"mean_AH_for_that_fortnight_of_year" = The historic average of "mean_AH" for that particular "fortnights_since_start_of_year" and "city"
-"mean_RH_for_that_fortnight_of_year" = The historic average of "mean_RH" for that particular "fortnights_since_start_of_year" and "city"
-"mean_temp_for_that_fortnight_of_year" = = The historic average of "mean_temp" for that particular "fortnights_since_start_of_year" and "city"
+"mean_AH_for_that_fortnight_of_year" = The historic average of "mean_AH" for that particular "fortnights_since_start_of_year" and "city" \
+"mean_RH_for_that_fortnight_of_year" = The historic average of "mean_RH" for that particular "fortnights_since_start_of_year" and "city" \
+"mean_temp_for_that_fortnight_of_year" = = The historic average of "mean_temp" for that particular "fortnights_since_start_of_year" and "city" \
 
-"d.AH" = Anomalous absolute humidity: defined as "mean_AH" - "mean_AH_for_that_fortnight_of_year"
-"d.RH" = Anomalous relative humidity: defined as "mean_RH" - "mean_RH_for_that_fortnight_of_year"
-"d.temp" = Anomalous temperature: defined as "mean_temp" - "mean_temp_for_that_fortnight_of_year"
+"d.AH" = Anomalous absolute humidity: defined as "mean_AH" - "mean_AH_for_that_fortnight_of_year" \
+"d.RH" = Anomalous relative humidity: defined as "mean_RH" - "mean_RH_for_that_fortnight_of_year" \
+"d.temp" = Anomalous temperature: defined as "mean_temp" - "mean_temp_for_that_fortnight_of_year" \
 
 ### robustness vs geoghegan timings/Geoghegan_2018_estimated_A_onsets.csv
-The onset timings of Influenza A epidemic activity across the five cities from 2007 - 2015 were derived from Figure 3b of Geoghegan et al. (2018). An argument can be made that their estimates may be more accurate.  Onset timings
+The onset timings of Influenza A epidemic activity across the five cities from 2007 - 2015 were derived from Figure 3b of Geoghegan et al. (2018). \
 
-"city" = City
-"year" = Year
-"start" = Fortnight in which above-baseline levels of activity is first detected
+"city" = City \
+"year" = Year \
+"start" = Fortnight in which above-baseline levels of activity is first detected \
 
 ### robustness vs geoghegan timings/epi_table_with_geoghegan_estimates.csv
-Additional columns were appended to "epi_table.csv":
-type = Virus Type
-earliest_A = Y (this antigenic variant is of Type A and has the epidemic with the earliest "start" amongst Influenza A antigenic variants active within that particular "year" and "city") / N
-largest_A = Y (this antigenic variant is of Type A and has the epidemic with the largest "incidence_per_mil" amongst Influenza A antigenic variants active within that particular "year" and "city") / N
-poor_timeseries = Y (it is difficult to discern between periods of below and above baseline activity, based upon inspection by eye) / N
+Additional columns were appended to "epi_table.csv": \
+type = Virus Type \
+earliest_A = Y (this antigenic variant is of Type A and has the epidemic with the earliest "start" amongst Influenza A antigenic variants active within that particular "year" and "city") / N \
+largest_A = Y (this antigenic variant is of Type A and has the epidemic with the largest "incidence_per_mil" amongst Influenza A antigenic variants active within that particular "year" and "city") / N \
+poor_timeseries = Y (it is difficult to discern between periods of below and above baseline activity, based upon inspection by eye) / N \
 
-earliest_geog_start = if "earliest_A" == Y, "earliest_geog_start" takes the value of "start" from "Geoghegan_2018_estimated_A_onsets.csv".  Otherwise, "earliest_geog_start" takes the original, unchanged value of "start" from "epi_table.csv".
-firstNbiggest_earliest_geog = Y (this antigenic variant caused the epidemic with the earliest "earliest_geog_start" and largest "incidence_per_mil" in a particular City and Year) / N
+earliest_geog_start = if "earliest_A" == Y, "earliest_geog_start" takes the value of "start" from "Geoghegan_2018_estimated_A_onsets.csv".  Otherwise, "earliest_geog_start" takes the original, unchanged value of "start" from "epi_table.csv". \
+firstNbiggest_earliest_geog = Y (this antigenic variant caused the epidemic with the earliest "earliest_geog_start" and largest "incidence_per_mil" in a particular City and Year) / N \
 
-largest_geog_start = if "largest_A" == Y, "largest_geog_start" takes the value of "start" from "Geoghegan_2018_estimated_A_onsets.csv".  Otherwise, "largest_geog_start" takes the original, unchanged value of "start" from "epi_table.csv".
-firstNbiggest_largest_geog = Y (this antigenic variant caused the epidemic with the earliest "largest_geog_start" and largest "incidence_per_mil" in a particular City and Year) / N
+largest_geog_start = if "largest_A" == Y, "largest_geog_start" takes the value of "start" from "Geoghegan_2018_estimated_A_onsets.csv".  Otherwise, "largest_geog_start" takes the original, unchanged value of "start" from "epi_table.csv". \
+firstNbiggest_largest_geog = Y (this antigenic variant caused the epidemic with the earliest "largest_geog_start" and largest "incidence_per_mil" in a particular City and Year) / N \
 
-poor_timeseries_geog_start = if "poor_timeseries" == Y, "poor_timeseries_geog_start" takes the value of "start" from "Geoghegan_2018_estimated_A_onsets.csv".  Otherwise, "poor_timeseries_geog_start" takes the original, unchanged value of "start" from "epi_table.csv".
-firstNbiggest_poor_geog = Y (this antigenic variant caused the epidemic with the earliest "poor_timeseries_geog_start" and largest "poor_timeseries_geog_start" in a particular City and Year) / N
+poor_timeseries_geog_start = if "poor_timeseries" == Y, "poor_timeseries_geog_start" takes the value of "start" from "Geoghegan_2018_estimated_A_onsets.csv".  Otherwise, "poor_timeseries_geog_start" takes the original, unchanged value of "start" from "epi_table.csv". \
+firstNbiggest_poor_geog = Y (this antigenic variant caused the epidemic with the earliest "poor_timeseries_geog_start" and largest "poor_timeseries_geog_start" in a particular City and Year) / N \
 
 ## Analyses scripts
 ### Climatic factors and epidemic onset.R
@@ -118,7 +118,7 @@ Here we assess (whilst making no corrctions for potential mis-identification dur
 
 
 ### robustness vs geoghegan timings/Robustness of climatic analyses using Geoghegan et al (2018) timings.R
-Here we assess the robustness towards potential inaccuracies in our epidemic onset timing estimates, of our analyses on climatic fluctuations preceding epidemic onset. We considered whether or not these preceding climatic fluctuations were
+Here we assess the robustness towards potential inaccuracies in our epidemic onset timing estimates, of our analyses on climatic fluctuations preceding epidemic onset. We considered whether or not these preceding climatic fluctuations were: \
 i)  anomalous when compared with against "typical wintertime" fluctuations using the bootstrap sampling method presented by Shaman (2010).
 ii) anomalous when compared against historical averages that typical for that time of the year.
 
