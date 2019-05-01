@@ -115,6 +115,8 @@ Here we assess (whilst making no corrctions for potential mis-identification dur
 1) epidemic incidence (Figure S20)
 2) probability of successful epidemic initiation (Figure S21 and Table S9)
 
+
+
 ### robustness vs geoghegan timings/Robustness of climatic analyses using Geoghegan et al (2018) timings.R
 Here we assess the robustness towards potential inaccuracies in our epidemic onset timing estimates, of our analyses on climatic fluctuations preceding epidemic onset. We considered whether or not these preceding climatic fluctuations were
 i)  anomalous when compared with against "typical wintertime" fluctuations using the bootstrap sampling method presented by Shaman (2010).
