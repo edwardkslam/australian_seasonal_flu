@@ -7,32 +7,32 @@ library(dplyr)
 library(plyr)
 library(tidyr)
 
-#Here we assume and correct for potential mis-identification during antigenic characterisation due to delays in 
+#Here we DO NOT correct for potential mis-identification during antigenic characterisation due to delays in 
 #updating vaccine strain nomenclature.
 
 # The following code will reproduce the prior immunity analyses discussed in the main text:
 # 1)  The relationship between epidemic incidence and the amount of antigenic variant-specific cumulative incidence 
-#     epi_size_cumulative_size_same_variant_plot (Figure 4)
+#     epi_size_cumulative_size_same_variant_plot (Figure S20)
 #
 # 2)  The relationship between the probability of successful epidemic initiation 
 #     and amount of antigenic variant-specific cumulative incidence for each subtype 
-#     (Figure S16)
+#     (Figure S21)
 #
 # 3)  Binary logistics regression assessing the effect of antigenic variant-specific cumulative incidence 
-#     on the probability of successful epidemic initiation for each subtype (Table S6)
+#     on the probability of successful epidemic initiation for each subtype (Table S9)
 
 # Loading data ------------------------------------------------------------
 if(Sys.info()['sysname']=="Windows"){
-  epi_table<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/epi_table.csv")
+  epi_table_no_corrections<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/epi_table_no_corrections.csv")
 }
 
 if(Sys.info()['sysname']=="Darwin"){
-  epi_table<-read.csv("~/Dropbox/PhD/code for manuscript/epi_table.csv")
+  epi_table_no_corrections<-read.csv("~/Dropbox/PhD/code for manuscript/epi_table_no_corrections.csv")
 }
 
 cities<-c("ADELAIDE","BRISBANE","MELBOURNE","PERTH","SYDNEY")
 
-epi_table$city<-factor(epi_table$city,levels = cities)
+epi_table_no_corrections$city<-factor(epi_table_no_corrections$city,levels = cities)
 
 
 # Effect of ag variant specific cumulative incidence on epidemic incidence --------
@@ -41,11 +41,11 @@ epi_table$city<-factor(epi_table$city,levels = cities)
 # ie we are unable to calculate the cumulative incidence
 # also, due to the pandemic H1N1 emergence in 2009, epidemic activity could not be reliable quantified for A/H3/Perth/16/2009
 # these need to be removed
-dodgy_prev<-epi_table%>%subset(.,is.na(new_ag_marker) | 
+dodgy_prev<-epi_table_no_corrections%>%subset(.,is.na(new_ag_marker) | 
                                  reference_strain=="A/Perth/16/2009-like")
 
 # First find the first and last year in which an ag variant causes an epidemic in each city
-first_emerge_table<-epi_table%>%
+first_emerge_table<-epi_table_no_corrections%>%
   subset(.,epi_alarm=="Y")%>%
   subset(.,!(reference_strain%in%dodgy_prev$reference_strain))%>%
   dplyr::group_by(city,subtype,reference_strain)%>%
@@ -80,7 +80,7 @@ cumulative_incidence_by_ag<-cumulative_incidence_by_ag%>%
   dplyr::mutate(years_since_emergence=year-min(year))
 
 # filling in which are the years with epidemics and their sizes
-cumulative_incidence_by_ag<-left_join(cumulative_incidence_by_ag,epi_table[,c("city","subtype","reference_strain","year","incidence_per_mil")])
+cumulative_incidence_by_ag<-left_join(cumulative_incidence_by_ag,epi_table_no_corrections[,c("city","subtype","reference_strain","year","incidence_per_mil")])
 cumulative_incidence_by_ag<-rename(cumulative_incidence_by_ag,replace=c("incidence_per_mil"= "incidence_current_season"))
 cumulative_incidence_by_ag<-data.frame(cumulative_incidence_by_ag)
 cumulative_incidence_by_ag$incidence_current_season[which(is.na(cumulative_incidence_by_ag$incidence_current_season))]<-0
@@ -92,7 +92,7 @@ cumulative_incidence_by_ag<-cumulative_incidence_by_ag%>%
   dplyr::mutate(cumulative_prior_incidence_same_ag = cumsum(incidence_current_season)- incidence_current_season)
 
 # need to divide cumulative incidence by city-specific mean epidemic size
-overall_mean_size<-epi_table%>%
+overall_mean_size<-epi_table_no_corrections%>%
   subset(.,epi_alarm=="Y")%>%
   dplyr::group_by(city)%>%
   dplyr::summarise(mean_epi_size=mean(incidence_per_mil))
@@ -102,7 +102,7 @@ cumulative_incidence_by_ag<-cumulative_incidence_by_ag%>%left_join(overall_mean_
 cumulative_incidence_by_ag$standardised_prior_cumulative<-cumulative_incidence_by_ag$cumulative_prior_incidence_same_ag/cumulative_incidence_by_ag$mean_epi_size
 cumulative_incidence_by_ag$standardised_current_season<-cumulative_incidence_by_ag$incidence_current_season/cumulative_incidence_by_ag$mean_epi_size
 
-cumulative_incidence_by_ag<-cumulative_incidence_by_ag%>%left_join(data.frame(city=epi_table$city,reference_strain=epi_table$reference_strain,year=epi_table$year,epi_alarm=factor(epi_table$epi_alarm,levels = c("Y","N"))))
+cumulative_incidence_by_ag<-cumulative_incidence_by_ag%>%left_join(data.frame(city=epi_table_no_corrections$city,reference_strain=epi_table_no_corrections$reference_strain,year=epi_table_no_corrections$year,epi_alarm=factor(epi_table_no_corrections$epi_alarm,levels = c("Y","N"))))
 cumulative_incidence_by_ag$epi_alarm[is.na(cumulative_incidence_by_ag$epi_alarm)==TRUE]<-"N"
 
 cumulative_incidence_by_ag$epi_alarm2<-cumulative_incidence_by_ag$epi_alarm%>%
@@ -151,7 +151,7 @@ subtype_logistics_regression$holm_adjusted_p<-p.adjust(subtype_logistics_regress
 prob_successful_epi_cumulative_size_same_variant_plot<-cumulative_incidence_by_ag %>%
   subset(.,!(reference_strain%in%dodgy_prev$reference_strain))%>%
   ggplot(.,aes(x=standardised_prior_cumulative,y= as.numeric(as.character(epi_alarm2))))+
-
+  
   geom_jitter(aes(group = subtype, color=subtype),
               position=position_jitter(width=0.05,height=0.05),alpha=0.6,size=3.5)+
   geom_smooth(method = "glm", method.args = list(family = "binomial")) +
@@ -200,4 +200,3 @@ subset(.,!(reference_strain%in%dodgy_prev$reference_strain))%>%
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())+facet_grid(.~subtype)+ 
   theme(strip.text = element_text(size=25))
-

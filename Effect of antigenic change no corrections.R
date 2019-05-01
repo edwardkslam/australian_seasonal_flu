@@ -8,27 +8,27 @@ library(dplyr)
 library(plyr)
 library(tidyr)
 
-#Here we assume and correct for potential mis-identification during antigenic characterisation due to delays in 
+#Here we DO NOT correct for potential mis-identification during antigenic characterisation due to delays in 
 #updating vaccine strain nomenclature.
 
 # The following code will reproduce the analyses assessing the effect of antigneic change discussed in the main text:
 # 1)  Comparing epidemic sizes between seasons with and without antigenic change 
-#     ag_change_incidence_plot (Figure 3)
+#     ag_change_incidence_plot (Figure S17)
 #
 # 2)  Comparing epidemic onset timing between seasons with and without antigenic change
-#     ag_change_start_plot (Figure S8)
+#     ag_change_start_plot (Figure S18)
 #
 # 3)  Comparing temporal synchrony of epidemics across cities between seasons with and without antigenic change 
-#     ag_change_synchrony_plot (Figure S9)
+#     ag_change_synchrony_plot (Figure S19)
 
 
 # Loading in data ---------------------------------------------------------
-epi_table<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/epi_table.csv")
+epi_table_no_corrections<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/epi_table_no_corrections.csv")
 
 
-# Figure 3: Comparing epidemic sizes between seasons with and without antigenic change  -------------------------------------
+# Figure S17: Comparing epidemic sizes between seasons with and without antigenic change  -------------------------------------
 # Grouped by city and subtype
-ag_change_incidence_plot<-epi_table%>%
+ag_change_incidence_plot<-epi_table_no_corrections%>%
   subset(.,epi_alarm=="Y")%>%
   subset(.,year!=2009)%>%
   subset(.,subtype!="H1pdm09")%>%
@@ -64,10 +64,10 @@ ag_change_incidence_plot<-epi_table%>%
         panel.grid.minor = element_blank())
 
 
-# Figure S8 Comparing epidemic onset timing between seasons with and without antigenic change ---------------------------------------------------------------
+# Figure S18 Comparing epidemic onset timing between seasons with and without antigenic change ---------------------------------------------------------------
 # Grouped by city and subtype
 
-ag_change_start_plot<-epi_table%>%
+ag_change_start_plot<-epi_table_no_corrections%>%
   subset(epi_alarm=="Y")%>%
   subset(.,year!=2009)%>%
   subset(.,subtype!="H1pdm09")%>%
@@ -103,7 +103,7 @@ ag_change_start_plot<-epi_table%>%
         panel.grid.minor = element_blank())
 
 
-# Figure S9  Comparing temporal synchrony of epidemics across cities between seasons with and without antigenic change ---------------------------------------------------------------
+# Figure S19  Comparing temporal synchrony of epidemics across cities between seasons with and without antigenic change ---------------------------------------------------------------
 
 # First identify the seasons in which an antigenic variant 
 # causes above baseline levels of epidemic activity across all 5 cities
@@ -113,12 +113,12 @@ ag_change_start_plot<-epi_table%>%
 
 #synchrony is defined as the inverse of the variance in epidemic onset timing across the five cities for an antigenic variant in a season.
 
-present_in_all<-epi_table%>%
+present_in_all<-epi_table_no_corrections%>%
   subset(.,epi_alarm=="Y" & year!=2009 & !is.na(new_ag_marker))%>%
   plyr::count(.,c("strain_year","new_ag_marker"))%>%.[.$freq==5,]%>%
   .$strain_year
 
-synchrony_table<-epi_table%>%
+synchrony_table<-epi_table_no_corrections%>%
   subset(.,strain_year%in%present_in_all)%>%
   dplyr::group_by(strain_year,subtype,new_ag_marker)%>%
   dplyr::summarise(synchrony=1/var(start))
