@@ -40,7 +40,7 @@ For each of antigenic variants recorded in a given season and city, we used the 
 "relative_to_first_n_biggest" = "epi_counts" divided by the largest "epi_counts" value for that particular "year" and "city" \
 "delay" = difference between "start" and the earliest "start" value for that particular "year" and "city" \
 "prior_everything_scaled" = sum of all specimens of other subtypes with "specimen_dates" prior to "start" \
-"mean_epi_size" = mean of "incidence_per_mil" across all epidemics of all subtypes, within that particular "city" \
+"mean_epi_size" = mean of "incidence_per_mil" across all epidemics of all subtypes, within that particular "city"
 
 ### epi_table_no_corrections.csv
 Here, we make no assumptions about the existence of potential mis-identifications: "reference_strain" in "epi_table_no_corrections.csv" is derived from "reference_strain" in "raw_data.csv". Colnames are the same as "epi_table.csv".
@@ -50,42 +50,42 @@ For each of the five cities, daily mean temperature (°C) and relative humidity 
 
 "city" = City \
 "year" = Year \
-"fortnights_since_start_of_year" = The fortnight  of the year (ranges from 1 to 26) \
+"fortnights_since_start_of_year" = The fortnight  of the year (ranges from 1 to 26)
 
 "mean_AH" = mean absolute humidity (g/m3) for that particular "fortnights_since_start_of_year", "year" and "city" \
 "mean_RH" = mean relative humidity (%) for that particular "fortnights_since_start_of_year", "year" and "city" \
-"mean_temp" = mean temperature humidity (oC) for that particular "fortnights_since_start_of_year", "year" and "city" \
+"mean_temp" = mean temperature humidity (oC) for that particular "fortnights_since_start_of_year", "year" and "city"
 
 "mean_AH_for_that_fortnight_of_year" = The historic average of "mean_AH" for that particular "fortnights_since_start_of_year" and "city" \
 "mean_RH_for_that_fortnight_of_year" = The historic average of "mean_RH" for that particular "fortnights_since_start_of_year" and "city" \
-"mean_temp_for_that_fortnight_of_year" = = The historic average of "mean_temp" for that particular "fortnights_since_start_of_year" and "city" \
+"mean_temp_for_that_fortnight_of_year" = = The historic average of "mean_temp" for that particular "fortnights_since_start_of_year" and "city"
 
 "d.AH" = Anomalous absolute humidity: defined as "mean_AH" - "mean_AH_for_that_fortnight_of_year" \
 "d.RH" = Anomalous relative humidity: defined as "mean_RH" - "mean_RH_for_that_fortnight_of_year" \
-"d.temp" = Anomalous temperature: defined as "mean_temp" - "mean_temp_for_that_fortnight_of_year" \
+"d.temp" = Anomalous temperature: defined as "mean_temp" - "mean_temp_for_that_fortnight_of_year"
 
 ### robustness vs geoghegan timings/Geoghegan_2018_estimated_A_onsets.csv
-The onset timings of Influenza A epidemic activity across the five cities from 2007 - 2015 were derived from Figure 3b of Geoghegan et al. (2018). \
+The onset timings of Influenza A epidemic activity across the five cities from 2007 - 2015 were derived from Figure 3b of Geoghegan et al. (2018).
 
 "city" = City \
 "year" = Year \
-"start" = Fortnight in which above-baseline levels of activity is first detected \
+"start" = Fortnight in which above-baseline levels of activity is first detected
 
 ### robustness vs geoghegan timings/epi_table_with_geoghegan_estimates.csv
 Additional columns were appended to "epi_table.csv": \
 type = Virus Type \
 earliest_A = Y (this antigenic variant is of Type A and has the epidemic with the earliest "start" amongst Influenza A antigenic variants active within that particular "year" and "city") / N \
 largest_A = Y (this antigenic variant is of Type A and has the epidemic with the largest "incidence_per_mil" amongst Influenza A antigenic variants active within that particular "year" and "city") / N \
-poor_timeseries = Y (it is difficult to discern between periods of below and above baseline activity, based upon inspection by eye) / N \
+poor_timeseries = Y (it is difficult to discern between periods of below and above baseline activity, based upon inspection by eye) / N
 
 earliest_geog_start = if "earliest_A" == Y, "earliest_geog_start" takes the value of "start" from "Geoghegan_2018_estimated_A_onsets.csv".  Otherwise, "earliest_geog_start" takes the original, unchanged value of "start" from "epi_table.csv". \
-firstNbiggest_earliest_geog = Y (this antigenic variant caused the epidemic with the earliest "earliest_geog_start" and largest "incidence_per_mil" in a particular City and Year) / N \
+firstNbiggest_earliest_geog = Y (this antigenic variant caused the epidemic with the earliest "earliest_geog_start" and largest "incidence_per_mil" in a particular City and Year) / N
 
 largest_geog_start = if "largest_A" == Y, "largest_geog_start" takes the value of "start" from "Geoghegan_2018_estimated_A_onsets.csv".  Otherwise, "largest_geog_start" takes the original, unchanged value of "start" from "epi_table.csv". \
-firstNbiggest_largest_geog = Y (this antigenic variant caused the epidemic with the earliest "largest_geog_start" and largest "incidence_per_mil" in a particular City and Year) / N \
+firstNbiggest_largest_geog = Y (this antigenic variant caused the epidemic with the earliest "largest_geog_start" and largest "incidence_per_mil" in a particular City and Year) / N
 
 poor_timeseries_geog_start = if "poor_timeseries" == Y, "poor_timeseries_geog_start" takes the value of "start" from "Geoghegan_2018_estimated_A_onsets.csv".  Otherwise, "poor_timeseries_geog_start" takes the original, unchanged value of "start" from "epi_table.csv". \
-firstNbiggest_poor_geog = Y (this antigenic variant caused the epidemic with the earliest "poor_timeseries_geog_start" and largest "poor_timeseries_geog_start" in a particular City and Year) / N \
+firstNbiggest_poor_geog = Y (this antigenic variant caused the epidemic with the earliest "poor_timeseries_geog_start" and largest "poor_timeseries_geog_start" in a particular City and Year) / N
 
 ## Analyses scripts
 ### Climatic factors and epidemic onset.R
@@ -120,29 +120,31 @@ Here we assess (whilst making no corrctions for potential mis-identification dur
 ### robustness vs geoghegan timings/Robustness of climatic analyses using Geoghegan et al (2018) timings.R
 Here we assess the robustness towards potential inaccuracies in our epidemic onset timing estimates, of our analyses on climatic fluctuations preceding epidemic onset. We considered whether or not these preceding climatic fluctuations were: \
 i)  anomalous when compared with against "typical wintertime" fluctuations using the bootstrap sampling method presented by Shaman (2010). \
-ii) anomalous when compared against historical averages that typical for that time of the year. \
+ii) anomalous when compared against historical averages that typical for that time of the year.
 
 We incorporate alternative estimates for the onset timing of Influenza A epidemic activity from Geoghegan et al. (2018), based on the following series of assumptions: \
 1) For each of the seasons between 2007 and 2015, we assumed that our timing estimate for the DOMINANT influenza A subtype was incorrect and replaced it with estimates from Geoghegan et al. (2018). \
-    i) Table S2; ii) Figure S4 \
+    i) Table S2; ii) Figure S4
 2) For each of the seasons between 2007 and 2015, we assumed that our timing estimate for the EARLIEST influenza A subtype was incorrect and replaced it with estimates from Geoghegan et al. (2018). \
-    i) Table S3; ii) Figure S5 \
+    i) Table S3; ii) Figure S5
 3) For seasons between 2007 and 2015 in which the number of cases for the dominant influenza A subtype were small or it was difficult to discern the period of epidemic from background activity, we assumed that our timing estimate was incorrect and replaced it with estimates from Geoghegan et al. (2018). \
-    i) Table S4; ii) Figure S6 \
+    i) Table S4; ii) Figure S6
 
 We also considered whether or not, more generally, Influenza A epidemic activity was preceded by anomalous fluctuations. \
 4) Utilising only the timing estimates by Geoghegan et al. (2018), we assessed if more generally, the onset of influenza A epidemic activity in the seasons from 2007 to 2015 was preceded by periods of anomalous climatic conditions. \
-    i) Table S5; ii) Figure S7 \
+    i) Table S5; ii) Figure S7
 
 ### robustness vs geoghegan timings/Robustness of ag change analyses using Geoghegan et al (2018) timings.R
 Here we assess the robustness towards potential inaccuracies in our epidemic onset timing estimates, of our analyses on the effect of antigenic change on: \
 i) the onset timing of epidemics \
-ii) the the temporal synchrony of epidemics across all five cities \
+ii) the the temporal synchrony of epidemics across all five cities
 
 We incorporate alternative estimates for the onset timing of Influenza A epidemic activity from Geoghegan et al. (2018), based on the following series of assumptions: \
 1) For each of the seasons between 2007 and 2015, we assumed that our timing estimate for the DOMINANT influenza A subtype was incorrect and replaced it with estimates from Geoghegan et al. (2018). \
-    i) Figure S10 ; ii) Figure S11 \
+    i) Figure S10 ; ii) Figure S11
 2) For each of the seasons between 2007 and 2015, we assumed that our timing estimate for the EARLIEST influenza A subtype was incorrect and replaced it with estimates from Geoghegan et al. (2018). \
-    i) Figure S12 ; ii) Figure S13 \
+    i) Figure S12 ; ii) Figure S13
 3) For seasons between 2007 and 2015 in which the number of cases for the dominant influenza A subtype were small or it was difficult to discern the period of epidemic from background activity, we assumed that our timing estimate was incorrect and replaced it with estimates from Geoghegan et al. (2018).
-    i) Figure S14 ; ii) Figure S15 \
+    i) Figure S14 ; ii) Figure S15
+
+    
