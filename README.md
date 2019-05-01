@@ -104,6 +104,10 @@ Here we assess the effect of accumulated antigenic-variant specific immunity on:
 1) epidemic incidence (Figure 4)
 2) probability of successful epidemic initiation (Figure S16 and Table S6)
 
+### main text analysis scripts/Effect of prior immunity.R
+Here we assess the effect of heterosubtypic competition on the size of subsequent epidemic:
+1)  the relationship between prior epidemic activity by other subtypes within the same season and city and the relative size of an epidemic (Figure 5).
+2)  the relationship between delay in onset timing and relative size of an epidemic (Figure 5).
 
 ### main text analysis without phylogenetic informed corrections/Effect of antigenic change no corrections.R
 Here we assess (whilst making no corrctions for potential mis-identification during antigenic characterisation) the effect of antigenic change on:
