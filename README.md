@@ -13,7 +13,7 @@ The column names are as follows:\
 "specimen_date" = Collection Date of submitted specimen\
 "reference_strain" = Antigenic variant of submitted specimen, based on comparison against current vaccine reference strain by HI assay\
 "agree_with_phylogenetic_analyses" = Y/N\
-"assumed_antigenic_variant" = Assumed antigenic variant of submitted specimen, given potential errors in HI testing. \
+"assumed_antigenic_variant" = Assumed antigenic variant of submitted specimen, given potential errors in HI testing.
 
 As mentioned in the Materials and Methods, since the Southern Hemisphere’s influenza vaccine composition are updated every September (typically after the end of the influenza season in Australia), viruses characterised by HI during the preceding season may have been misidentified.  To account for this potential source of bias, we compared the antigenic characterization data against phylogenetic data. In particular, we identified two potential instances of misidentification of A/H3 viruses in 2004 and 2005.  In these seasons, there is evidence to suggest that the newly emerging antigenic variant had already replaced its predecessor so all A/H3 cases are assumed to be attributable to the new variant.
 
