@@ -16,10 +16,11 @@ library(tidyr)
 #
 # 2)  The relationship between the probability of successful epidemic initiation 
 #     and amount of antigenic variant-specific cumulative incidence for each subtype 
-#     (Figure S21)
+#     prob_successful_epi_cumulative_size_same_variant_plot (Figure S21)
 #
 # 3)  Binary logistics regression assessing the effect of antigenic variant-specific cumulative incidence 
-#     on the probability of successful epidemic initiation for each subtype (Table S9)
+#     on the probability of successful epidemic initiation for each subtype 
+#     subtype_logistics_regression (Table S9)
 
 # Loading data ------------------------------------------------------------
 if(Sys.info()['sysname']=="Windows"){
@@ -35,7 +36,7 @@ cities<-c("ADELAIDE","BRISBANE","MELBOURNE","PERTH","SYDNEY")
 epi_table_no_corrections$city<-factor(epi_table_no_corrections$city,levels = cities)
 
 
-# Effect of ag variant specific cumulative incidence on epidemic incidence --------
+# 1) Effect of ag variant specific cumulative incidence on epidemic incidence --------
 
 # new_ag_marker = NA means that the variant emerged prior to start of study period, 
 # ie we are unable to calculate the cumulative incidence
@@ -138,16 +139,7 @@ epi_size_cumulative_size_same_variant_plot<-cumulative_incidence_by_ag %>%
   facet_grid(~subtype)
 
 
-# Logistics regression: effect of cumulative incidence on p(successful epidemic) --------
-
-subtype_logistics_regression<-cumulative_incidence_by_ag %>%
-  subset(.,!(reference_strain%in%dodgy_prev$reference_strain))%>%
-  dplyr::group_by(subtype)%>%
-  dplyr::summarise(OR= glm(as.numeric(as.character(epi_alarm2))~standardised_prior_cumulative,family=binomial)%>%coef(.)%>%.[2]%>%exp(.),
-                   SE= glm(as.numeric(as.character(epi_alarm2))~standardised_prior_cumulative,family=binomial)%>%summary(.)%>%coef(.)%>%.[2,2],
-                   p_value= glm(as.numeric(as.character(epi_alarm2))~standardised_prior_cumulative,family=binomial)%>%summary(.)%>%coef(.)%>%.[2,4])
-subtype_logistics_regression$holm_adjusted_p<-p.adjust(subtype_logistics_regression$p_value,method = "holm")
-
+# 2) Logistics regression plot: effect of cumulative incidence on p(successful epidemic) --------
 prob_successful_epi_cumulative_size_same_variant_plot<-cumulative_incidence_by_ag %>%
   subset(.,!(reference_strain%in%dodgy_prev$reference_strain))%>%
   ggplot(.,aes(x=standardised_prior_cumulative,y= as.numeric(as.character(epi_alarm2))))+
@@ -175,28 +167,13 @@ prob_successful_epi_cumulative_size_same_variant_plot<-cumulative_incidence_by_a
         panel.grid.minor = element_blank())+facet_grid(.~subtype)+ 
   theme(strip.text = element_text(size=25))
 
-cumulative_incidence_by_ag %>%
-subset(.,!(reference_strain%in%dodgy_prev$reference_strain))%>%
-  ggplot(.,aes(x=standardised_prior_cumulative,y= as.numeric(as.character(epi_alarm2))))+
-  geom_jitter(aes(group = subtype, color=subtype),
-              position=position_jitter(width=0.05,height=0.05),alpha=0.6,size=3.5)+
-  geom_smooth(method = "glm", method.args = list(family = "binomial")) +
-  scale_y_continuous(breaks = c(0,1))+
-  scale_color_manual(name = "Subtype",
-                     values=c("B/Yam"="#CC79A7",
-                              "B/Vic"="#009E73",
-                              "H1sea"="#56B4E9",
-                              "H1pdm09"="#999999",
-                              "H3"="#E69F00"))+
-  xlab("Antigenic Variant-Specific Cumulative Incidence")+
-  ylab("Epidemic Present/Absent")+
-  theme_bw()+
-  theme(axis.title=element_text(size=16),
-        strip.background = element_blank(),
-        panel.border = element_rect(colour = "black"),
-        legend.title=element_text(size=14), 
-        legend.text=element_text(size=13),
-        legend.position="none",
-        panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())+facet_grid(.~subtype)+ 
-  theme(strip.text = element_text(size=25))
+
+# 3) Logistics regression and Odds Ratios: effect of cumulative incidence on p(successful epidemic) ------------------------------------
+subtype_logistics_regression<-cumulative_incidence_by_ag %>%
+  subset(.,!(reference_strain%in%dodgy_prev$reference_strain))%>%
+  dplyr::group_by(subtype)%>%
+  dplyr::summarise(OR= glm(as.numeric(as.character(epi_alarm2))~standardised_prior_cumulative,family=binomial)%>%coef(.)%>%.[2]%>%exp(.),
+                   SE= glm(as.numeric(as.character(epi_alarm2))~standardised_prior_cumulative,family=binomial)%>%summary(.)%>%coef(.)%>%.[2,2],
+                   p_value= glm(as.numeric(as.character(epi_alarm2))~standardised_prior_cumulative,family=binomial)%>%summary(.)%>%coef(.)%>%.[2,4])
+subtype_logistics_regression$holm_adjusted_p<-p.adjust(subtype_logistics_regression$p_value,method = "holm")
+
