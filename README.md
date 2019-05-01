@@ -139,12 +139,10 @@ Here we assess the robustness towards potential inaccuracies in our epidemic ons
 i) the onset timing of epidemics \
 ii) the the temporal synchrony of epidemics across all five cities
 
-We incorporate alternative estimates for the onset timing of Influenza A epidemic activity from Geoghegan et al. (2018), based on the following series of assumptions: \
+We incorporate alternative estimates for the onset timing of Influenza A epidemic activity from Geoghegan et al. (2018), based on the following series of assumptions: 
 1) For each of the seasons between 2007 and 2015, we assumed that our timing estimate for the DOMINANT influenza A subtype was incorrect and replaced it with estimates from Geoghegan et al. (2018). \
     i) Figure S10 ; ii) Figure S11
 2) For each of the seasons between 2007 and 2015, we assumed that our timing estimate for the EARLIEST influenza A subtype was incorrect and replaced it with estimates from Geoghegan et al. (2018). \
     i) Figure S12 ; ii) Figure S13
 3) For seasons between 2007 and 2015 in which the number of cases for the dominant influenza A subtype were small or it was difficult to discern the period of epidemic from background activity, we assumed that our timing estimate was incorrect and replaced it with estimates from Geoghegan et al. (2018).
     i) Figure S14 ; ii) Figure S15
-
-    
