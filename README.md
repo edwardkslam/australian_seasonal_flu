@@ -3,54 +3,54 @@
 Reproduces the analyses and figures in the Main Text and Supplementary figures
 
 ## Data
-### raw_data.csv
+### ``raw_data.csv``
 This file contains the full dataset of 18,250 laboratory confirmed and antigenically characterised influenza virus infections from Adelaide, Brisbane, Melbourne, Perth and Sydney from 01/01/2000 to 31/12/15.
 
 The column names are as follows:\
-"city" = City\
-"type" = Virus type\
-"subtype" = Virus subtype/lineage\
-"specimen_date" = Collection Date of submitted specimen\
-"reference_strain" = Antigenic variant of submitted specimen, based on comparison against current vaccine reference strain by HI assay\
-"agree_with_phylogenetic_analyses" = Y/N\
-"assumed_antigenic_variant" = Assumed antigenic variant of submitted specimen, given potential errors in HI testing.
+``"city"`` = City\
+``"type"`` = Virus type\
+``"subtype"`` = Virus subtype/lineage\
+``"specimen_date"`` = Collection Date of submitted specimen\
+``"reference_strain"`` = Antigenic variant of submitted specimen, based on comparison against current vaccine reference strain by HI assay\
+``"agree_with_phylogenetic_analyses"`` = Y/N\
+``"assumed_antigenic_variant"`` = Assumed antigenic variant of submitted specimen, given potential errors in HI testing.
 
-As mentioned in the Materials and Methods, since the Southern Hemisphere’s influenza vaccine composition are updated every September (typically after the end of the influenza season in Australia), viruses characterised by HI during the preceding season may have been misidentified.  To account for this potential source of bias, we compared the antigenic characterization data against phylogenetic data. In particular, we identified two potential instances of misidentification of A/H3 viruses in 2004 and 2005.  In these seasons, there is evidence to suggest that the newly emerging antigenic variant had already replaced its predecessor so all A/H3 cases are assumed to be attributable to the new variant.
+As mentioned in the Materials and Methods, since the Southern Hemisphere’s influenza vaccine composition is updated every September (typically after the end of the influenza season in Australia), viruses characterised by HI during the preceding season may have been misidentified.  To account for this potential source of bias, we compared the antigenic characterization data against phylogenetic data. In particular, we identified two potential instances of misidentification of A/H3 viruses in 2004 and 2005.  In these seasons, there is evidence to suggest that the newly emerged antigenic variant had already replaced its predecessor so all A/H3 cases are assumed to be attributable to the new variant.
 
 ### epi_table.csv
-Here "assumed_antigenic_variant" from "raw_data.csv" is used to account for potential cases of misidentification.  "reference_strain" in "epi_table.csv" is thus derived from "assumed_antigenic_variant" in "raw_data.csv".
+Here ``assumed_antigenic_variant`` from ``raw_data.csv`` is used to account for potential cases of misidentification.  ``reference_strain`` in ``epi_table.csv`` is thus derived from ``assumed_antigenic_variant`` in ``raw_data.csv``.
 
 For each of antigenic variants recorded in a given season and city, we used the algorithm presented in the Materials and Methods to ascertain whether or not above-baseline levels of epidemic activity could be detected.
 
-"epi_table.csv" contains the summary statistics for each of the epidemics identified, over the study period from 01/01/2000 to 31/12/15.
+``epi_table.csv`` contains the summary statistics for each of the epidemics identified, over the study period from 01/01/2000 to 31/12/15.
 
-"city" = City \
-"strain_year" = Concatenated string formed from reference_strain and year \
-"year" = Year \
-"subtype" = Virus Subtype \
-"reference_strain" = "assumed_antigenic_variant" of submitted specimen \
-"epi_alarm" = Y (above-baseline levels of epidemic activity detected) / N \
-"start" = Fortnight in which above-baseline levels of activity is first detected \
-"epi_counts" = Total Number of specimens collected over the period of epidemic-levels of activity (as defined by algorithm) \
-"incidence_per_mil" = "epi_counts" divided by the city-specific Annual Estimated Resident Population \
-"epi_fractional_counts" = "epi_counts" divided by total "epi_counts" across epidemics of all subtypes in that "city" and "year" \
-"new_ag_marker" = 1 (first epidemic of an antigenic variant) / 0 (subsequent epidemics) / NA (antigenic variant emerged before the start of study period) \
-"first_detection_of_new_ag" = 1 (first detection of an antigenic variant irrespective of whether or not there was above-baseline levels of activity) / 0 (subsequent detections) / NA (antigenic variant emerged before the start of study period) \
-"first_n_biggest" = Y (this antigenic variant caused the epidemic with earliest "start" and largest "incidence_per_mil" in a particular City and Year) / N \
-"relative_to_first_n_biggest" = "epi_counts" divided by the largest "epi_counts" value for that particular "year" and "city" \
-"delay" = difference between "start" and the earliest "start" value for that particular "year" and "city" \
-"prior_everything_scaled" = sum of all specimens of other subtypes with "specimen_dates" prior to "start" \
-"mean_epi_size" = mean of "incidence_per_mil" across all epidemics of all subtypes, within that particular "city"
+``city`` = City \
+``strain_year`` = Concatenated string formed from reference_strain and year \
+``year`` = Year \
+``subtype`` = Virus Subtype \
+``reference_strain`` = "assumed_antigenic_variant" of submitted specimen \
+``epi_alarm`` = Y (above-baseline levels of epidemic activity detected) / N \
+``start`` = Fortnight in which above-baseline levels of activity is first detected \
+``epi_counts`` = Total Number of specimens collected over the period of epidemic-levels of activity (as defined by algorithm) \
+``incidence_per_mil`` = "epi_counts" divided by the city-specific Annual Estimated Resident Population \
+``epi_fractional_counts`` = "epi_counts" divided by total "epi_counts" across epidemics of all subtypes in that "city" and ``year`` \
+``new_ag_marker`` = 1 (first epidemic of an antigenic variant) / 0 (subsequent epidemics) / NA (antigenic variant emerged before the start of study period) \
+``first_detection_of_new_ag`` = 1 (first detection of an antigenic variant irrespective of whether or not there was above-baseline levels of activity) / 0 (subsequent detections) / NA (antigenic variant emerged before the start of study period) \
+``first_n_biggest`` = Y (this antigenic variant caused the epidemic with earliest "start" and largest "incidence_per_mil" in a particular City and Year) / N \
+``relative_to_first_n_biggest`` = "epi_counts" divided by the largest "epi_counts" value for that particular "year" and "city" \
+``delay`` = difference between "start" and the earliest "start" value for that particular "year" and "city" \
+``prior_everything_scaled`` = sum of all specimens of other subtypes with "specimen_dates" prior to "start" \
+``mean_epi_size`` = mean of "incidence_per_mil" across all epidemics of all subtypes, within that particular "city"
 
-### epi_table_no_corrections.csv
-Here, we make no assumptions about the existence of potential mis-identifications: "reference_strain" in "epi_table_no_corrections.csv" is derived from "reference_strain" in "raw_data.csv". Colnames are the same as "epi_table.csv".
+### ``epi_table_no_corrections.csv``
+Here, we make no assumptions about the existence of potential mis-identifications: ``reference_strain`` in ``epi_table_no_corrections.csv`` is derived from ``reference_strain`` in ``raw_data.csv``. Colnames are the same as "epi_table.csv".
 
-### mean_fortnightly_climate_30years.csv
+### ``mean_fortnightly_climate_30years.csv``
 For each of the five cities, daily mean temperature (°C) and relative humidity (%) values from 1985 to 2015 were retrieved from TuTiempo (https://en.tutiempo.net/).  We then calculated the mean absolute humidity (g/m3) values for each two-week period over the 31 years.  The "historic average" mean climatic values for each of the 26 two-week periods of the year were also calculated.
 
-"city" = City \
-"year" = Year \
-"fortnights_since_start_of_year" = The fortnight  of the year (ranges from 1 to 26)
+``city`` = City \
+``year`` = Year \
+``fortnights_since_start_of_year`` = The fortnight  of the year (ranges from 1 to 26)
 
 "mean_AH" = mean absolute humidity (g/m3) for that particular "fortnights_since_start_of_year", "year" and "city" \
 "mean_RH" = mean relative humidity (%) for that particular "fortnights_since_start_of_year", "year" and "city" \
