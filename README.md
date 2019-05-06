@@ -56,7 +56,7 @@ For each of the five cities, daily mean temperature (°C) and relative humidity 
 - ``mean_temp`` = mean temperature humidity (oC) for that particular ``fortnights_since_start_of_year``, ``year`` and ``city``
 - ``mean_AH_for_that_fortnight_of_year`` = The historic average of ``mean_AH`` for that particular ``fortnights_since_start_of_year`` and ``city`` 
 - ``mean_RH_for_that_fortnight_of_year`` = The historic average of ``mean_RH`` for that particular ``fortnights_since_start_of_year`` and ``city`` 
-- ``mean_temp_for_that_fortnight_of_year`` = = The historic average of ``mean_temp`` for that particular ``fortnights_since_start_of_year`` and ``city``
+- ``mean_temp_for_that_fortnight_of_year`` = The historic average of ``mean_temp`` for that particular ``fortnights_since_start_of_year`` and ``city``
 - ``d.AH`` = Anomalous absolute humidity: defined as ``mean_AH`` - ``mean_AH_for_that_fortnight_of_year`` 
 - ``d.RH`` = Anomalous relative humidity: defined as ``mean_RH`` - ``mean_RH_for_that_fortnight_of_year`` 
 - ``d.temp`` = Anomalous temperature: defined as ``mean_temp`` - ``mean_temp_for_that_fortnight_of_year``
@@ -69,20 +69,21 @@ The onset timings of Influenza A epidemic activity across the five cities from 2
 - ``start`` = Fortnight in which above-baseline levels of activity is first detected
 
 ### ``robustness vs geoghegan timings/epi_table_with_geoghegan_estimates.csv``
-Additional columns were appended to "epi_table.csv": \
-type = Virus Type \
-earliest_A = Y (this antigenic variant is of Type A and has the epidemic with the earliest "start" amongst Influenza A antigenic variants active within that particular "year" and "city") / N \
-largest_A = Y (this antigenic variant is of Type A and has the epidemic with the largest "incidence_per_mil" amongst Influenza A antigenic variants active within that particular "year" and "city") / N \
+Additional columns were appended to ``epi_table.csv``: 
+- ``type`` = Virus Type 
+- ``earliest_A`` = Y (this antigenic variant is of Type A and has the epidemic with the earliest ``start`` amongst Influenza A antigenic variants active within that particular ``year`` and ``city``) / N 
+- ``largest_A`` = Y (this antigenic variant is of Type A and has the epidemic with the largest ``incidence_per_mil`` amongst Influenza A antigenic variants active within that particular ``year`` and ``city``) / N 
 poor_timeseries = Y (it is difficult to discern between periods of below and above baseline activity, based upon inspection by eye) / N
 
-earliest_geog_start = if "earliest_A" == Y, "earliest_geog_start" takes the value of "start" from "Geoghegan_2018_estimated_A_onsets.csv".  Otherwise, "earliest_geog_start" takes the original, unchanged value of "start" from "epi_table.csv". \
-firstNbiggest_earliest_geog = Y (this antigenic variant caused the epidemic with the earliest "earliest_geog_start" and largest "incidence_per_mil" in a particular City and Year) / N
+- ``earliest_geog_start`` = if ``earliest_A`` == Y, ``earliest_geog_start`` takes the value of ``start`` from ``Geoghegan_2018_estimated_A_onsets.csv``.  Otherwise, ``earliest_geog_start`` takes the original, unchanged value of ``start`` from ``epi_table.csv``. 
 
-largest_geog_start = if "largest_A" == Y, "largest_geog_start" takes the value of "start" from "Geoghegan_2018_estimated_A_onsets.csv".  Otherwise, "largest_geog_start" takes the original, unchanged value of "start" from "epi_table.csv". \
-firstNbiggest_largest_geog = Y (this antigenic variant caused the epidemic with the earliest "largest_geog_start" and largest "incidence_per_mil" in a particular City and Year) / N
+- ``firstNbiggest_earliest_geog`` = Y (this antigenic variant caused the epidemic with the earliest ``earliest_geog_start`` and largest ``incidence_per_mil`` in a particular City and Year) / N
 
-poor_timeseries_geog_start = if "poor_timeseries" == Y, "poor_timeseries_geog_start" takes the value of "start" from "Geoghegan_2018_estimated_A_onsets.csv".  Otherwise, "poor_timeseries_geog_start" takes the original, unchanged value of "start" from "epi_table.csv". \
-firstNbiggest_poor_geog = Y (this antigenic variant caused the epidemic with the earliest "poor_timeseries_geog_start" and largest "poor_timeseries_geog_start" in a particular City and Year) / N
+- ``largest_geog_start`` = if ``largest_A`` == Y, ``largest_geog_start`` takes the value of ``start`` from ``Geoghegan_2018_estimated_A_onsets.csv``.  Otherwise, ``largest_geog_start`` takes the original, unchanged value of ``start`` from ``epi_table.csv``. 
+- ``firstNbiggest_largest_geog`` = Y (this antigenic variant caused the epidemic with the earliest ``largest_geog_start`` and largest ``incidence_per_mil`` in a particular City and Year) / N
+
+- ``poor_timeseries_geog_start`` = if ``poor_timeseries`` == Y, ``poor_timeseries_geog_start`` takes the value of ``start`` from ``Geoghegan_2018_estimated_A_onsets.csv``.  Otherwise, ``poor_timeseries_geog_start`` takes the original, unchanged value of ``start`` from ``epi_table.csv``. 
+- ``firstNbiggest_poor_geog`` = Y (this antigenic variant caused the epidemic with the earliest ``poor_timeseries_geog_start`` and largest ``poor_timeseries_geog_start`` in a particular City and Year) / N
 
 ## Analysis scripts
 ### main text analysis scripts/Climatic factors and epidemic onset.R
