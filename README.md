@@ -46,7 +46,7 @@ For each of antigenic variants recorded in a given season and city, we used the 
 Here, we make no assumptions about the existence of potential mis-identifications: ``reference_strain`` in ``epi_table_no_corrections.csv`` is derived from ``reference_strain`` in ``raw_data.csv``. Colnames are the same as ``epi_table.csv``.
 
 ### ``mean_fortnightly_climate_30years.csv``
-For each of the five cities, daily mean temperature (°C) and relative humidity (%) values from 1985 to 2015 were retrieved from TuTiempo (https://en.tutiempo.net/).  We then calculated the mean absolute humidity ($g/m^3$) values for each two-week period over the 31 years.  The "historic average" mean climatic values for each of the 26 two-week periods of the year were also calculated.
+For each of the five cities, daily mean temperature (°C) and relative humidity (%) values from 1985 to 2015 were retrieved from TuTiempo (https://en.tutiempo.net/).  We then calculated the mean absolute humidity (g/m^3) values for each two-week period over the 31 years.  The "historic average" mean climatic values for each of the 26 two-week periods of the year were also calculated.
 
 - ``city`` = City 
 - ``year`` = Year 
