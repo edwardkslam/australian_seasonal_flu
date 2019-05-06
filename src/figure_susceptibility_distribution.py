@@ -169,6 +169,10 @@ def plot_differences_by_R(
                    fancybox=True,
                    framealpha=1,
                    title="escape")
+    axes[1].legend(frameon=True,
+                   fancybox=True,
+                   framealpha=1,
+                   title="escape")
 
 def make_susceptibility_distribution_figure(
         homotypic_protection=mp.default_homotypic_protection,
@@ -242,9 +246,9 @@ def make_susceptibility_distribution_figure(
                               sharey=diffs[0])
               for k in range(2, n_cols+1)]
 
-    upper_axes = susses + dists
+    upper_axes = dists + susses
     lower_axes = final_sizes + diffs
-    all_axes = susses + dists + final_sizes + diffs
+    all_axes = dists + susses + final_sizes + diffs
 
     cmaps = [plt.cm.Blues, plt.cm.Blues, plt.cm.Greens, plt.cm.Greens]
     sus_models = ["linear", "multiplicative"] * 2
@@ -286,9 +290,20 @@ def make_susceptibility_distribution_figure(
         axis.set_xticks(np.arange(1, max_R + 0.25, 0.25))
         axis.xaxis.set_major_formatter(stripped_num_fmt)
 
-    for axis in all_axes:
+    letters = ["a", "b", "c", "d",
+               "e", "f", "g", "h",
+               "i", "j", "k", "l",
+               "m", "n", "o", "p"]
+    
+    for ind, axis in enumerate(all_axes):
         axis.grid(b=True)
         axis.yaxis.set_major_formatter(stripped_num_fmt)
+        
+        letter_x, letter_y = ps.letter_loc
+        axis.text(letter_x, letter_y, letters[ind],
+                transform=axis.transAxes,
+                fontsize=ps.letter_size,
+                fontweight='bold', va='top')
         
     all_susses.set_ylabel("susceptibility to cluster 0")
     all_dists.set_xlabel("most recent cluster seen",
@@ -304,7 +319,7 @@ def make_susceptibility_distribution_figure(
                          fontsize="xx-large")
     all_diffs.set_ylabel("$\Delta$ attack rate\n(new -- old)")
 
-    fig.tight_layout(h_pad=0.1)
+    fig.tight_layout(h_pad=0)
     fig.savefig(output_path)
 
 if __name__ == "__main__":
