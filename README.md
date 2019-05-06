@@ -73,7 +73,7 @@ Additional columns were appended to ``epi_table.csv``:
 - ``type`` = Virus Type 
 - ``earliest_A`` = Y (this antigenic variant is of Type A and has the epidemic with the earliest ``start`` amongst Influenza A antigenic variants active within that particular ``year`` and ``city``) / N 
 - ``largest_A`` = Y (this antigenic variant is of Type A and has the epidemic with the largest ``incidence_per_mil`` amongst Influenza A antigenic variants active within that particular ``year`` and ``city``) / N 
-poor_timeseries = Y (it is difficult to discern between periods of below and above baseline activity, based upon inspection by eye) / N
+``poor_timeseries`` = Y (it is difficult to discern between periods of below and above baseline activity, based upon inspection by eye) / N
 
 - ``earliest_geog_start`` = if ``earliest_A`` == Y, ``earliest_geog_start`` takes the value of ``start`` from ``Geoghegan_2018_estimated_A_onsets.csv``.  Otherwise, ``earliest_geog_start`` takes the original, unchanged value of ``start`` from ``epi_table.csv``. 
 
