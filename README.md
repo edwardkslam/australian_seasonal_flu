@@ -8,7 +8,7 @@ Edward K.S. Lam(1), [Dylan H. Morris](https://orcid.org/0000-0002-3655-406X)(2),
 5. School of Applied Biomedical Sciences, Federation University, Churchill, VIC, Australia.
 6. Department of Medical Microbiology, Academic Medical Center, University of Amsterdam, Amsterdam, The Netherlands.
 
-### Repository information
+## Repository information
 
 This repository accompanies the paper *The impact of climate and antigenic evolution on seasonal influenza virus epidemics in Australia* (Lam et al). 
 
@@ -150,40 +150,41 @@ Additional columns were appended to ``epi_table.csv``:
 - ``firstNbiggest_poor_geog`` = Y (this antigenic variant caused the epidemic with the earliest ``poor_timeseries_geog_start`` and largest ``poor_timeseries_geog_start`` in a particular City and Year) / N
 
 ## Analysis scripts
-### main text analysis scripts/Climatic factors and epidemic onset.R
+
+#### ``main text analysis scripts/Climatic factors and epidemic onset.R``
 This set of analyses considers whether or not the onset of epidemics are preceded with fluctuations in climatic factors that are:
 1) anomalous when compared with against "typical wintertime" fluctuations using the bootstrap sampling method presented by Shaman (2010). The output is a data frame: final_results (Table S1).
 2) anomalous when compared against historical averages that typical for that time of the year. The output is two figures: T_plot and AH-plot (Figure 2).
 
-### main text analysis scripts/Effect of antigenic change.R
+#### ``main text analysis scripts/Effect of antigenic change.R``
 Here we assess the effect of antigenic change on:
 1) the size of epidemics (Figure 3)
 2) the onset timing of epidemics (Figure S8)
 3) the temporal synchrony of epidemics across all five cities (Figure S9)
 
-### main text analysis scripts/Effect of prior immunity.R
+#### ``main text analysis scripts/Effect of prior immunity.R``
 Here we assess the effect of accumulated antigenic-variant specific immunity on:
 1) epidemic incidence (Figure 4)
 2) probability of successful epidemic initiation (Figure S16 and Table S6)
 
-### main text analysis scripts/Effect of prior immunity.R
+#### ``main text analysis scripts/Effect of prior immunity.R``
 Here we assess the effect of heterosubtypic competition on the size of subsequent epidemic:
 1)  the relationship between prior epidemic activity by other subtypes within the same season and city and the relative size of an epidemic (Figure 5).
 2)  the relationship between delay in onset timing and relative size of an epidemic (Figure 5).
 
-### main text analysis without phylogenetic informed corrections/Effect of antigenic change no corrections.R
+#### ``main text analysis without phylogenetic informed corrections/Effect of antigenic change no corrections.R``
 Here we assess (whilst making no corrctions for potential mis-identification during antigenic characterisation) the effect of antigenic change on:
 1) the size of epidemics (Figure S17)
 2) the onset timing of epidemics (Figure S18)
 3) the temporal synchrony of epidemics across all five cities (Figure S19)
 
-### main text analysis without phylogenetic informed corrections/Effect of prior immunity no corrections.R
+#### ``main text analysis without phylogenetic informed corrections/Effect of prior immunity no corrections.R``
 Here we assess (whilst making no corrctions for potential mis-identification during antigenic characterisation) the effect of accumulated antigenic-variant specific immunity on:
 1) epidemic incidence (Figure S20)
 2) probability of successful epidemic initiation (Figure S21 and Table S9)
 
 
-### robustness vs geoghegan timings/Robustness of climatic analyses using Geoghegan et al (2018) timings.R
+#### ``robustness vs geoghegan timings/Robustness of climatic analyses using Geoghegan et al (2018) timings.R``
 Here we assess the robustness towards potential inaccuracies in our epidemic onset timing estimates, of our analyses on climatic fluctuations preceding epidemic onset. We considered whether or not these preceding climatic fluctuations were: \
 i)  anomalous when compared with against "typical wintertime" fluctuations using the bootstrap sampling method presented by Shaman (2010). \
 ii) anomalous when compared against historical averages that typical for that time of the year.
@@ -200,7 +201,7 @@ We also considered whether or not, more generally, Influenza A epidemic activity
 4) Utilising only the timing estimates by Geoghegan et al. (2018), we assessed if more generally, the onset of influenza A epidemic activity in the seasons from 2007 to 2015 was preceded by periods of anomalous climatic conditions. \
     i) Table S5; ii) Figure S7
 
-### robustness vs geoghegan timings/Robustness of ag change analyses using Geoghegan et al (2018) timings.R
+#### ``robustness vs geoghegan timings/Robustness of ag change analyses using Geoghegan et al (2018) timings.R``
 Here we assess the robustness towards potential inaccuracies in our epidemic onset timing estimates, of our analyses on the effect of antigenic change on: \
 i) the onset timing of epidemics \
 ii) the the temporal synchrony of epidemics across all five cities
