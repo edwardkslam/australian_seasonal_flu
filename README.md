@@ -1,6 +1,31 @@
-# Code for manuscript
+# The impact of climate and antigenic evolution on seasonal influenza virus epidemics in Australia
+Edward K.S. Lam(1), [Dylan H. Morris](https://orcid.org/0000-0002-3655-406X)(2), Aeron C. Hurt(3,4), Ian G. Barr(3,5), Colin A. Russell(6)
 
-Reproduces the analyses and figures in the Main Text and Supplementary figures
+1. Department of Veterinary Medicine, University of Cambridge, Cambridge, UK.
+2. Department of Ecology and Evolutionary Biology, Princeton University, Princeton, NJ, USA.
+3. WHO Collaborating Centre for Reference and Research on Influenza, VIDRL, Peter Doherty Institute for Infection and Immunity, Melbourne, VIC, Australia.
+4. Department of Microbiology and Immunology, University of Melbourne, Parkville, VIC, Australia.
+5. School of Applied Biomedical Sciences, Federation University, Churchill, VIC, Australia.
+6. Department of Medical Microbiology, Academic Medical Center, University of Amsterdam, Amsterdam, The Netherlands.
+
+### Repository information
+
+This repository accompanies the paper *The impact of climate and antigenic evolution on seasonal influenza virus epidemics in Australia* (Lam et al). 
+
+It provides data and code for reproducing statistical analysis and recreating display figures from the paper
+
+## License and citation information
+If you use the code or data provided here, please make sure to do so in light of the project license and please cite our work. We have provided citation guidelines for your reference.
+
+## Article abstract
+Although influenza viruses circulate globally, prevention and treatment necessarily occur at the level of regions, cities, or small communities. At these scales, seasonal influenza virus epidemics vary substantially in timing, duration, and size, and the underlying causes of this variation are poorly understood. Here, based on the analysis of a 15 year city-level data set consisting of 18,250 laboratory confirmed and antigenically characterised influenza virus infections from Australia, we measure the variability in influenza epidemics and compare epidemiological patterns with previously hypothesized environmental and virological drivers of influenza virus epidemics. We find that the timing of local epidemics in Australia is not associated with anomalous fluctuations in temperature and humidity. We also find that virus antigenic change does not have an observable effect either on the magnitude or timing of local epidemics. Variation in epidemic size appears instead to be driven principally by heterosubtypic competition: epidemics that start earlier in the year tend to be larger than those that start later, and epidemics of a particular virus type or subtype are smaller and less likely to occur at all if viruses of another type or subtype have already circulated. Using a mathematical model of epidemic dynamics, we show that the epidemiological impact of population immunity and antigenic change are unlikely to be the constraints on epidemic size. These findings suggest that influenza virus epidemiology in Australia is influenced more by stochastic processes than by easily quantifiable environmental or virological variables and that new understandings of influenza virus epidemiology are required before epidemic forecasting is feasible. 
+
+## Directories
+- ``src``: all Python code for theoretical models
+- ``out``: output figures from theoretical models (as ``.png`` files)
+- ``main text analysis scripts``: scripts for reproducing empirical analyses from the main text of the paper
+- `main text analysis without phylogenetic informed corrections`: scripts for checking sensitivity to phylogenetic corrections of inferred antigenic phenotype
+- ``robustness vs geoghegan timings``: scripts for checking sensitivity of epidemic start time analysis by comparing to start times calculated from a previously published ([Geoghegan et al 2018](https://doi.org/10.1371/journal.ppat.1006780)) dataset.
 
 ## Data
 ### ``raw_data.csv``
