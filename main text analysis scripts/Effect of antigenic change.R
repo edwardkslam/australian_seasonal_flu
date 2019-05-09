@@ -53,15 +53,17 @@ ag_change_incidence_plot<-epi_table%>%
   ylab(expression(paste("Lab confirmed incidence (",10^{-6},")"))) +
   labs(x=NULL)+
   theme_bw()+
-  facet_grid(subtype~city,scales = "free_y", labeller = label_wrap_gen(width=10))+ 
-  theme(strip.text = element_text(size=15),
-        axis.title=element_text(size=13),
-        axis.text = element_text(size=13),
-        strip.background = element_blank(),
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size=20),
+        axis.title=element_text(size=30),
+        axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
+        axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
+        axis.ticks.length = unit(0.4,"cm"),
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())
+        panel.grid.minor = element_blank())+
+  facet_grid(subtype~city,scales = "free_y", labeller = label_wrap_gen(width=10))
 
 
 # Figure S8 Comparing epidemic onset timing between seasons with and without antigenic change ---------------------------------------------------------------
@@ -91,16 +93,17 @@ ag_change_start_plot<-epi_table%>%
   scale_y_continuous(breaks =seq(1,26,2), limits = c(0,26.2))+
   ylab("Start Fortnight") +
   labs(x=NULL)+
-  theme_bw()+
-  facet_grid(subtype~city, labeller = label_wrap_gen(width=10))+ 
-  theme(strip.text = element_text(size=15),
-        axis.title=element_text(size=13),
-        axis.text = element_text(size=13),
-        strip.background = element_blank(),
-        panel.border = element_rect(colour = "black"),
-        legend.position="none",
-        panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())
+  theme_bw()+theme(strip.background = element_blank(),
+                   strip.text = element_text(size=20),
+                   axis.title=element_text(size=20),
+                   axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
+                   axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
+                   axis.ticks.length = unit(0.4,"cm"),
+                   panel.border = element_rect(colour = "black"),
+                   legend.position="none",
+                   panel.grid.major = element_blank(), 
+                   panel.grid.minor = element_blank())+
+  facet_grid(subtype~city,scales = "free_y", labeller = label_wrap_gen(width=10))
 
 
 # Figure S9  Comparing temporal synchrony of epidemics across cities between seasons with and without antigenic change ---------------------------------------------------------------
@@ -140,11 +143,31 @@ ag_change_synchrony_plot<-synchrony_table%>%
   xlab(NULL)+
   ylab("ln(Synchrony) (1/Var)")+
   theme_bw()+
-  theme(axis.title=element_text(size=13),
-        axis.text = element_text(size=13),
-        strip.background = element_blank(),
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size=20),
+        axis.title=element_text(size=20),
+        axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
+        axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
+        axis.ticks.length = unit(0.4,"cm"),
         panel.border = element_rect(colour = "black"),
+        legend.title=element_text(size=20), 
+        legend.text=element_text(size=17),
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())
 
+
+
+# save plots --------------------------------------------------------------
+base_dir<-"C:/Users/el382/Dropbox/PhD/code for manuscript/figures/main/"
+
+ggsave(plot = ag_change_incidence_plot,filename = paste(base_dir,"figure_3.png",sep=""), 
+       width=13, height=13,limitsize=FALSE)
+
+base_dir2<-"C:/Users/el382/Dropbox/PhD/code for manuscript/figures/supp/"
+
+ggsave(plot = ag_change_start_plot,filename = paste(base_dir2,"figure_S8.png",sep=""), 
+       width=13, height=13,limitsize=FALSE)
+
+ggsave(plot = ag_change_synchrony_plot,filename = paste(base_dir2,"figure_S9.png",sep=""), 
+       width=12, height=5,limitsize=FALSE)
 

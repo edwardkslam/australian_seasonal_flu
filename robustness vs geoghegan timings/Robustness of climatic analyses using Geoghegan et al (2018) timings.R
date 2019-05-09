@@ -58,7 +58,7 @@ if(Sys.info()['sysname']=="Darwin"){
 }
 
 cities<-c("ADELAIDE","BRISBANE","MELBOURNE","PERTH","SYDNEY")
-geog_epi_table$city<-factor(epi_table$city,levels = cities)
+geog_epi_table$city<-factor(geog_epi_table$city,levels = cities)
 
 #subsetting to retain only earliest (based on various assumptions) and largest epidemic of each season and city
 largest_use_geog_earliest<-geog_epi_table%>%
@@ -657,16 +657,19 @@ AT_plot1<-mean_stats1%>%
   scale_x_continuous(breaks = seq(-5,5,1), limits = c(-5.5,5.5))+
   
   theme_bw()+
-  xlab("Fortnights Relative to Onset")+
+  xlab("Two week intervals relative to onset")+
   ylab(expression(paste("Anomalous Temperature ( ",degree,"C)")))+
-  facet_grid(~as.factor(city),labeller = label_wrap_gen(width=10))+
-  theme(strip.text = element_text(size=15),
-        axis.title=element_text(size=13),
-        strip.background = element_blank(),
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size=20),
+        axis.title=element_text(size=20),
+        axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
+        axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
+        axis.ticks.length = unit(0.4,"cm"),
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())
+        panel.grid.minor = element_blank())+
+  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
 
 AH_plot1<-mean_stats1%>%
   ggplot(data=.,aes(x=relative_fortnight,y=mean_d.AH))+
@@ -694,18 +697,21 @@ AH_plot1<-mean_stats1%>%
   scale_x_continuous(breaks = seq(-5,5,1), limits = c(-5.5,5.5))+
   
   theme_bw()+
-  xlab("Fortnights Relative to Onset")+
+  xlab("Two week intervals relative to onset")+
   ylab(expression(paste("Anomalous Absolute Humidity "," (g/",m^{3},")",sep="")))+
-  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))+
-  theme(strip.text = element_text(size=15),
-        axis.title=element_text(size=13),
-        strip.background = element_blank(),
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size=20),
+        axis.title=element_text(size=20),
+        axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
+        axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
+        axis.ticks.length = unit(0.4,"cm"),
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())
+        panel.grid.minor = element_blank())+
+  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
 
-stacked_climate_plots1<-grid.arrange(AT_plot1,AH_plot1,ncol=1)
+fig_S4<-grid.arrange(AT_plot1,AH_plot1,ncol=1)
 
 
 # 2) ii) earliest use Geoghegan ; compare against "historic climatic values of that particular time of year" -----------------------------------------------------------------
@@ -759,16 +765,19 @@ AT_plot2<-mean_stats2%>%
   scale_x_continuous(breaks = seq(-5,5,1), limits = c(-5.5,5.5))+
   
   theme_bw()+
-  xlab("Fortnights Relative to Onset")+
+  xlab("Two week intervals relative to onset")+
   ylab(expression(paste("Anomalous Temperature ( ",degree,"C)")))+
-  facet_grid(~as.factor(city),labeller = label_wrap_gen(width=10))+
-  theme(strip.text = element_text(size=15),
-        axis.title=element_text(size=13),
-        strip.background = element_blank(),
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size=20),
+        axis.title=element_text(size=20),
+        axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
+        axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
+        axis.ticks.length = unit(0.4,"cm"),
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())
+        panel.grid.minor = element_blank())+
+  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
 
 AH_plot2<-mean_stats2%>%
   ggplot(data=.,aes(x=relative_fortnight,y=mean_d.AH))+
@@ -796,18 +805,21 @@ AH_plot2<-mean_stats2%>%
   scale_x_continuous(breaks = seq(-5,5,1), limits = c(-5.5,5.5))+
   
   theme_bw()+
-  xlab("Fortnights Relative to Onset")+
+  xlab("Two week intervals relative to onset")+
   ylab(expression(paste("Anomalous Absolute Humidity "," (g/",m^{3},")",sep="")))+
-  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))+
-  theme(strip.text = element_text(size=15),
-        axis.title=element_text(size=13),
-        strip.background = element_blank(),
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size=20),
+        axis.title=element_text(size=20),
+        axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
+        axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
+        axis.ticks.length = unit(0.4,"cm"),
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())
+        panel.grid.minor = element_blank())+
+  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
 
-stacked_climate_plots2<-grid.arrange(AT_plot2,AH_plot2,ncol=1)
+fig_S5<-grid.arrange(AT_plot2,AH_plot2,ncol=1)
 
 
 
@@ -863,16 +875,19 @@ AT_plot3<-mean_stats3%>%
   scale_x_continuous(breaks = seq(-5,5,1), limits = c(-5.5,5.5))+
   
   theme_bw()+
-  xlab("Fortnights Relative to Onset")+
+  xlab("Two week intervals relative to onset")+
   ylab(expression(paste("Anomalous Temperature ( ",degree,"C)")))+
-  facet_grid(~as.factor(city),labeller = label_wrap_gen(width=10))+
-  theme(strip.text = element_text(size=15),
-        axis.title=element_text(size=13),
-        strip.background = element_blank(),
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size=20),
+        axis.title=element_text(size=20),
+        axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
+        axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
+        axis.ticks.length = unit(0.4,"cm"),
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())
+        panel.grid.minor = element_blank())+
+  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
 
 AH_plot3<-mean_stats3%>%
   ggplot(data=.,aes(x=relative_fortnight,y=mean_d.AH))+
@@ -900,18 +915,21 @@ AH_plot3<-mean_stats3%>%
   scale_x_continuous(breaks = seq(-5,5,1), limits = c(-5.5,5.5))+
   
   theme_bw()+
-  xlab("Fortnights Relative to Onset")+
+  xlab("Two week intervals relative to onset")+
   ylab(expression(paste("Anomalous Absolute Humidity "," (g/",m^{3},")",sep="")))+
-  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))+
-  theme(strip.text = element_text(size=15),
-        axis.title=element_text(size=13),
-        strip.background = element_blank(),
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size=20),
+        axis.title=element_text(size=20),
+        axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
+        axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
+        axis.ticks.length = unit(0.4,"cm"),
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())
+        panel.grid.minor = element_blank())+
+  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
 
-stacked_climate_plots3<-grid.arrange(AT_plot3,AH_plot3,ncol=1)
+fig_S6<-grid.arrange(AT_plot3,AH_plot3,ncol=1)
 
 
 # 4) ii) Just Geoghegan ; compare against "historic climatic values of that particular time of year"  -------------------------------------------------
@@ -965,16 +983,19 @@ AT_plot4<-mean_stats4%>%
   scale_x_continuous(breaks = seq(-5,5,1), limits = c(-5.5,5.5))+
   
   theme_bw()+
-  xlab("Fortnights Relative to Onset")+
+  xlab("Two week intervals relative to onset")+
   ylab(expression(paste("Anomalous Temperature ( ",degree,"C)")))+
-  facet_grid(~as.factor(city),labeller = label_wrap_gen(width=10))+
-  theme(strip.text = element_text(size=15),
-        axis.title=element_text(size=13),
-        strip.background = element_blank(),
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size=20),
+        axis.title=element_text(size=20),
+        axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
+        axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
+        axis.ticks.length = unit(0.4,"cm"),
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())
+        panel.grid.minor = element_blank())+
+  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
 
 AH_plot4<-mean_stats4%>%
   ggplot(data=.,aes(x=relative_fortnight,y=mean_d.AH))+
@@ -1002,16 +1023,33 @@ AH_plot4<-mean_stats4%>%
   scale_x_continuous(breaks = seq(-5,5,1), limits = c(-5.5,5.5))+
   
   theme_bw()+
-  xlab("Fortnights Relative to Onset")+
+  xlab("Two week intervals relative to onset")+
   ylab(expression(paste("Anomalous Absolute Humidity "," (g/",m^{3},")",sep="")))+
-  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))+
-  theme(strip.text = element_text(size=15),
-        axis.title=element_text(size=13),
-        strip.background = element_blank(),
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size=20),
+        axis.title=element_text(size=20),
+        axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
+        axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
+        axis.ticks.length = unit(0.4,"cm"),
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())
+        panel.grid.minor = element_blank())+
+  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
 
-stacked_climate_plots4<-grid.arrange(AT_plot4,AH_plot4,ncol=1)
+fig_S7<-grid.arrange(AT_plot4,AH_plot4,ncol=1)
+
+
+# save plots --------------------------------------------------------------
+
+base_dir2<-"C:/Users/el382/Dropbox/PhD/code for manuscript/figures/supp/"
+
+ggsave(plot = fig_S4,filename = paste(base_dir2,"figure_S4",".png",sep=""), 
+       width=12, height=11,limitsize=FALSE)
+ggsave(plot = fig_S5,filename = paste(base_dir2,"figure_S5",".png",sep=""), 
+       width=12, height=11,limitsize=FALSE)
+ggsave(plot = fig_S6,filename = paste(base_dir2,"figure_S6",".png",sep=""), 
+       width=12, height=11,limitsize=FALSE)
+ggsave(plot = fig_S7,filename = paste(base_dir2,"figure_S7",".png",sep=""), 
+       width=12, height=11,limitsize=FALSE)
 

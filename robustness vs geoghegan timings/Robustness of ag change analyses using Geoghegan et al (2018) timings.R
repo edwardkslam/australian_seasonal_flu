@@ -49,7 +49,7 @@ if(Sys.info()['sysname']=="Darwin"){
 
 cities<-c("ADELAIDE","BRISBANE","MELBOURNE","PERTH","SYDNEY")
 
-geog_epi_table$city<-factor(epi_table$city,levels = cities)
+geog_epi_table$city<-factor(geog_epi_table$city,levels = cities)
 
 # setting directories -----------------------------------------------------
 if(Sys.info()['sysname']=="Windows"){
@@ -79,16 +79,17 @@ ag_change_start_1<-geog_epi_table%>%
   scale_y_continuous(breaks =seq(1,26,2), limits = c(0,26.2))+
   ylab("Start Fortnight") +
   labs(x=NULL)+
-  theme_bw()+
-  facet_grid(subtype~city, labeller = label_wrap_gen(width=10))+
-  theme(strip.text = element_text(size=15),
-        axis.title=element_text(size=13),
-        axis.text = element_text(size=13),
-        strip.background = element_blank(),
-        panel.border = element_rect(colour = "black"),
-        legend.position="none",
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())
+  theme_bw()+theme(strip.background = element_blank(),
+                   strip.text = element_text(size=20),
+                   axis.title=element_text(size=20),
+                   axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
+                   axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
+                   axis.ticks.length = unit(0.4,"cm"),
+                   panel.border = element_rect(colour = "black"),
+                   legend.position="none",
+                   panel.grid.major = element_blank(), 
+                   panel.grid.minor = element_blank())+
+  facet_grid(subtype~city,scales = "free_y", labeller = label_wrap_gen(width=10))
 
 
 # 1) ii) Ag change and temporal synchrony (largest_geog_start) -----------------------------------------------------------------------
@@ -107,7 +108,6 @@ synchrony_plot_overall_1<-synchrony_measure_1%>%
   ggplot(.,aes(x=as.factor(new_ag_marker),y=log(synchrony)))+
   geom_boxplot(aes(group=new_ag_marker),outlier.size=0)+
   geom_jitter(aes(color=subtype),position=position_jitter(width=0.05,height=0.005),alpha=0.6,size=5)+
-  #scale_y_continuous(breaks =seq(0,5,1), limits = c(-0.1,5.1))+
   scale_colour_manual(name = "Subtype",
                       values=c("B/Yam"="#CC79A7",
                                "B/Vic"="#009E73",
@@ -117,18 +117,19 @@ synchrony_plot_overall_1<-synchrony_measure_1%>%
   scale_x_discrete(labels=c("0"="No Ag \n Change",
                             "1"="Ag \n Change"))+
   stat_compare_means(method = "wilcox.test", label = "p.format",label.x.npc="middle",size=8)+
-  #stat_summary(fun.y = mean, geom = "point",colour = "black", size=2) +
-  #stat_summary(fun.data = meanFunction, geom ="text", color = "black", size = 3, vjust = 1.3,hjust=-0.5)+
-  #ggtitle("Synchrony for ag variants that cause epidemics in all 4 cities")+
   xlab(NULL)+
   ylab("ln(Synchrony) (1/Var)")+
   theme_bw()+
-  theme(axis.title=element_text(size=13),
-        axis.text = element_text(size=13),
-        strip.background = element_blank(),
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size=20),
+        axis.title=element_text(size=20),
+        axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
+        axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
+        axis.ticks.length = unit(0.4,"cm"),
         panel.border = element_rect(colour = "black"),
-        #legend.position="none",
-        panel.grid.major = element_blank(),
+        legend.title=element_text(size=20), 
+        legend.text=element_text(size=17),
+        panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())
 
 ggsave(plot = ag_change_start_1,filename = paste(plot_dir,"largest_geog_antigenic_change_start_4x4",".pdf",sep=""),
@@ -160,16 +161,17 @@ ag_change_start_2<-geog_epi_table%>%
   scale_y_continuous(breaks =seq(1,26,2), limits = c(0,26.2))+
   ylab("Start Fortnight") +
   labs(x=NULL)+
-  theme_bw()+
-  facet_grid(subtype~city, labeller = label_wrap_gen(width=10))+
-  theme(strip.text = element_text(size=15),
-        axis.title=element_text(size=13),
-        axis.text = element_text(size=13),
-        strip.background = element_blank(),
-        panel.border = element_rect(colour = "black"),
-        legend.position="none",
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())
+  theme_bw()+theme(strip.background = element_blank(),
+                   strip.text = element_text(size=20),
+                   axis.title=element_text(size=20),
+                   axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
+                   axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
+                   axis.ticks.length = unit(0.4,"cm"),
+                   panel.border = element_rect(colour = "black"),
+                   legend.position="none",
+                   panel.grid.major = element_blank(), 
+                   panel.grid.minor = element_blank())+
+  facet_grid(subtype~city,scales = "free_y", labeller = label_wrap_gen(width=10))
 
 
 present_in_all_2<-plyr::count(geog_epi_table%>%
@@ -187,7 +189,6 @@ synchrony_plot_overall_2<-synchrony_measure_2%>%
   ggplot(.,aes(x=as.factor(new_ag_marker),y=log(synchrony)))+
   geom_boxplot(aes(group=new_ag_marker),outlier.size=0)+
   geom_jitter(aes(color=subtype),position=position_jitter(width=0.05,height=0.005),alpha=0.6,size=5)+
-  #scale_y_continuous(breaks =seq(0,5,1), limits = c(-0.1,5.1))+
   scale_colour_manual(name = "Subtype",
                       values=c("B/Yam"="#CC79A7",
                                "B/Vic"="#009E73",
@@ -197,18 +198,19 @@ synchrony_plot_overall_2<-synchrony_measure_2%>%
   scale_x_discrete(labels=c("0"="No Ag \n Change",
                             "1"="Ag \n Change"))+
   stat_compare_means(method = "wilcox.test", label = "p.format",label.x.npc="middle",size=8)+
-  #stat_summary(fun.y = mean, geom = "point",colour = "black", size=2) +
-  #stat_summary(fun.data = meanFunction, geom ="text", color = "black", size = 3, vjust = 1.3,hjust=-0.5)+
-  #ggtitle("Synchrony for ag variants that cause epidemics in all 4 cities")+
   xlab(NULL)+
   ylab("ln(Synchrony) (1/Var)")+
   theme_bw()+
-  theme(axis.title=element_text(size=13),
-        axis.text = element_text(size=13),
-        strip.background = element_blank(),
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size=20),
+        axis.title=element_text(size=20),
+        axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
+        axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
+        axis.ticks.length = unit(0.4,"cm"),
         panel.border = element_rect(colour = "black"),
-        #legend.position="none",
-        panel.grid.major = element_blank(),
+        legend.title=element_text(size=20), 
+        legend.text=element_text(size=17),
+        panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())
 
 
@@ -241,16 +243,17 @@ ag_change_start_3<-geog_epi_table%>%
   scale_y_continuous(breaks =seq(1,26,2), limits = c(0,26.2))+
   ylab("Start Fortnight") +
   labs(x=NULL)+
-  theme_bw()+
-  facet_grid(subtype~city, labeller = label_wrap_gen(width=10))+
-  theme(strip.text = element_text(size=15),
-        axis.title=element_text(size=13),
-        axis.text = element_text(size=13),
-        strip.background = element_blank(),
-        panel.border = element_rect(colour = "black"),
-        legend.position="none",
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())
+  theme_bw()+theme(strip.background = element_blank(),
+                   strip.text = element_text(size=20),
+                   axis.title=element_text(size=20),
+                   axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
+                   axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
+                   axis.ticks.length = unit(0.4,"cm"),
+                   panel.border = element_rect(colour = "black"),
+                   legend.position="none",
+                   panel.grid.major = element_blank(), 
+                   panel.grid.minor = element_blank())+
+  facet_grid(subtype~city,scales = "free_y", labeller = label_wrap_gen(width=10))
 
 
 present_in_all_3<-plyr::count(geog_epi_table%>%
@@ -268,7 +271,6 @@ synchrony_plot_overall_3<-synchrony_measure_3%>%
   ggplot(.,aes(x=as.factor(new_ag_marker),y=log(synchrony)))+
   geom_boxplot(aes(group=new_ag_marker),outlier.size=0)+
   geom_jitter(aes(color=subtype),position=position_jitter(width=0.05,height=0.005),alpha=0.6,size=5)+
-  #scale_y_continuous(breaks =seq(0,5,1), limits = c(-0.1,5.1))+
   scale_colour_manual(name = "Subtype",
                       values=c("B/Yam"="#CC79A7",
                                "B/Vic"="#009E73",
@@ -278,16 +280,38 @@ synchrony_plot_overall_3<-synchrony_measure_3%>%
   scale_x_discrete(labels=c("0"="No Ag \n Change",
                             "1"="Ag \n Change"))+
   stat_compare_means(method = "wilcox.test", label = "p.format",label.x.npc="middle",size=8)+
-  #stat_summary(fun.y = mean, geom = "point",colour = "black", size=2) +
-  #stat_summary(fun.data = meanFunction, geom ="text", color = "black", size = 3, vjust = 1.3,hjust=-0.5)+
-  #ggtitle("Synchrony for ag variants that cause epidemics in all 4 cities")+
   xlab(NULL)+
   ylab("ln(Synchrony) (1/Var)")+
   theme_bw()+
-  theme(axis.title=element_text(size=13),
-        axis.text = element_text(size=13),
-        strip.background = element_blank(),
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size=20),
+        axis.title=element_text(size=20),
+        axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
+        axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
+        axis.ticks.length = unit(0.4,"cm"),
         panel.border = element_rect(colour = "black"),
-        #legend.position="none",
-        panel.grid.major = element_blank(),
+        legend.title=element_text(size=20), 
+        legend.text=element_text(size=17),
+        panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())
+
+
+
+# save plots --------------------------------------------------------------
+
+base_dir2<-"C:/Users/el382/Dropbox/PhD/code for manuscript/figures/supp/"
+
+ggsave(plot = ag_change_start_1,filename = paste(base_dir2,"figure_S10.png",sep=""), 
+       width=13, height=13,limitsize=FALSE)
+ggsave(plot = synchrony_plot_overall_1,filename = paste(base_dir2,"figure_S11.png",sep=""), 
+       width=12, height=5,limitsize=FALSE)
+
+ggsave(plot = ag_change_start_2,filename = paste(base_dir2,"figure_S12.png",sep=""), 
+       width=13, height=13,limitsize=FALSE)
+ggsave(plot = synchrony_plot_overall_2,filename = paste(base_dir2,"figure_S13.png",sep=""), 
+       width=12, height=5,limitsize=FALSE)
+
+ggsave(plot = ag_change_start_3,filename = paste(base_dir2,"figure_S14.png",sep=""), 
+       width=13, height=13,limitsize=FALSE)
+ggsave(plot = synchrony_plot_overall_3,filename = paste(base_dir2,"figure_S15.png",sep=""), 
+       width=12, height=5,limitsize=FALSE)

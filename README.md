@@ -31,6 +31,7 @@ For each of antigenic variants recorded in a given season and city, we used the 
 "reference_strain" = "assumed_antigenic_variant" of submitted specimen \
 "epi_alarm" = Y (above-baseline levels of epidemic activity detected) / N \
 "start" = Fortnight in which above-baseline levels of activity is first detected \
+"end" = Fortnight in which above-baseline levels of activity is last detected \
 "epi_counts" = Total Number of specimens collected over the period of epidemic-levels of activity (as defined by algorithm) \
 "incidence_per_mil" = "epi_counts" divided by the city-specific Annual Estimated Resident Population \
 "epi_fractional_counts" = "epi_counts" divided by total "epi_counts" across epidemics of all subtypes in that "city" and "year" \
@@ -88,6 +89,10 @@ poor_timeseries_geog_start = if "poor_timeseries" == Y, "poor_timeseries_geog_st
 firstNbiggest_poor_geog = Y (this antigenic variant caused the epidemic with the earliest "poor_timeseries_geog_start" and largest "poor_timeseries_geog_start" in a particular City and Year) / N
 
 ## Analyses scripts
+### main text analysis scripts/Time series plot.R
+This produces the time series plot (Figure 1).  
+Note that samples from 2009 were excluded due to the lack of accurate surveillance of underlying pandemic activity.
+
 ### main text analysis scripts/Climatic factors and epidemic onset.R
 This set of analyses considers whether or not the onset of epidemics are preceded with fluctuations in climatic factors that are:
 1) anomalous when compared with against "typical wintertime" fluctuations using the bootstrap sampling method presented by Shaman (2010). The output is a data frame: final_results (Table S1).
@@ -104,7 +109,7 @@ Here we assess the effect of accumulated antigenic-variant specific immunity on:
 1) epidemic incidence (Figure 4)
 2) probability of successful epidemic initiation (Figure S16 and Table S6)
 
-### main text analysis scripts/Effect of prior immunity.R
+### main text analysis scripts/Effect of prior activity within same season.R
 Here we assess the effect of heterosubtypic competition on the size of subsequent epidemic:
 1)  the relationship between prior epidemic activity by other subtypes within the same season and city and the relative size of an epidemic (Figure 5).
 2)  the relationship between delay in onset timing and relative size of an epidemic (Figure 5).

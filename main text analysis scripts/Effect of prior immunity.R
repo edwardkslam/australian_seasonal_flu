@@ -116,7 +116,7 @@ epi_size_cumulative_size_same_variant_plot<-cumulative_incidence_by_ag %>%
   subset(.,!(reference_strain%in%dodgy_prev$reference_strain))%>%
   ggplot(.,aes(x=standardised_prior_cumulative,y= standardised_current_season))+
   geom_jitter(aes(group = subtype, color=subtype),
-              position=position_jitter(width=0.01,height=0.01),alpha=0.6,size=3.5)+
+              position=position_jitter(width=0.01,height=0.01),alpha=0.6,size=5)+
   geom_smooth(method='lm',formula=y~x, se = FALSE)+
   stat_cor(method = "pearson",size=8)+
   scale_color_manual(name = "Subtype",
@@ -125,15 +125,17 @@ epi_size_cumulative_size_same_variant_plot<-cumulative_incidence_by_ag %>%
                               "H1sea"="#56B4E9",
                               "H1pdm09"="#999999",
                               "H3"="#E69F00"))+
-  xlab("Antigenic Variant-Specific Cumulative Incidence")+
-  ylab("Epidemic Incidence")+
+  xlab("Antigenic variant-specific cumulative incidence")+
+  ylab("Epidemic incidence")+
   theme_bw()+
-  theme(axis.title=element_text(size=16),
-        strip.background = element_blank(),
+  theme(strip.background = element_blank(),
         strip.text = element_text(size=25),
+        axis.title=element_text(size=25),
+        axis.text.x =element_text(size=20,margin=margin(t=7,r=0,b=0,l=0)),
+        axis.text.y =element_text(size=20,margin=margin(t=0,r=7,b=0,l=0)),
+        axis.ticks.length = unit(0.4,"cm"),
         panel.border = element_rect(colour = "black"),
-        legend.title=element_text(size=14), 
-        legend.text=element_text(size=13),
+        legend.position = "none",
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())+
   facet_grid(~subtype)
@@ -154,18 +156,20 @@ prob_successful_epi_cumulative_size_same_variant_plot<-cumulative_incidence_by_a
                               "H1sea"="#56B4E9",
                               "H1pdm09"="#999999",
                               "H3"="#E69F00"))+
-  xlab("Antigenic Variant-Specific Cumulative Incidence")+
+  xlab("Antigenic variant-specific cumulative incidence")+
   ylab("Epidemic Present/Absent")+
   theme_bw()+
-  theme(axis.title=element_text(size=16),
-        strip.background = element_blank(),
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size=25),
+        axis.title=element_text(size=25),
+        axis.text.x =element_text(size=20,margin=margin(t=7,r=0,b=0,l=0)),
+        axis.text.y =element_text(size=20,margin=margin(t=0,r=7,b=0,l=0)),
+        axis.ticks.length = unit(0.4,"cm"),
         panel.border = element_rect(colour = "black"),
-        legend.title=element_text(size=14), 
-        legend.text=element_text(size=13),
-        legend.position="none",
+        legend.position = "none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())+facet_grid(.~subtype)+ 
-  theme(strip.text = element_text(size=25))
+        panel.grid.minor = element_blank())+
+  facet_grid(~subtype)
 
 
 # 3) Logistics regression and Odds Ratios: effect of cumulative incidence on p(successful epidemic) ------------------------------------
@@ -176,3 +180,16 @@ subtype_logistics_regression<-cumulative_incidence_by_ag %>%
                    SE= glm(as.numeric(as.character(epi_alarm2))~standardised_prior_cumulative,family=binomial)%>%summary(.)%>%coef(.)%>%.[2,2],
                    p_value= glm(as.numeric(as.character(epi_alarm2))~standardised_prior_cumulative,family=binomial)%>%summary(.)%>%coef(.)%>%.[2,4])
 subtype_logistics_regression$holm_adjusted_p<-p.adjust(subtype_logistics_regression$p_value,method = "holm")
+
+
+
+# save plots --------------------------------------------------------------
+
+base_dir<-"C:/Users/el382/Dropbox/PhD/code for manuscript/figures/main/"
+ggsave(plot = epi_size_cumulative_size_same_variant_plot,filename = paste(base_dir,"figure_4.png",sep=""), 
+       width=20, height=8,limitsize=FALSE)
+
+base_dir2<-"C:/Users/el382/Dropbox/PhD/code for manuscript/figures/supp/"
+ggsave(plot = prob_successful_epi_cumulative_size_same_variant_plot,filename = paste(base_dir2,"figure_S16.png",sep=""), 
+       width=20, height=8,limitsize=FALSE)
+

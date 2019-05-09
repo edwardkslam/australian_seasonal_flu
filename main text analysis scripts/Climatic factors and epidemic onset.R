@@ -313,18 +313,20 @@ T_plot<-mean_stats%>%
   
   scale_y_continuous(breaks=seq(-3.5,5,0.5), limits = c(-3.5,5))+
   scale_x_continuous(breaks = seq(-5,5,1), limits = c(-5.5,5.5))+
-  
   theme_bw()+
-  xlab("Fortnights Relative to Onset")+
+  xlab("Two week intervals relative to onset")+
   ylab(expression(paste("Anomalous Temperature ( ",degree,"C)")))+
-  facet_grid(~as.factor(city),labeller = label_wrap_gen(width=10))+
-  theme(strip.text = element_text(size=15),
-        axis.title=element_text(size=13),
-        strip.background = element_blank(),
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size=20),
+        axis.title=element_text(size=20),
+        axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
+        axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
+        axis.ticks.length = unit(0.4,"cm"),
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())
+        panel.grid.minor = element_blank())+
+  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
 
 AH_plot<-mean_stats%>%
   ggplot(data=.,aes(x=relative_fortnight,y=mean_d.AH))+
@@ -352,16 +354,26 @@ AH_plot<-mean_stats%>%
   scale_x_continuous(breaks = seq(-5,5,1), limits = c(-5.5,5.5))+
   
   theme_bw()+
-  xlab("Fortnights Relative to Onset")+
+  xlab("Two week intervals relative to onset")+
   ylab(expression(paste("Anomalous Absolute Humidity "," (g/",m^{3},")",sep="")))+
-  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))+
-  theme(strip.text = element_text(size=15),
-        axis.title=element_text(size=13),
-        strip.background = element_blank(),
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size=20),
+        axis.title=element_text(size=20),
+        axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
+        axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
+        axis.ticks.length = unit(0.4,"cm"),
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())
+        panel.grid.minor = element_blank())+
+  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
+  
 
 
+# save plot ---------------------------------------------------------------
+base_dir<-"C:/Users/el382/Dropbox/PhD/code for manuscript/figures/main/"
+
+fig2<-grid.arrange(T_plot,AH_plot,ncol=1)
+ggsave(plot = fig2,filename = paste(base_dir,"figure_2",".png",sep=""), 
+       width=12, height=11,limitsize=FALSE)
 
