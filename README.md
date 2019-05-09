@@ -215,4 +215,4 @@ We incorporate alternative estimates for the onset timing of Influenza A epidemi
     i) Figure S14 ; ii) Figure S15
 
 ## Reproducing theoretical analysis
-All theoretical figures can be reproduced on a system with a GNU-style ``make`` program installed by typing ``make figs`` at the command line. Figure production itself is done within the scripts ``src/figure_susceptibility_distribution.py`` (Fig 6) and ``src/figure_final_size_difference.py`` (Fig S22).
+All theoretical figures can be reproduced on a system with a GNU-style ``make`` program installed by typing ``make figs`` at the command line from the top-level project directory. Figure production itself is done within the scripts ``src/figure_susceptibility_distribution.py`` (Fig 6) and ``src/figure_final_size_difference.py`` (Fig S22).
