@@ -213,3 +213,6 @@ We incorporate alternative estimates for the onset timing of Influenza A epidemi
     i) Figure S12 ; ii) Figure S13
 3) For seasons between 2007 and 2015 in which the number of cases for the dominant influenza A subtype were small or it was difficult to discern the period of epidemic from background activity, we assumed that our timing estimate was incorrect and replaced it with estimates from Geoghegan et al. (2018).
     i) Figure S14 ; ii) Figure S15
+
+## Reproducing theoretical analysis
+All theoretical figures can be reproduced on a system with a GNU-style ``make`` program installed by typing ``make figs`` at the command line. Figure production itself is done within the scripts ``src/figure_susceptibility_distribution.py`` (Fig 6) and ``src/figure_final_size_difference.py`` (Fig S22).
