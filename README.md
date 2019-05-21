@@ -67,9 +67,11 @@ For each of antigenic variants recorded in a given season and city, we used the 
 
 - ``epi_alarm`` = Y (above-baseline levels of epidemic activity detected) / N
 
-- ``start`` = Fortnight in which above-baseline levels of activity is first detected \
+- ``start`` = Fortnight in which above-baseline levels of activity is first detected
 
-- ``epi_counts`` = Total Number of specimens collected over the period of epidemic-levels of activity (as defined by algorithm)
+- ``end`` = Fortnight in which above-baseline levels of activity is last detected
+
+- ``epi_counts`` = Total Number of specimens collected over the period of epidemic-levels of activity (ie the time period from ``start`` to ``end``, as defined by the algorithm)
 
 - ``incidence_per_mil`` = ``epi_counts`` divided by the city-specific Annual Estimated Resident Population
 
