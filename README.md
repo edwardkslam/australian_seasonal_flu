@@ -53,7 +53,7 @@ Here ``assumed_antigenic_variant`` from ``raw_data.csv`` is used to account for 
 
 For each of antigenic variants recorded in a given season and city, we used the algorithm presented in the Materials and Methods to ascertain whether or not above-baseline levels of epidemic activity could be detected.
 
-``epi_table.csv`` contains the summary statistics for each of the epidemics identified, over the study period from 01/01/2000 to 31/12/15.
+``epi_table.csv`` contains the summary statistics for each of the epidemics identified, over the study period from 01/01/2000 to 31/12/2015.
 
 - ``city`` = City
 
