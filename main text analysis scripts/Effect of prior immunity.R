@@ -6,6 +6,7 @@ library(scales)
 library(dplyr)
 library(plyr)
 library(tidyr)
+library(readr)
 
 #Here we assume and correct for potential mis-identification during antigenic characterisation due to delays in 
 #updating vaccine strain nomenclature.
@@ -18,18 +19,13 @@ library(tidyr)
 #     and amount of antigenic variant-specific cumulative incidence for each subtype 
 #     prob_successful_epi_cumulative_size_same_variant_plot (Figure S16)
 #
-# 3)  Binary logistics regression assessing the effect of antigenic variant-specific cumulative incidence 
+# 3)  Binary logistic regression assessing the effect of antigenic variant-specific cumulative incidence 
 #     on the probability of successful epidemic initiation for each subtype 
 #     subtype_logistics_regression (Table S6)
 
 # Loading data ------------------------------------------------------------
-if(Sys.info()['sysname']=="Windows"){
-  epi_table<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/epi_table.csv")
-}
 
-if(Sys.info()['sysname']=="Darwin"){
-  epi_table<-read.csv("~/Dropbox/PhD/code for manuscript/epi_table.csv")
-}
+epi_table = read_csv("../epi_table.csv")
 
 cities<-c("ADELAIDE","BRISBANE","MELBOURNE","PERTH","SYDNEY")
 

@@ -11,19 +11,20 @@
 suppressPackageStartupMessages(library(rstan))
 suppressPackageStartupMessages(library(parallel))
 suppressPackageStartupMessages(library(readr))
+suppressPackageStartupMessages(library(shinystan))
 
 
 ## read command line args
 args <- commandArgs(trailingOnly=TRUE)
-model_src_path <- "multilevel_incidence_model"
+model_src_path <- "multilevel_incidence_model.stan"
 datapath <- "../epi_table.csv"
-
+humid_datapath <- "../mean_fortnightly_climate_30years.csv"
 
 ## set stan options
 n_cores <- parallel::detectCores()
 options(mc.cores = n_cores)
 rstan_options(auto_write = TRUE)
-niter <- 2000
+niter <- 1500
 nchains = n_cores
 adapt_d= 0.8
 max_tree = 15
@@ -31,6 +32,7 @@ fixed_seed = 232
 
 ## load data
 dat <- read_csv(datapath)
+humid_dat <- read_csv(humid_datapath)
 
 #############################
 ## format data for model
@@ -131,46 +133,36 @@ cumulative_incidence_by_ag<-cumulative_incidence_by_ag%>%left_join(overall_mean_
 cumulative_incidence_by_ag$standardised_prior_cumulative<-cumulative_incidence_by_ag$cumulative_prior_incidence_same_ag/cumulative_incidence_by_ag$mean_epi_size
 cumulative_incidence_by_ag$standardised_current_season<-cumulative_incidence_by_ag$incidence_current_season/cumulative_incidence_by_ag$mean_epi_size
 
-dat<-cumulative_incidence_by_ag%>%left_join(data.frame(city=epi_table$city,reference_strain=epi_table$reference_strain,year=epi_table$year,epi_alarm=factor(epi_table$epi_alarm,levels = c("Y","N"))))
-cumulative_incidence_by_ag$epi_alarm[is.na(cumulative_incidence_by_ag$epi_alarm)==TRUE]<-"N"
+dat<-cumulative_incidence_by_ag%>%left_join(dat, by=c('city','year','subtype','reference_strain'))
 
+dat<-dat[dat$subtype=="H3" & !is.na(dat$start) & !is.na(dat$incidence_per_mil),]
+
+dat <- dat %>% left_join(humid_dat, by=c('city'='city','year'='year','start'='fortnights_since_start_of_year'))
+dat<-dat[dat$subtype=="H3" & !is.na(dat$start) & !is.na(dat$incidence_per_mil),]
 
 
 ## make data into list
 data_list <- list(
     n_cities=length(unique(dat$city)),
-    n_epidemics_total=length(dat$incidence_per_mil),
+    n_epidemics=length(dat$incidence_per_mil),
     incidences=log(dat$incidence_per_mil),
-    city=dat$city,
+    city=sample(1:5, length(dat$city), replace=TRUE),
     antigenic_change=dat$new_ag_marker,
-    abs_humidity=dat$avg_abs_humidity,
+    abs_humidity=dat$mean_AH,
     prior_activity=dat$prior_everything_scaled,
-    cumulative_prior_incidence=)
+    cumulative_prior_incidence=dat$standardised_prior_cumulative)
     
-
-# concatenate with prior choices
-stan_data = c(
-    main_hyperprior_list,
-    multilevel_hyperprior_list,
-    gamma_hyperprior_list,
-    regression_hyperprior_list,
-    data_list)
 
 ###############################
 ## Compile, fit, and save model
 ###############################
 fit <- stan(
     model_src_path,
-    data=stan_data,
+    data=data_list,
     iter=niter,
     seed=fixed_seed,
     chains=nchains, 
     control = list(max_treedepth = max_tree,
                    adapt_delta = adapt_d))
-
-cat(sprintf("saving posterior samples to file %s...\n",
-            outpath))
-
-saveRDS(fit, outpath)
 
 warnings()
