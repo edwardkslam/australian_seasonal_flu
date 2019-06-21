@@ -15,8 +15,8 @@ library(tidyr)
 
 # Loading data ------------------------------------------------------------
 if(Sys.info()['sysname']=="Windows"){
-  mean_fortnightly_climate_30years<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/mean_fortnightly_climate_30years.csv")
-  epi_table<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/epi_table.csv")
+  mean_fortnightly_climate_30years<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/mean_fortnightly_climate_30years.csv")
+  epi_table<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/epi_table.csv")
 }
 
 if(Sys.info()['sysname']=="Darwin"){

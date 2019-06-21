@@ -44,9 +44,9 @@ library(tidyr)
 # loading in data ---------------------------------------------------------
 
 if(Sys.info()['sysname']=="Windows"){
-  mean_fortnightly_climate_30years<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/mean_fortnightly_climate_30years.csv")
-  geog_epi_table<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/robustness vs geoghegan timings/epi_table_with_geoghegan_estimates.csv")
-  just_geog_estimates<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/robustness vs geoghegan timings/Geoghegan_2018_estimated_A_onsets.csv")%>%
+  mean_fortnightly_climate_30years<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/mean_fortnightly_climate_30years.csv")
+  geog_epi_table<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/robustness vs geoghegan timings/epi_table_with_geoghegan_estimates.csv")
+  just_geog_estimates<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/robustness vs geoghegan timings/Geoghegan_2018_estimated_A_onsets.csv")%>%
     subset(.,year%in%c(2007:2015))
 }
 
@@ -170,7 +170,7 @@ for(i in 1: length(cities)){
   sample_means_2ftn<-adply(year_fortnight_2ftn%>%
                              subset(.,year>=min_possible_year)%>%
                              dplyr::mutate(city=cities[i]),1,
-                           function(x){find_preonset_sample(x,1)})
+                           function(x){find_preonset_sample(x,2)})
   
   temp<-sample_n(sample_means_2ftn,bootstrap_n*samples_per_bootstrap_sample,replace=TRUE)%>%
     #mean by every 15 rows to produce the 100kx 15
@@ -197,7 +197,7 @@ for(i in 1: length(cities)){
   sample_means_3ftn<-adply(year_fortnight_3ftn%>%
                              subset(.,year>=min_possible_year)%>%
                              dplyr::mutate(city=cities[i]),1,
-                           function(x){find_preonset_sample(x,1)})
+                           function(x){find_preonset_sample(x,3)})
   
   temp<-sample_n(sample_means_3ftn,bootstrap_n*samples_per_bootstrap_sample,replace=TRUE)%>%
     #mean by every 15 rows to produce the 100kx 15
@@ -366,7 +366,7 @@ for(i in 1: length(cities)){
   sample_means_2ftn<-adply(year_fortnight_2ftn%>%
                              subset(.,year>=min_possible_year)%>%
                              dplyr::mutate(city=cities[i]),1,
-                           function(x){find_preonset_sample(x,1)})
+                           function(x){find_preonset_sample(x,2)})
   
   temp<-sample_n(sample_means_2ftn,bootstrap_n*samples_per_bootstrap_sample,replace=TRUE)%>%
     #mean by every 15 rows to produce the 100kx 15
@@ -393,7 +393,7 @@ for(i in 1: length(cities)){
   sample_means_3ftn<-adply(year_fortnight_3ftn%>%
                              subset(.,year>=min_possible_year)%>%
                              dplyr::mutate(city=cities[i]),1,
-                           function(x){find_preonset_sample(x,1)})
+                           function(x){find_preonset_sample(x,3)})
   
   temp<-sample_n(sample_means_3ftn,bootstrap_n*samples_per_bootstrap_sample,replace=TRUE)%>%
     #mean by every 15 rows to produce the 100kx 15
@@ -560,7 +560,7 @@ for(i in 1: length(cities)){
   sample_means_2ftn<-adply(year_fortnight_2ftn%>%
                              subset(.,year>=min_possible_year)%>%
                              dplyr::mutate(city=cities[i]),1,
-                           function(x){find_preonset_sample(x,1)})
+                           function(x){find_preonset_sample(x,2)})
   
   temp<-sample_n(sample_means_2ftn,bootstrap_n*samples_per_bootstrap_sample,replace=TRUE)%>%
     #mean by every 15 rows to produce the 100kx 15
@@ -587,7 +587,7 @@ for(i in 1: length(cities)){
   sample_means_3ftn<-adply(year_fortnight_3ftn%>%
                              subset(.,year>=min_possible_year)%>%
                              dplyr::mutate(city=cities[i]),1,
-                           function(x){find_preonset_sample(x,1)})
+                           function(x){find_preonset_sample(x,3)})
   
   temp<-sample_n(sample_means_3ftn,bootstrap_n*samples_per_bootstrap_sample,replace=TRUE)%>%
     #mean by every 15 rows to produce the 100kx 15
@@ -752,7 +752,7 @@ for(i in 1: length(cities)){
   sample_means_2ftn<-adply(year_fortnight_2ftn%>%
                              subset(.,year>=min_possible_year)%>%
                              dplyr::mutate(city=cities[i]),1,
-                           function(x){find_preonset_sample(x,1)})
+                           function(x){find_preonset_sample(x,2)})
   
   temp<-sample_n(sample_means_2ftn,bootstrap_n*samples_per_bootstrap_sample,replace=TRUE)%>%
     #mean by every 15 rows to produce the 100kx 15
@@ -779,7 +779,7 @@ for(i in 1: length(cities)){
   sample_means_3ftn<-adply(year_fortnight_3ftn%>%
                              subset(.,year>=min_possible_year)%>%
                              dplyr::mutate(city=cities[i]),1,
-                           function(x){find_preonset_sample(x,1)})
+                           function(x){find_preonset_sample(x,3)})
   
   temp<-sample_n(sample_means_3ftn,bootstrap_n*samples_per_bootstrap_sample,replace=TRUE)%>%
     #mean by every 15 rows to produce the 100kx 15
@@ -880,7 +880,7 @@ print(just_geog_geog_results_pooled)
 
 # saving bootstrap result tables ------------------------------------------
 if(Sys.info()['sysname']=="Windows"){
-  base_dir<-"C:/Users/el382/Dropbox/PhD/code for manuscript/figures/reviewer comments/"
+  base_dir<-"C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/figures/reviewer comments/"
   write.csv(largest_geog_results,
             paste(base_dir,"largest_geog_results.csv",sep=""),row.names = FALSE)
   write.csv(earliest_geog_results,

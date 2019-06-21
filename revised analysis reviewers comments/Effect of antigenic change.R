@@ -23,7 +23,7 @@ library(tidyr)
 
 
 # Loading in data ---------------------------------------------------------
-epi_table<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/epi_table.csv")
+epi_table<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/epi_table.csv")
 epi_table<-epi_table%>%
   dplyr::mutate(scaled_incidence_city = incidence_per_mil/mean_epi_size)
 
