@@ -7,6 +7,7 @@ library(dplyr)
 library(plyr)
 library(tidyr)
 
+#adas
 # The following code will reproduce the climatic factor analyses discussed in the main text:
 # 1)  Comparison of observed climatic fluctuations prior to epidemic onset against typical wintertime
 #     fluctuations using the bootstrap sampling method presented by Shaman (2010)
@@ -68,7 +69,7 @@ preonset_sample_2ftn<-adply(first_epi,1,function(x){find_preonset_sample(x,2)})
 preonset_sample_3ftn<-adply(first_epi,1,function(x){find_preonset_sample(x,3)})
 
 
-# data frame listing the years and fortnights during "winter", from which bootstrap sample will be drawn from 
+# data frame listing the years and fortnights during "winter", from which bootstrap sample will be drawn from
 year_fortnight_1ftn<-expand.grid(year=c(1985:2015),start=c(8:17))    # start of 7 = 01 April ; end of 16 = 31 August
 year_fortnight_1ftn<-year_fortnight_1ftn%>%
   subset(.,year!=2009)
@@ -103,88 +104,88 @@ for(i in 1: length(cities)){
     dplyr::group_by(year)%>%
     dplyr::summarise(n=n())
   min_possible_year<-min_possible_year$year[min(which(min_possible_year$n==26))]
-  
+
   # mean of 2-week block samples
   sample_means_1ftn<-adply(year_fortnight_1ftn%>%
                              subset(.,year>=min_possible_year)%>%
                              dplyr::mutate(city=cities[i]),1,
                            function(x){find_preonset_sample(x,1)})
 
-  
+
   temp<-sample_n(sample_means_1ftn,bootstrap_n*samples_per_bootstrap_sample,replace=TRUE)%>%
     #mean by every 15 rows to produce the 100kx 15
     dplyr::group_by(G=trunc(samples_per_bootstrap_sample:(n()+samples_per_bootstrap_sample-1)/samples_per_bootstrap_sample))%>%
     dplyr::summarise(bootstrap_sample_mean_d.AH = mean(sample_mean_d.AH,na.rm=TRUE),
                      bootstrap_sample_mean_d.temp = mean(sample_mean_d.temp,na.rm=TRUE))
-  
+
   bootstrap_sample_list_1ftn[[i]]<-temp
-  
+
   empirical_values_1ftn<-preonset_sample_1ftn%>%subset(.,city==cities[i])%>%
     dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
                      empirical_mean_d.temp = mean(sample_mean_d.temp))
-  
-  
+
+
   bootstrap_results_1ftn[[i]]<-data.frame(city = cities[i],
                                                 mean_emperical_sample_mean_d.AH = empirical_values_1ftn$empirical_mean_d.AH,
                                                 d.AH_pvalue = sum(empirical_values_1ftn$empirical_mean_d.AH>=temp$bootstrap_sample_mean_d.AH)/bootstrap_n,
-                                               
+
                                                 mean_emperical_sample_mean_d.temp = empirical_values_1ftn$empirical_mean_d.temp,
                                                 d.temp_pvalue = sum(empirical_values_1ftn$empirical_mean_d.temp>=temp$bootstrap_sample_mean_d.temp)/bootstrap_n
   )
-  
+
   # mean of 4-week block samples
   sample_means_2ftn<-adply(year_fortnight_2ftn%>%
                              subset(.,year>=min_possible_year)%>%
                              dplyr::mutate(city=cities[i]),1,
                            function(x){find_preonset_sample(x,1)})
-  
+
   temp<-sample_n(sample_means_2ftn,bootstrap_n*samples_per_bootstrap_sample,replace=TRUE)%>%
     #mean by every 15 rows to produce the 100kx 15
     dplyr::group_by(G=trunc(samples_per_bootstrap_sample:(n()+samples_per_bootstrap_sample-1)/samples_per_bootstrap_sample))%>%
     dplyr::summarise(bootstrap_sample_mean_d.AH = mean(sample_mean_d.AH,na.rm=TRUE),
                      bootstrap_sample_mean_d.temp = mean(sample_mean_d.temp,na.rm=TRUE))
-  
+
   bootstrap_sample_list_2ftn[[i]]<-temp
 
   empirical_values_2ftn<-preonset_sample_2ftn%>%subset(.,city==cities[i])%>%
     dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
                      empirical_mean_d.temp = mean(sample_mean_d.temp))
-  
-  
+
+
   bootstrap_results_2ftn[[i]]<-data.frame(city = cities[i],
                                                 mean_emperical_sample_mean_d.AH = empirical_values_2ftn$empirical_mean_d.AH,
                                                 d.AH_pvalue = sum(empirical_values_2ftn$empirical_mean_d.AH>=temp$bootstrap_sample_mean_d.AH)/bootstrap_n,
-                                                
+
                                                 mean_emperical_sample_mean_d.temp = empirical_values_2ftn$empirical_mean_d.temp,
                                                 d.temp_pvalue = sum(empirical_values_2ftn$empirical_mean_d.temp>=temp$bootstrap_sample_mean_d.temp)/bootstrap_n
   )
-  
+
   # mean of 6-week block samples
   sample_means_3ftn<-adply(year_fortnight_3ftn%>%
                              subset(.,year>=min_possible_year)%>%
                              dplyr::mutate(city=cities[i]),1,
                            function(x){find_preonset_sample(x,1)})
-  
+
   temp<-sample_n(sample_means_3ftn,bootstrap_n*samples_per_bootstrap_sample,replace=TRUE)%>%
     #mean by every 15 rows to produce the 100kx 15
     dplyr::group_by(G=trunc(samples_per_bootstrap_sample:(n()+samples_per_bootstrap_sample-1)/samples_per_bootstrap_sample))%>%
     dplyr::summarise(bootstrap_sample_mean_d.AH = mean(sample_mean_d.AH,na.rm=TRUE),
                      bootstrap_sample_mean_d.temp = mean(sample_mean_d.temp,na.rm=TRUE))
-  
+
   bootstrap_sample_list_3ftn[[i]]<-temp
-  
+
   empirical_values_3ftn<-preonset_sample_3ftn%>%subset(.,city==cities[i])%>%
     dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
                      empirical_mean_d.temp = mean(sample_mean_d.temp))
-  
+
   bootstrap_results_3ftn[[i]]<-data.frame(city = cities[i],
                                                 mean_emperical_sample_mean_d.AH = empirical_values_3ftn$empirical_mean_d.AH,
                                                 d.AH_pvalue = sum(empirical_values_3ftn$empirical_mean_d.AH>=temp$bootstrap_sample_mean_d.AH)/bootstrap_n,
-                                                
+
                                                 mean_emperical_sample_mean_d.temp = empirical_values_3ftn$empirical_mean_d.temp,
                                                 d.temp_pvalue = sum(empirical_values_3ftn$empirical_mean_d.temp>=temp$bootstrap_sample_mean_d.temp)/bootstrap_n
   )
-  
+
 }
 
 # converting the lists to data frames and adding column denoting whether it is 2-/4-/6- week block samples
@@ -211,7 +212,7 @@ if(Sys.info()['sysname']=="Windows"){
   base_dir<-"C:/Users/el382/Dropbox/PhD/code for manuscript/figures/reviewer comments/"
   write.csv(final_results,
             paste(base_dir,"bootstrap_results.csv",sep=""),row.names = FALSE)
-  
+
 }
 
 if(Sys.info()['sysname']=="Darwin"){
@@ -253,14 +254,14 @@ empirical_sample_pooled_3ftn<-preonset_sample_3ftn%>%
 pooled_results_1ftn<-data.frame(num_preceding_fortnight = 1,
                                 mean_emperical_sample_mean_d.AH = empirical_sample_pooled_1ftn$empirical_mean_d.AH,
                                 d.AH_pvalue = sum(empirical_sample_pooled_1ftn$empirical_mean_d.AH>=pooled_bootstrap_sample_1ftn$bootstrap_sample_mean_d.AH)/bootstrap_n,
-                                
+
                                 mean_emperical_sample_mean_d.temp = empirical_sample_pooled_1ftn$empirical_mean_d.temp,
                                 d.temp_pvalue = sum(empirical_sample_pooled_1ftn$empirical_mean_d.temp>=pooled_bootstrap_sample_1ftn$bootstrap_sample_mean_d.temp)/bootstrap_n)
 
 pooled_results_2ftn<-data.frame(num_preceding_fortnight = 2,
                                 mean_emperical_sample_mean_d.AH = empirical_sample_pooled_2ftn$empirical_mean_d.AH,
                                 d.AH_pvalue = sum(empirical_sample_pooled_2ftn$empirical_mean_d.AH>=pooled_bootstrap_sample_2ftn$bootstrap_sample_mean_d.AH)/bootstrap_n,
-                                
+
                                 mean_emperical_sample_mean_d.temp = empirical_sample_pooled_2ftn$empirical_mean_d.temp,
                                 d.temp_pvalue = sum(empirical_sample_pooled_2ftn$empirical_mean_d.temp>=pooled_bootstrap_sample_2ftn$bootstrap_sample_mean_d.temp)/bootstrap_n)
 
@@ -268,7 +269,7 @@ pooled_results_2ftn<-data.frame(num_preceding_fortnight = 2,
 pooled_results_3ftn<-data.frame(num_preceding_fortnight = 3,
                                 mean_emperical_sample_mean_d.AH = empirical_sample_pooled_3ftn$empirical_mean_d.AH,
                                 d.AH_pvalue = sum(empirical_sample_pooled_3ftn$empirical_mean_d.AH>=pooled_bootstrap_sample_3ftn$bootstrap_sample_mean_d.AH)/bootstrap_n,
-                                
+
                                 mean_emperical_sample_mean_d.temp = empirical_sample_pooled_3ftn$empirical_mean_d.temp,
                                 d.temp_pvalue = sum(empirical_sample_pooled_3ftn$empirical_mean_d.temp>=pooled_bootstrap_sample_3ftn$bootstrap_sample_mean_d.temp)/bootstrap_n)
 
@@ -286,12 +287,12 @@ if(Sys.info()['sysname']=="Windows"){
   base_dir<-"C:/Users/el382/Dropbox/PhD/code for manuscript/figures/reviewer comments/"
   write.csv(final_results_pooled,
             paste(base_dir,"bootstrap_results_pooled.csv",sep=""),row.names = FALSE)
-  
+
 }
 
 # Comparison against historic climatic values of that particular time of year --------
 
-# Defining functions 
+# Defining functions
 
 # Takes an entry from epidemic table and spits out the climatic values 5 fortnights either side of onset (by default)
 # mean_AH is the year specific value
@@ -319,31 +320,31 @@ climate_centered<-function(x,y=c(-5,5),point="start"){
   if(point=="just_geog"){
     reference<-x$start
   }
-  
+
   temp_clim<-mean_fortnightly_climate_30years%>%
     subset(.,city== as.character(x$city) & year==x$year)
   temp_clim<-temp_clim[order(temp_clim$year,temp_clim$fortnights_since_start_of_year),]
-  
+
   temp_clim<-temp_clim%>%
     dplyr::group_by(year)%>%
     dplyr::mutate(f2f_mean_temp = mean_temp-lag(mean_temp,1),
                   f2f_mean_AH = mean_AH-lag(mean_AH,1))
-  
+
   temp_clim<-temp_clim%>%subset(.,fortnights_since_start_of_year %in% (c(y[1]:y[2])+x$start))
-  
+
   temp_clim<-temp_clim%>%
     dplyr::mutate(relative_fortnight = seq_along(fortnights_since_start_of_year) - 0.5 -length(fortnights_since_start_of_year)/2)
-  
+
   temp_clim$delay <- x$delay
   temp_clim$strain_year<-x$strain_year
-  
+
   return(data.frame(temp_clim))
-  
+
 }
 
 # once the mean AH and temp for the fortnights before/after epidemic onset
 # have been calculated, function for calculating equivalent RH %
-# 
+#
 mean_relative_humidity_calc<-function(mean_ah,mean_temp){
   #https://carnotcycle.wordpress.com/2012/08/04/how-to-convert-relative-humidity-to-absolute-humidity/
   #http://bioma.jrc.ec.europa.eu/components/componentstools/evapotranspiration/help/Actual_vapor_pressure.html
@@ -365,12 +366,12 @@ mean_stats<-centered_df%>%
                    mean_d.temp=mean(d.temp),
                    sd_d.temp=sd(d.temp),
                    wt_d.temp=wilcox.test(d.temp,alternative = c("less"))$p.value,
-                   
+
                    mean_AH=mean(mean_AH),
                    mean_d.AH=mean(d.AH),
                    sd_d.AH=sd(d.AH),
                    wt_d.AH=wilcox.test(d.AH,alternative = c("less"))$p.value,
-                   
+
                    mean_AH_for_that_fortnight_of_year = mean(mean_AH_for_that_fortnight_of_year),
                    mean_temp_for_that_fortnight_of_year = mean(mean_temp_for_that_fortnight_of_year))
 
@@ -387,11 +388,11 @@ mean_stats<-mean_stats%>%
 
 T_plot<-mean_stats%>%
   ggplot(data=.,aes(x=relative_fortnight,y=mean_d.temp))+
-  
-  geom_hline(aes(yintercept = 0),size=0.4,color="black",linetype="solid") + 
+
+  geom_hline(aes(yintercept = 0),size=0.4,color="black",linetype="solid") +
   geom_vline(aes(xintercept = 0),size=0.4,color="black",linetype="solid") +
   geom_errorbar(aes(x=relative_fortnight,
-                    ymin=mean_d.temp-sd_d.temp, 
+                    ymin=mean_d.temp-sd_d.temp,
                     ymax=mean_d.temp+sd_d.temp),
                 size = 0.01)+
   geom_line()+
@@ -406,7 +407,7 @@ T_plot<-mean_stats%>%
   scale_color_manual(name="Statistically significant decrease temp (<0.05)",
                      values=c("TRUE"="#D55E00",
                               "FALSE"="#56B4E9")) +
-  
+
   scale_y_continuous(breaks=seq(-3.5,5,0.5), limits = c(-3.5,5))+
   scale_x_continuous(breaks = seq(-5,5,1), limits = c(-5.5,5.5))+
   theme_bw()+
@@ -420,16 +421,16 @@ T_plot<-mean_stats%>%
         axis.ticks.length = unit(0.4,"cm"),
         panel.border = element_rect(colour = "black"),
         legend.position="none",
-        panel.grid.major = element_blank(), 
+        panel.grid.major = element_blank(),
         panel.grid.minor = element_blank())
 
 AH_plot<-mean_stats%>%
   ggplot(data=.,aes(x=relative_fortnight,y=mean_d.AH))+
-  
-  geom_hline(aes(yintercept = 0),size=0.4,color="black",linetype="solid") + 
+
+  geom_hline(aes(yintercept = 0),size=0.4,color="black",linetype="solid") +
   geom_vline(aes(xintercept = 0),size=0.4,color="black",linetype="solid") +
   geom_errorbar(aes(x=relative_fortnight,
-                    ymin=mean_d.AH-sd_d.AH, 
+                    ymin=mean_d.AH-sd_d.AH,
                     ymax=mean_d.AH+sd_d.AH),
                 size = 0.01)+
   geom_line()+
@@ -444,10 +445,10 @@ AH_plot<-mean_stats%>%
   scale_color_manual(name="Statistically significant decrease temp (<0.05)",
                      values=c("TRUE"="#D55E00",
                               "FALSE"="#56B4E9")) +
-  
+
   scale_y_continuous(breaks=seq(-3.5,3.5,0.5), limits = c(-3.5,3.5))+
   scale_x_continuous(breaks = seq(-5,5,1), limits = c(-5.5,5.5))+
-  
+
   theme_bw()+
   xlab("Two week intervals relative to onset")+
   ylab(expression(paste("Anomalous Absolute Humidity "," (g/",m^{3},")",sep="")))+
@@ -459,15 +460,14 @@ AH_plot<-mean_stats%>%
         axis.ticks.length = unit(0.4,"cm"),
         panel.border = element_rect(colour = "black"),
         legend.position="none",
-        panel.grid.major = element_blank(), 
+        panel.grid.major = element_blank(),
         panel.grid.minor = element_blank())
-  
+
 
 
 # save plot ---------------------------------------------------------------
 base_dir<-"C:/Users/el382/Dropbox/PhD/code for manuscript/figures/reviewer comments/"
 
 fig2<-grid.arrange(T_plot,AH_plot,ncol=1)
-ggsave(plot = fig2,filename = paste(base_dir,"figure_2",".pdf",sep=""), 
+ggsave(plot = fig2,filename = paste(base_dir,"figure_2",".pdf",sep=""),
        width=12, height=11,limitsize=FALSE)
-
