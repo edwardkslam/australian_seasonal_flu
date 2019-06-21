@@ -58,11 +58,10 @@ epi_table_with_clim%>%
 
 
 # onset -------------------------------------------------------------------
-find_preonset_sample<-function(x, n_fortnight = 2){
+find_preonset_sample<-function(x, n_fortnight = 1){
   x<-as.vector(x)
   temp<-mean_fortnightly_climate_30years%>%
     subset(.,city==as.character(x$city) & year==x$year & fortnights_since_start_of_year%in%c((x$start-n_fortnight):(x$start-1)))
-  #print(temp)
   temp<-temp%>%
     dplyr::group_by(city,year)%>%
     dplyr::summarise(start = first(x$start),
@@ -84,11 +83,45 @@ multi_fortnight_climate_func<-function(x,n_fortnight=1){
                                  year=x$year,
                                  start = seq(n_fortnight+1,x$start,1))
   output<-adply(fortnights_to_grab,1,function(x){find_preonset_sample(x,n_fortnight)})
-  output$initiate<-"N"
-  output$initiate[nrow(output)]<-"Y"
+  output$initiate<-0
+  output$initiate[nrow(output)]<-1
   return(output)
+}
+
+reformat_glm_func<-function(x){
+  coef_temp<-x%>%
+    coef(.)%>%.[2:3]%>%exp(.)%>%melt(.)
+  
+  temp_SE<-x%>%
+    coef(.)%>%.[2:3,2]%>%melt(.)
+    
+  temp_p_value<-x%>%
+    coef(.)%>%.[2:3,4]%>%melt(.)
+  
+  coef_temp<-cbind(coef_temp,temp_SE,temp_p_value)
+  colnames(coef_temp)<-c("OR","SE","p_value")
+  
+  return(coef_temp)
 }
 
 epi_firsts<-epi_table%>%subset(.,first_n_biggest=="Y")
 
-fortnight_before_climate<-adply(epi_firsts,1,function(x){multi_fortnight_climate_func(x,1),})
+climate_1ftn_prior<-adply(epi_firsts,1,function(x){multi_fortnight_climate_func(x,1)},.expand=FALSE)
+climate_2ftn_prior<-adply(epi_firsts,1,function(x){multi_fortnight_climate_func(x,2)},.expand=FALSE)
+climate_3ftn_prior<-adply(epi_firsts,1,function(x){multi_fortnight_climate_func(x,3)},.expand=FALSE)
+
+
+glm_1ftn<-climate_1ftn_prior%>%glm(initiate ~ sample_mean_d.AH + sample_mean_d.temp,
+                               data=.,
+                               family=binomial())%>%summary(.)%>%
+  reformat_glm_func()
+
+glm_2ftn<-climate_1ftn_prior%>%glm(initiate ~ sample_mean_d.AH + sample_mean_d.temp,
+                                   data=.,
+                                   family=binomial())%>%summary(.)%>%
+  reformat_glm_func()
+
+glm_3ftn<-climate_1ftn_prior%>%glm(initiate ~ sample_mean_d.AH + sample_mean_d.temp,
+                                   data=.,
+                                   family=binomial())%>%summary(.)%>%
+  reformat_glm_func()
