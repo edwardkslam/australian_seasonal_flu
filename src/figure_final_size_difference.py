@@ -59,15 +59,15 @@ def plot_differences_by_wt_imm(escape_factors=[0.1, 0.2, 0.3],
              for distribution in distributions])
         
         axes[0].plot(wt_imms, final_size_0s,
-                     label="{:.0f}\%".format(escape_factor * 100),
+                     label=escape_factor,
                      color=cmap(color_vals[k_escape]),
                      **kwargs)
         axes[1].plot(wt_imms, final_size_1s,
-                     label="{:.0f}\%".format(escape_factor * 100),
+                     label=escape_factor,
                      color=cmap(color_vals[k_escape]),
                      **kwargs)
         axes[2].plot(wt_imms, final_size_0s - final_size_1s,
-                     label="{:.0f}\%".format(escape_factor * 100),
+                     label=escape_factor,
                      color=cmap(color_vals[k_escape]),
                      **kwargs)
     axes[0].legend(title="escape",

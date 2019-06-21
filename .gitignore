@@ -5,4 +5,11 @@
 *~
 *#*
 
+*.ipynb
+.ipynb_checkpoints/
+
 out/*
+
+lit/*
+
+*.Rds
