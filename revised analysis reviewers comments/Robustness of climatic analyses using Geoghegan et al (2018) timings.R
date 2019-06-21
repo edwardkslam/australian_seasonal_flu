@@ -974,7 +974,7 @@ mean_relative_humidity_calc<-function(mean_ah,mean_temp){
 centered_df1<-adply(geog_epi_table%>%subset(.,firstNbiggest_largest_geog=="Y" & year!=2009),1,climate_centered,point="largest_geog",.expand=FALSE,.id = NULL)
 
 mean_stats1<-centered_df1%>%
-  dplyr::group_by(city,relative_fortnight)%>%
+  dplyr::group_by(relative_fortnight)%>%
   dplyr::summarise(mean_temp=mean(mean_temp),
                    mean_d.temp=mean(d.temp),
                    sd_d.temp=sd(d.temp),
@@ -1033,8 +1033,7 @@ AT_plot1<-mean_stats1%>%
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())+
-  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
+        panel.grid.minor = element_blank())
 
 AH_plot1<-mean_stats1%>%
   ggplot(data=.,aes(x=relative_fortnight,y=mean_d.AH))+
@@ -1073,8 +1072,7 @@ AH_plot1<-mean_stats1%>%
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())+
-  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
+        panel.grid.minor = element_blank())
 
 fig_S4<-grid.arrange(AT_plot1,AH_plot1,ncol=1)
 
@@ -1083,7 +1081,7 @@ fig_S4<-grid.arrange(AT_plot1,AH_plot1,ncol=1)
 centered_df2<-adply(geog_epi_table%>%subset(.,firstNbiggest_earliest_geog=="Y" & year!=2009),1,climate_centered,point="earliest_geog",.expand=FALSE,.id = NULL)
 
 mean_stats2<-centered_df2%>%
-  dplyr::group_by(city,relative_fortnight)%>%
+  dplyr::group_by(relative_fortnight)%>%
   dplyr::summarise(mean_temp=mean(mean_temp),
                    mean_d.temp=mean(d.temp),
                    sd_d.temp=sd(d.temp),
@@ -1141,8 +1139,7 @@ AT_plot2<-mean_stats2%>%
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())+
-  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
+        panel.grid.minor = element_blank())
 
 AH_plot2<-mean_stats2%>%
   ggplot(data=.,aes(x=relative_fortnight,y=mean_d.AH))+
@@ -1181,8 +1178,7 @@ AH_plot2<-mean_stats2%>%
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())+
-  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
+        panel.grid.minor = element_blank())
 
 fig_S5<-grid.arrange(AT_plot2,AH_plot2,ncol=1)
 
@@ -1193,7 +1189,7 @@ centered_df3<-adply(geog_epi_table%>%subset(.,firstNbiggest_poor_geog=="Y" & yea
 
 
 mean_stats3<-centered_df3%>%
-  dplyr::group_by(city,relative_fortnight)%>%
+  dplyr::group_by(relative_fortnight)%>%
   dplyr::summarise(mean_temp=mean(mean_temp),
                    mean_d.temp=mean(d.temp),
                    sd_d.temp=sd(d.temp),
@@ -1251,8 +1247,7 @@ AT_plot3<-mean_stats3%>%
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())+
-  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
+        panel.grid.minor = element_blank())
 
 AH_plot3<-mean_stats3%>%
   ggplot(data=.,aes(x=relative_fortnight,y=mean_d.AH))+
@@ -1291,8 +1286,7 @@ AH_plot3<-mean_stats3%>%
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())+
-  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
+        panel.grid.minor = element_blank())
 
 fig_S6<-grid.arrange(AT_plot3,AH_plot3,ncol=1)
 
@@ -1301,7 +1295,7 @@ fig_S6<-grid.arrange(AT_plot3,AH_plot3,ncol=1)
 centered_df4<-adply(just_geog_estimates%>%subset(.,year!=2009),1,climate_centered,point="start",.expand=FALSE,.id=NULL)
 
 mean_stats4<-centered_df4%>%
-  dplyr::group_by(city,relative_fortnight)%>%
+  dplyr::group_by(relative_fortnight)%>%
   dplyr::summarise(mean_temp=mean(mean_temp),
                    mean_d.temp=mean(d.temp),
                    sd_d.temp=sd(d.temp),
@@ -1359,8 +1353,7 @@ AT_plot4<-mean_stats4%>%
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())+
-  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
+        panel.grid.minor = element_blank())
 
 AH_plot4<-mean_stats4%>%
   ggplot(data=.,aes(x=relative_fortnight,y=mean_d.AH))+
@@ -1399,22 +1392,21 @@ AH_plot4<-mean_stats4%>%
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())+
-  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
+        panel.grid.minor = element_blank())
 
 fig_S7<-grid.arrange(AT_plot4,AH_plot4,ncol=1)
 
 
 # save plots --------------------------------------------------------------
 
-base_dir2<-"C:/Users/el382/Dropbox/PhD/code for manuscript/figures/supp/"
+base_dir2<-"C:/Users/el382/Dropbox/PhD/code for manuscript/figures/reviewer comments/"
 
-ggsave(plot = fig_S4,filename = paste(base_dir2,"figure_S4",".png",sep=""), 
+ggsave(plot = fig_S4,filename = paste(base_dir2,"figure_S4",".pdf",sep=""), 
        width=12, height=11,limitsize=FALSE)
-ggsave(plot = fig_S5,filename = paste(base_dir2,"figure_S5",".png",sep=""), 
+ggsave(plot = fig_S5,filename = paste(base_dir2,"figure_S5",".pdf",sep=""), 
        width=12, height=11,limitsize=FALSE)
-ggsave(plot = fig_S6,filename = paste(base_dir2,"figure_S6",".png",sep=""), 
+ggsave(plot = fig_S6,filename = paste(base_dir2,"figure_S6",".pdf",sep=""), 
        width=12, height=11,limitsize=FALSE)
-ggsave(plot = fig_S7,filename = paste(base_dir2,"figure_S7",".png",sep=""), 
+ggsave(plot = fig_S7,filename = paste(base_dir2,"figure_S7",".pdf",sep=""), 
        width=12, height=11,limitsize=FALSE)
 
