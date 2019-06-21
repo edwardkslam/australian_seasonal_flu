@@ -140,25 +140,39 @@ dat<-dat[dat$subtype=="H3" & !is.na(dat$start) & !is.na(dat$incidence_per_mil),]
 dat <- dat %>% left_join(humid_dat, by=c('city'='city','year'='year','start'='fortnights_since_start_of_year'))
 dat<-dat[dat$subtype=="H3" & !is.na(dat$start) & !is.na(dat$incidence_per_mil),]
 
+dat$city_id <- as.numeric(factor(dat$city, 
+                                 levels=unique(dat$city)))
+
 
 ## make data into list
 data_list <- list(
     n_cities=length(unique(dat$city)),
     n_epidemics=length(dat$incidence_per_mil),
     incidences=log(dat$incidence_per_mil),
-    city=sample(1:5, length(dat$city), replace=TRUE),
+    city=dat$city_id,
     antigenic_change=dat$new_ag_marker,
     abs_humidity=dat$mean_AH,
     prior_activity=dat$prior_everything_scaled,
     cumulative_prior_incidence=dat$standardised_prior_cumulative)
-    
+
+hyperparam_list <- list(
+    mean_city_reporting_rates_per_hundred=1
+    sd_city_reporting_rates_per_hundred=2,
+    alpha_average_epi_attack_rate=2,
+    beta_average_epi_attack_rate=22,
+    sd_sd_incidences=2)
+
+stan_data <- c(
+    data_list,
+    hyperparam_list)
+
 
 ###############################
 ## Compile, fit, and save model
 ###############################
 fit <- stan(
     model_src_path,
-    data=data_list,
+    data=stan_data,
     iter=niter,
     seed=fixed_seed,
     chains=nchains, 
