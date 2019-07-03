@@ -177,6 +177,13 @@ dat$epidemic_flag <- ifelse(
     0,
     1)
 
+## calculate offset from best possible
+## start date (the 13th fortnight
+## of year, i.e. the hypothetical
+## peak of seasonality
+## ranges from 0 to 1
+dat$start_date_offset <- abs(dat$start - 13) / 13
+
 
 ## output only needed columns and rows
 columns_wanted = c("city_id",
@@ -184,6 +191,7 @@ columns_wanted = c("city_id",
                    "subtype",
                    "year",
                    "start",
+                   "start_date_offset",
                    "end",
                    "incidence_per_mil",
                    "epidemic_flag",

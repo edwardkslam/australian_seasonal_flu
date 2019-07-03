@@ -16,9 +16,9 @@ suppressPackageStartupMessages(library(shinystan))
 
 ## read command line args
 args <- commandArgs(trailingOnly=TRUE)
-model_src_path <- "multilevel_incidence_model.stan"
-datapath <- "../epi_table.csv"
-humid_datapath <- "../mean_fortnightly_climate_30years.csv"
+model_src_path <- "normed_incidence_regression.stan"
+datapath <- "../dat/cleaned/clean_stan_data.csv"
+mcmc_output_path <- '../out/mcmc_chains/stan_fit_output.Rds'
 
 ## set stan options
 n_cores <- parallel::detectCores()
@@ -33,6 +33,10 @@ fixed_seed = 232032
 ## load data
 dat <- read_csv(datapath,
                 col_types = cols())
+
+dat <- dat[!is.na(dat$epi_z_score),]
+dat <- dat[dat$subtype == 'H3',]
+
 ## make data into list
 data_list <- list(
     n_cities = max(dat$city_id),
@@ -40,16 +44,18 @@ data_list <- list(
     incidences = dat$epi_z_score,
     city = dat$city_id,
     antigenic_change = dat$new_ag_marker,
-    mean_abs_humidity = dat$mean_AH_over_epi,
-    prior_activity = dat$prior_everything_scaled,
-    cumulative_prior_incidence = dat$frac_max)
+    abs_humidity = dat$mean_epi_ah,
+    temperature = dat$mean_epi_temp,
+    other_subtype_activity = dat$prior_everything_scaled,
+    cumulative_prior_incidence = dat$standardised_prior_cumulative,
+    start_date_offset = dat$start_date_offset)
 
 hyperparam_list <- list(
     mean_city_reporting_rates_per_hundred=0,
     sd_city_reporting_rates_per_hundred=0.25,
     alpha_average_epi_attack_rate=2,
     beta_average_epi_attack_rate=15,
-    sd_sd_incidences=2)
+    sd_sd_incidences=0.5)
 
 stan_data <- c(
     data_list,
@@ -67,5 +73,7 @@ fit <- stan(
     chains=nchains, 
     control = list(max_treedepth = max_tree,
                    adapt_delta = adapt_d))
+
+saveRDS(fit, mcmc_output_path)
 
 warnings()
