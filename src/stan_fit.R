@@ -17,7 +17,8 @@ suppressPackageStartupMessages(library(shinystan))
 ## read command line args
 args <- commandArgs(trailingOnly=TRUE)
 model_src_path <- "multilevel_incidence_model.stan"
-datapath <- "../dat/cleaned/clean_stan_data.csv"
+datapath <- "../epi_table.csv"
+humid_datapath <- "../mean_fortnightly_climate_30years.csv"
 
 ## set stan options
 n_cores <- parallel::detectCores()
@@ -30,19 +31,18 @@ max_tree = 15
 fixed_seed = 232032
 
 ## load data
-dat <- read_csv(clean_stan_data,
+dat <- read_csv(datapath,
                 col_types = cols())
-
 ## make data into list
 data_list <- list(
-    n_cities=length(unique(dat$city)),
-    n_epidemics=length(dat$incidence_per_mil.x),
-    incidences=log(dat$epi_z_score,
-    city=dat$city_id,
-    antigenic_change=dat$new_ag_marker,
-    abs_humidity=dat$mean_AH,
-    prior_activity=dat$prior_everything_scaled,
-    cumulative_prior_incidence=dat$frac_max)
+    n_cities = max(dat$city_id),
+    n_epidemics = length(dat$epi_z_score),
+    incidences = dat$epi_z_score,
+    city = dat$city_id,
+    antigenic_change = dat$new_ag_marker,
+    mean_abs_humidity = dat$mean_AH_over_epi,
+    prior_activity = dat$prior_everything_scaled,
+    cumulative_prior_incidence = dat$frac_max)
 
 hyperparam_list <- list(
     mean_city_reporting_rates_per_hundred=0,
