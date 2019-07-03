@@ -67,8 +67,9 @@ depend:
 #######
 
 RAW_CLIMATE_DATA = $(RAW_DATA_DIR)/mean_fortnightly_climate_30years.csv
+RAW_EPI_DATA = $(RAW_DATA_DIR)/epi_table.csv
 
-CLEAN_EPI_DATA = $(CLEANED_DATA_DIR)/epi_table.csv
+CLEAN_EPI_DATA = $(CLEANED_DATA_DIR)/epi_table_with_climate.csv
 CLEAN_STAN_DATA = $(CLEANED_DATA_DIR)/clean_stan_data.csv
 
 ################################
@@ -90,12 +91,16 @@ CHAINS = $(addsuffix $(CHAINS_SUFFIX), \
 # rules for data cleaning
 ##########################
 DATA_PROCESSING_SCRIPT = $(SRC)/make_epi_table.R
+EPI_CLEANING_SCRIPT = $(SRC)/add_climate_to_epi_table.R
 STAN_DATA_CLEANING_SCRIPT = $(SRC)/clean_data_for_stan.R
 
-$(CLEAN_STAN_DATA): $(STAN_DATA_CLEANING_SCRIPT) $(CLEAN_EPI_DATA) $(RAW_CLIMATE_DATA)
+$(CLEAN_STAN_DATA): $(STAN_DATA_CLEANING_SCRIPT) $(CLEAN_EPI_DATA)
 	$(MKDIR) $(CLEANED_DATA_DIR)
 	$(R_COMMAND) $^ $@
 
+$(CLEAN_EPI_DATA): $(EPI_CLEANING_SCRIPT) $(RAW_EPI_DATA) $(RAW_CLIMATE_DATA)
+	$(MKDIR) $(CLEANED_DATA_DIR)
+	$(R_COMMAND) $^ $@
 
 ##########################
 # rules for Stan models
