@@ -63,18 +63,10 @@ transformed parameters{
   vector[n_epidemics] expected_incidences;
   real log_intercept;
 
-  log_intercept = log(average_epi_attack_rate * 1000000);
-
-  // for now, reporting rate is fixed in time for a given city
-  for(epi_id in 1:n_epidemics){
-    epi_reporting_rates[epi_id] =
-      city_reporting_rates_per_hundred[city[epi_id]] / 100;
-  }
-  
-
+  log_intercept = log(average_epi_attack_rate * 1000000);  
 
   // sum log(reporting rate) and other stuff because log scale!
-  expected_incidences = log(epi_reporting_rates) +
+  expected_incidences =
     log_intercept +
     effect_antigenic_change * antigenic_change +
     effect_abs_hum * abs_humidity_std +

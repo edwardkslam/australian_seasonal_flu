@@ -28,7 +28,7 @@ niter <- 1500
 nchains = n_cores
 adapt_d= 0.8
 max_tree = 15
-fixed_seed = 232
+fixed_seed = 232032
 
 ## load data
 dat <- read_csv(datapath)
@@ -40,12 +40,11 @@ humid_dat <- read_csv(humid_datapath)
 
 library(magrittr)
 library(ggplot2)
-library(ggpubr)
 library(gridExtra)
 library(scales)
-library(dplyr)
 library(plyr)
 library(tidyr)
+library(dplyr)
 library(readr)
 
 #Here we assume and correct for potential mis-identification during antigenic characterisation due to delays in 
@@ -112,9 +111,11 @@ cumulative_incidence_by_ag<-cumulative_incidence_by_ag%>%
 
 # filling in which are the years with epidemics and their sizes
 cumulative_incidence_by_ag<-left_join(cumulative_incidence_by_ag,epi_table[,c("city","subtype","reference_strain","year","incidence_per_mil")])
-cumulative_incidence_by_ag<-rename(cumulative_incidence_by_ag,replace=c("incidence_per_mil"= "incidence_current_season"))
-cumulative_incidence_by_ag<-data.frame(cumulative_incidence_by_ag)
-cumulative_incidence_by_ag$incidence_current_season[which(is.na(cumulative_incidence_by_ag$incidence_current_season))]<-0
+cumulative_incidence_by_ag$incidence_current_season <- cumulative_incidence_by_ag$incidence_per_mil
+cumulative_incidence_by_ag$incidence_current_season <-
+    ifelse(is.na(cumulative_incidence_by_ag$incidence_current_season),
+           0,
+           cumulative_incidence_by_ag$incidence_current_season)
 
 # add cumulative incidence for each variant
 cumulative_incidence_by_ag<-cumulative_incidence_by_ag%>%
@@ -130,15 +131,26 @@ overall_mean_size<-epi_table%>%
 
 cumulative_incidence_by_ag<-cumulative_incidence_by_ag%>%left_join(overall_mean_size)
 
-cumulative_incidence_by_ag$standardised_prior_cumulative<-cumulative_incidence_by_ag$cumulative_prior_incidence_same_ag/cumulative_incidence_by_ag$mean_epi_size
+cumulative_incidence_by_ag$standardised_prior_cumulative <- cumulative_incidence_by_ag$cumulative_prior_incidence_same_ag/cumulative_incidence_by_ag$mean_epi_size
+
+cumulative_incidence_by_ag <- cumulative_incidence_by_ag %>%
+    group_by(subtype, city) %>%
+    dplyr::summarise(max_prior = max(cumulative_prior_incidence_same_ag, na.rm=TRUE),
+                     min_prior = min(cumulative_prior_incidence_same_ag, na.rm=TRUE)) %>%
+        right_join(cumulative_incidence_by_ag,
+                   by=c('subtype','city'))
+
+cumulative_incidence_by_ag$frac_max <- ifelse(cumulative_incidence_by_ag$max_prior > 0,
+                                              cumulative_incidence_by_ag$cumulative_prior_incidence_same_ag /
+                                              cumulative_incidence_by_ag$max_prior,
+                                              0)
+
 cumulative_incidence_by_ag$standardised_current_season<-cumulative_incidence_by_ag$incidence_current_season/cumulative_incidence_by_ag$mean_epi_size
 
 dat<-cumulative_incidence_by_ag%>%left_join(dat, by=c('city','year','subtype','reference_strain'))
 
-dat<-dat[dat$subtype=="H3" & !is.na(dat$start) & !is.na(dat$incidence_per_mil),]
-
 dat <- dat %>% left_join(humid_dat, by=c('city'='city','year'='year','start'='fortnights_since_start_of_year'))
-dat<-dat[dat$subtype=="H3" & !is.na(dat$start) & !is.na(dat$incidence_per_mil),]
+dat<-dat[dat$subtype=="H3" & !is.na(dat$start) & !is.na(dat$incidence_per_mil.x),]
 
 dat$city_id <- as.numeric(factor(dat$city, 
                                  levels=unique(dat$city)))
@@ -147,19 +159,19 @@ dat$city_id <- as.numeric(factor(dat$city,
 ## make data into list
 data_list <- list(
     n_cities=length(unique(dat$city)),
-    n_epidemics=length(dat$incidence_per_mil),
-    incidences=log(dat$incidence_per_mil),
+    n_epidemics=length(dat$incidence_per_mil.x),
+    incidences=log(dat$incidence_per_mil.x),
     city=dat$city_id,
     antigenic_change=dat$new_ag_marker,
     abs_humidity=dat$mean_AH,
     prior_activity=dat$prior_everything_scaled,
-    cumulative_prior_incidence=dat$standardised_prior_cumulative)
+    cumulative_prior_incidence=dat$frac_max)
 
 hyperparam_list <- list(
-    mean_city_reporting_rates_per_hundred=1
-    sd_city_reporting_rates_per_hundred=2,
+    mean_city_reporting_rates_per_hundred=0,
+    sd_city_reporting_rates_per_hundred=0.25,
     alpha_average_epi_attack_rate=2,
-    beta_average_epi_attack_rate=22,
+    beta_average_epi_attack_rate=15,
     sd_sd_incidences=2)
 
 stan_data <- c(
