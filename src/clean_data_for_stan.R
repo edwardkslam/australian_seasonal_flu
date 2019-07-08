@@ -159,6 +159,7 @@ dat$city_id <- as.numeric(
 
 epi_variation <- epi_dat %>% group_by(subtype, city) %>%
     summarise(mean_log_inc = mean(log(incidence_per_mil),na.rm=TRUE),
+              mean_inc = mean(incidence_per_mil, na.rm=TRUE),
               sd_log_inc = sd(log(incidence_per_mil),na.rm=TRUE))
 
 epi_variation$cv_log_inc <- epi_variation$sd_log_inc / epi_variation$mean_log_inc
@@ -166,10 +167,10 @@ epi_variation$cv_log_inc <- epi_variation$sd_log_inc / epi_variation$mean_log_in
 ## calculate epi_z_score
 dat <- dat %>% left_join(epi_variation,
                          by = c('subtype', 'city'))
-
 dat$epi_z_score <- (log(dat$incidence_per_mil) - dat$mean_log_inc) / dat$sd_log_inc
 
-
+dat$log_relative_epi_size <- log(dat$incidence_per_mil / dat$mean_inc)
+    
 no_epi <- dat$epi_alarm=='N' |
     is.na(dat$epi_alarm)
 dat$epidemic_flag <- ifelse(
@@ -183,7 +184,7 @@ dat$epidemic_flag <- ifelse(
 ## peak of seasonality
 ## ranges from 0 to 1
 dat$start_date_offset <- abs(dat$start - 13) / 13
-
+    
 
 ## output only needed columns and rows
 columns_wanted = c("city_id",
@@ -204,7 +205,8 @@ columns_wanted = c("city_id",
                    "mean_log_inc",
                    "sd_log_inc",
                    "cv_log_inc",
-                   "epi_z_score")
+                   "epi_z_score",
+                   "log_relative_epi_size")
 ## data integrity checks
 cat("\nChecking data integrity...\n\n")
 check_data_integrity(dat)

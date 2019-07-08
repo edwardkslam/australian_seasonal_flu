@@ -16,7 +16,7 @@ suppressPackageStartupMessages(library(shinystan))
 
 ## read command line args
 args <- commandArgs(trailingOnly=TRUE)
-model_src_path <- "normed_incidence_regression.stan"
+model_src_path <- "incidence_regression.stan"
 datapath <- "../dat/cleaned/clean_stan_data.csv"
 mcmc_output_path <- '../out/mcmc_chains/stan_fit_output.Rds'
 
@@ -34,28 +34,29 @@ fixed_seed = 232032
 dat <- read_csv(datapath,
                 col_types = cols())
 
-dat <- dat[!is.na(dat$epi_z_score),]
-dat <- dat[dat$subtype == 'H3',]
+dat <- dat[!is.na(dat$log_relative_epi_size) &
+           dat$subtype=='H3',]
 
 ## make data into list
 data_list <- list(
     n_cities = max(dat$city_id),
     n_epidemics = length(dat$epi_z_score),
-    incidences = dat$epi_z_score,
+    incidences = log(dat$incidence_per_mil),
+    normed_metric = dat$log_relative_epi_size,
     city = dat$city_id,
     antigenic_change = dat$new_ag_marker,
     abs_humidity = dat$mean_epi_ah,
     temperature = dat$mean_epi_temp,
     other_subtype_activity = dat$prior_everything_scaled,
     cumulative_prior_incidence = dat$standardised_prior_cumulative,
-    start_date_offset = dat$start_date_offset)
+    start_date = dat$start)
 
 hyperparam_list <- list(
-    mean_city_reporting_rates_per_hundred=0,
-    sd_city_reporting_rates_per_hundred=0.25,
+    mean_city_reporting_rates_per_mil=0,
+    sd_city_reporting_rates_per_mil=5000,
     alpha_average_epi_attack_rate=2,
-    beta_average_epi_attack_rate=15,
-    sd_sd_incidences=0.5)
+    beta_average_epi_attack_rate=10,
+    sd_sd_incidences=1)
 
 stan_data <- c(
     data_list,

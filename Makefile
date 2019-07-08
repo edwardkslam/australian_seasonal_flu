@@ -40,7 +40,7 @@ CLEANED_DATA_DIR := $(DAT)/cleaned
 PLOT_PATH = $(OUT)/figures
 
 FIGEXT := png
-SRCEXT := py
+SRCEXT := R
 CHAINS_SUFFIX = _chains.Rds
 
 #####################################
@@ -116,16 +116,16 @@ $(MCMC_CHAINS)/%$(CHAINS_SUFFIX): $(SRC)/%.stan $(MODEL_FITTING_SCRIPT) $(STAN_D
 # figures
 ##################################
 
-FIGURES := figure_final_size_difference.$(FIGEXT) figure_susceptibility_distribution.$(FIGEXT)
+FIGURES := figure_final_size_difference.$(FIGEXT) figure_susceptibility_distribution.$(FIGEXT) figure_posterior_effects.$(FIGEXT)
 
 FIG_PATHS := $(addprefix $(OUT)/, $(FIGURES))
 
 FIG_DEPS = flu_final_size_model.py model_parameters.py
 FIG_DEP_PATHS = $(addprefix $(SRC)/, $(FIG_DEPS)) 
 
-$(OUT)/figure%.$(FIGEXT): $(SRC)/figure%.$(SRCEXT) $(FIG_DEP_PATHS)
+$(OUT)/figure%.$(FIGEXT): $(SRC)/figure%.$(SRCEXT) $(OUT)/mcmc_chains/stan_fit_output.Rds $(CLEAN_STAN_DATA)
 	$(MKDIR) $(dir $@)
-	./$< $@
+	$(R_COMMAND) $^ $@
 
 .PHONY: figs
 figs: $(FIG_PATHS)

@@ -8,7 +8,7 @@ data {
 
   int<lower=0> n_cities;
   int<lower=0> n_epidemics;
-  vector[n_epidemics] incidences;
+  vector[n_epidemics] normed_metric;
   int<lower=0, upper=n_cities> city[n_epidemics];
 
   // predictors
@@ -17,7 +17,7 @@ data {
   vector<lower=0>[n_epidemics] temperature;
   vector<lower=0>[n_epidemics] cumulative_prior_incidence;
   vector<lower=0>[n_epidemics] other_subtype_activity;
-  vector<lower=0>[n_epidemics] start_date_offset;
+  vector<lower=0>[n_epidemics] start_date;
 
   // hyperparameters set at runtime
   real<lower=0> sd_sd_incidences;
@@ -28,18 +28,18 @@ transformed data {
   // center and scale predictors 
   vector[n_epidemics] abs_humidity_std;
   vector[n_epidemics] temperature_std;
-  vector[n_epidemics] cumulative_prior_incidence_std;
   vector[n_epidemics] other_subtype_activity_std;
-
+  vector[n_epidemics] cumulative_prior_incidence_std;
+  
   abs_humidity_std = gelman_standardize(abs_humidity);
 
   temperature_std = gelman_standardize(temperature);
   
-  cumulative_prior_incidence_std = cumulative_prior_incidence;
-
   other_subtype_activity_std =
     gelman_standardize(other_subtype_activity);
 
+  cumulative_prior_incidence_std =
+    gelman_standardize(cumulative_prior_incidence);
 }
 
   
@@ -53,7 +53,7 @@ parameters{
   real effect_temperature;
   real effect_cumulative_prior_inc;
   real effect_other_subtype_activity;
-  real effect_start_date_offset;
+  real effect_start_date;
   
 }
 
@@ -69,15 +69,16 @@ transformed parameters{
     log_intercept +
     effect_antigenic_change * antigenic_change +
     effect_abs_humidity * abs_humidity_std +
-    effect_start_date_offset * start_date_offset +
+    effect_start_date * start_date +
     effect_temperature * temperature_std +
-    effect_cumulative_prior_inc * cumulative_prior_incidence_std +
+    effect_cumulative_prior_inc * (1 - antigenic_change) .*
+    cumulative_prior_incidence_std +
     effect_other_subtype_activity * other_subtype_activity_std;
 }
 
 model {
   
-  incidences ~ normal(expected_incidences, sd_incidences);
+  normed_metric ~ normal(expected_incidences, sd_incidences);
 
   intercept ~ normal(0, 1);
   
@@ -86,15 +87,16 @@ model {
   effect_abs_humidity ~ normal(0, 1);
   effect_cumulative_prior_inc ~ normal(0, 1);
   effect_other_subtype_activity ~ normal(0, 1);
-  effect_start_date_offset ~ normal(0, 1);
-  
+  effect_start_date ~ normal(0, 1);
+  effect_temperature ~ normal(0, 1);
+
   sd_incidences ~ normal(0, sd_sd_incidences);
 }
 
 generated quantities {
-  vector[n_epidemics] true_report;
+  vector[n_epidemics] possible_sizes_given_params;
 
   for(epi_id in 1:n_epidemics){
-    true_report[epi_id] = normal_rng(expected_incidences[epi_id], sd_incidences);
+    possible_sizes_given_params[epi_id] = normal_rng(expected_incidences[epi_id], sd_incidences);
   }
 }

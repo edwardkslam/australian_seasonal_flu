@@ -78,7 +78,7 @@ transformed parameters{
     log_intercept +
     effect_antigenic_change * antigenic_change +
     effect_abs_hum * abs_humidity_std +
-    effect_cumulative_prior_inc * cumulative_prior_incidence_std +
+    effect_cumulative_prior_inc * cumulative_prior_incidence_std * (1 - antigenic_change) +
     effect_prior_activity * prior_activity_std;
 }
 

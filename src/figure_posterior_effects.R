@@ -12,6 +12,8 @@
 
 script_packages <- c(
     'ggplot2',    # general plotting
+    'tibble',     # for tibble()
+    'dplyr',      # for do()
     'magrittr',   # for pipe operator
     'tidybayes',  # for spread_draws()
     'readr',      # for read_csv()
@@ -26,22 +28,11 @@ for (package in script_packages){
 args <- commandArgs(trailingOnly=TRUE)
 mcmc_fit_path <-args[1]
 data_path <- args[2]
-outpath <- args[3]
-
-if(is.na(mcmc_fit_path)){
-    mcmc_fit_path <- '../out/mcmc_chains/stan_fit_output.Rds'
-}
-
-if(is.na(data_path)){
-    data_path <- '../dat/cleaned/cleaned_stan_data.csv'
-}
-
-if(is.na(outpath)){
-    outpath <- '../out/figures/figure-posterior-effects.pdf'
-}
+save_path <- args[3]
 
 dat <- read_csv(data_path,
                 col_types = cols())
+
 fit <- readRDS(mcmc_fit_path)
 
 parameter_names = tibble(
@@ -88,7 +79,7 @@ effect_fig <- quants %>%
     geom_dotplot(
         fill=pointcolor,
         alpha=1,
-        binwidth=0.1) +
+        binwidth=0.05) +
     geom_vline(xintercept=0) + 
     scale_x_continuous(limits=c(-2.5, 2.5)) + 
     facet_wrap(vars(display_name), ncol=2) +
@@ -99,6 +90,9 @@ effect_fig <- quants %>%
     panel_border()
 
 
-save_plot(outpath, position_fig, base_height=9, base_aspect_ratio=0.75)
+save_plot(save_path,
+          effect_fig,
+          base_height=9,
+          base_aspect_ratio=0.75)
 
 
