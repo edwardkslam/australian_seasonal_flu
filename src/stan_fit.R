@@ -16,7 +16,7 @@ suppressPackageStartupMessages(library(shinystan))
 
 ## read command line args
 args <- commandArgs(trailingOnly=TRUE)
-model_src_path <- "incidence_regression.stan"
+model_src_path <- "normed_multilevel_incidence_regression.stan"
 datapath <- "../dat/cleaned/clean_stan_data.csv"
 mcmc_output_path <- '../out/mcmc_chains/stan_fit_output.Rds'
 
@@ -52,11 +52,15 @@ data_list <- list(
     start_date = dat$start)
 
 hyperparam_list <- list(
-    mean_city_reporting_rates_per_mil=0,
-    sd_city_reporting_rates_per_mil=5000,
-    alpha_average_epi_attack_rate=2,
-    beta_average_epi_attack_rate=10,
-    sd_sd_incidences=1)
+    mean_city_reporting_rates_per_mil = 0,
+    sd_city_reporting_rates_per_mil = 5000,
+    alpha_average_epi_attack_rate = 2,
+    beta_average_epi_attack_rate = 10,
+    sd_sd_incidences = 1,
+    sd_mean_effect_sizes = 1,
+    sd_sd_effect_sizes = 1,
+    sd_mean_intercept = 1,
+    sd_sd_intercept = 1)
 
 stan_data <- c(
     data_list,
