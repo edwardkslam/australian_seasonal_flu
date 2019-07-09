@@ -13,3 +13,5 @@ out/*
 lit/*
 
 *.Rds
+
+*.Rhistory
