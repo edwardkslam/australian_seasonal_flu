@@ -41,6 +41,8 @@ dat <- dat[!is.na(dat$log_relative_epi_size) &
 data_list <- list(
     n_cities = max(dat$city_id),
     n_epidemics = length(dat$epi_z_score),
+    n_subtypes = max(dat$subtype_id),
+    subtype = dat$subtype_id,
     incidences = log(dat$incidence_per_mil),
     normed_metric = dat$log_relative_epi_size,
     city = dat$city_id,

@@ -63,26 +63,26 @@ parameters{
 
 
   real mean_intercept;
-  real sd_intercept;
+  real<lower=0> sd_intercept;
   
 
   real mean_effect_antigenic_change;
-  real sd_effect_antigenic_change;
+  real<lower=0> sd_effect_antigenic_change;
 
   real mean_effect_abs_humidity;
-  real sd_effect_abs_humidity;
+  real<lower=0> sd_effect_abs_humidity;
   
   real mean_effect_temperature;
-  real sd_effect_temperature;
+  real<lower=0> sd_effect_temperature;
 
   real mean_effect_cumulative_prior_inc;
-  real sd_effect_cumulative_prior_inc;
+  real<lower=0> sd_effect_cumulative_prior_inc;
 
   real mean_effect_other_subtype_activity;
-  real sd_effect_other_subtype_activity;
+  real<lower=0> sd_effect_other_subtype_activity;
 
   real mean_effect_start_date;
-  real sd_effect_start_date;
+  real<lower=0> sd_effect_start_date;
 }
 
 transformed parameters{

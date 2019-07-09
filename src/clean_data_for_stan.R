@@ -157,6 +157,10 @@ dat$city_id <- as.numeric(
     factor(dat$city, 
            levels=unique(dat$city)))
 
+dat$subtype_id <- as.numeric(
+    factor(dat$subtype, 
+           levels=unique(dat$subtype)))
+
 epi_variation <- epi_dat %>% group_by(subtype, city) %>%
     summarise(mean_log_inc = mean(log(incidence_per_mil),na.rm=TRUE),
               mean_inc = mean(incidence_per_mil, na.rm=TRUE),
@@ -190,6 +194,7 @@ dat$start_date_offset <- abs(dat$start - 13) / 13
 columns_wanted = c("city_id",
                    "city",
                    "subtype",
+                   "subtype_id",
                    "year",
                    "start",
                    "start_date_offset",
