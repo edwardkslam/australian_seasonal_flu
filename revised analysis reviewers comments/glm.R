@@ -1,3 +1,4 @@
+library(lubridate)
 library(lme4)
 library(magrittr)
 library(ggplot2)
@@ -9,12 +10,24 @@ library(plyr)
 library(tidyr)
 
 # loading data ------------------------------------------------------------
+raw_table<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/raw_data.csv")
+raw_table<-raw_table%>%
+  dplyr::mutate(fortnights_since_start_of_year = yday(specimen_date)%/%14+1)%>%
+  dplyr::group_by(city,year,assumed_antigenic_variant,fortnights_since_start_of_year)%>%
+  dplyr::summarise(count=n())
 
 epi_table<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/epi_table.csv")
 mean_fortnightly_climate_30years<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/mean_fortnightly_climate_30years.csv")
 
 epi_table<-epi_table%>%
-  dplyr::mutate(scaled_incidence_city = incidence_per_mil/mean_epi_size)
+  dplyr::mutate(scaled_incidence_city = incidence_per_mil/mean_epi_size,
+                log_incidence = log(incidence_per_mil))
+
+epi_table<-epi_table%>%
+  dplyr::group_by(city)%>%
+  dplyr::mutate(z_score_incidence_city = ifelse(epi_alarm=="Y",
+                                                (log_incidence-mean(log_incidence,na.rm=TRUE))/sd(log_incidence,na.rm = TRUE),
+                                                NA))
 
 mean_size_subtype_city<-epi_table%>%
   dplyr::group_by(city,subtype)%>%
@@ -24,39 +37,218 @@ epi_table<-left_join(epi_table,mean_size_subtype_city)
 epi_table<-epi_table%>%
   dplyr::mutate(scaled_incidence_subtype_city = incidence_per_mil/mean_epi_size_sc)
 
+epi_table<-epi_table%>%
+  dplyr::group_by(city,subtype)%>%
+  dplyr::mutate(incidence_z_score_subtype_city = ifelse(epi_alarm=="Y",
+                                                        (log_incidence-mean(log_incidence,na.rm=TRUE))/sd(log_incidence,na.rm = TRUE),
+                                                        NA))
+
 # function to return mean climate values ----------------------------------
 mean_climate_over_epi<-function(x,y="ah"){
-  x<-as.data.frame(x)
+  #x<-as.data.frame(x)
   if(x$epi_alarm=="N"){
-    if(y=="ah"){
-      return(data.frame(mean_epi_ah=NA))
-    }
-    if(y=="temp"){
-      return(data.frame(mean_epi_temp=NA))
-    }
+    return(data.frame(x,
+                      mean_epi_ah=NA,
+                      mean_epi_temp=NA))
   }
   fortnights<-seq(x$start,x$end,1)
   temp_clim<-subset(mean_fortnightly_climate_30years,city ==as.character(x$city))
   temp_clim<-temp_clim%>%subset(.,year==x$year & fortnights_since_start_of_year%in% fortnights)
-  if(y=="ah"){
-    return(data.frame(mean_epi_ah=mean(temp_clim$mean_AH)))
+  temp_clim<-temp_clim%>%dplyr::summarise(mean_epi_ah = mean(mean_AH),
+                                   mean_epi_temp = mean(mean_temp))
+  return(data.frame(x,temp_clim))
+}
+
+early_climate<-function(x,y="ah"){
+  #mean climate over start to peak fortnight
+  x<-as.data.frame(x)
+  if(x$epi_alarm=="N"){
+    return(data.frame(x,
+                      early_ah=NA,
+                      early_temp=NA))
   }
-  if(y=="temp"){
-    return(data.frame(mean_epi_temp=mean(temp_clim$mean_temp)))
-  }
+  
+  temp<-raw_table%>%subset(.,city==x$city & year==x$year & assumed_antigenic_variant==as.character(x$reference_strain) &
+                             fortnights_since_start_of_year %in%c(x$start+1:x$end))
+  peak_fortnight<-temp$fortnights_since_start_of_year[which.max(temp$count)]
+  
+  fortnights<-seq(x$start,peak_fortnight,1)
+  temp_clim<-subset(mean_fortnightly_climate_30years,city ==as.character(x$city))
+  temp_clim<-temp_clim%>%subset(.,year==x$year & fortnights_since_start_of_year%in% fortnights)
+  temp_clim<-temp_clim%>%dplyr::summarise(early_ah = mean(mean_AH),
+                                          early_temp = mean(mean_temp))
+
 }
 
 epi_table_with_clim<-adply(epi_table%>%subset(.,epi_alarm=="Y"),1,mean_climate_over_epi)
-epi_table_with_clim<-adply(epi_table_with_clim,1,mean_climate_over_epi,y="temp")
 
-epi_table_with_clim%>%
+epi_table_with_clim<-adply(epi_table_with_clim,1,early_climate)
+
+# prior immunity  for each ag variant -------------------------------------
+dodgy_prev<-epi_table%>%subset(.,is.na(new_ag_marker) | 
+                                 reference_strain=="A/Perth/16/2009-like")
+
+# First find the first and last year in which an ag variant causes an epidemic in each city
+first_emerge_table<-epi_table%>%
   subset(.,epi_alarm=="Y")%>%
-  lm(scaled_incidence_subtype_city ~ start + log(prior_everything_scaled+0.0001) + as.factor(new_ag_marker) + mean_epi_ah + mean_epi_temp, data=.)%>%
+  subset(.,!(reference_strain%in%dodgy_prev$reference_strain))%>%
+  dplyr::group_by(city,subtype,reference_strain)%>%
+  dplyr::summarise(emerge_year=min(year),
+                   last_recorded_epi=max(year))
+
+# assume that an ag variant could potentially have caused an epidemic right up to the year 
+# before the emergence of its replacement new variant
+first_emerge_table<-first_emerge_table%>%
+  dplyr::group_by(city,subtype)%>%
+  dplyr::arrange(emerge_year,.by_group=TRUE)%>%
+  dplyr::mutate(last_possible_year=if(subtype!="H1sea"){lead(emerge_year-1,default = 2015)}else{lead(emerge_year-1,default = 2008)})
+
+# the last possible year in which an epidemic could have been caused is whichever occured last:
+# the last recorded epidemic (to account for the case in which old and new variants circulate in same year)
+# the year prior to emergence of new variant
+first_emerge_table<-first_emerge_table%>%
+  dplyr::rowwise()%>%
+  dplyr::mutate(last_possible_year=max(last_possible_year,last_recorded_epi))
+
+# correcting for mislabelling 
+end_rows<-which(first_emerge_table$subtype=="H1sea" & first_emerge_table$last_possible_year>=2009)
+first_emerge_table$last_possible_year[end_rows]<-2008
+
+# generate the full list of possible years for each variant
+cumulative_incidence_by_ag<-first_emerge_table%>%
+  dplyr::group_by(city,subtype,reference_strain)%>%
+  tidyr::expand(.,year=full_seq(c(emerge_year,last_possible_year),1))
+
+cumulative_incidence_by_ag<-cumulative_incidence_by_ag%>%
+  dplyr::group_by(city,reference_strain)%>%
+  dplyr::mutate(years_since_emergence=year-min(year))
+
+# filling in which are the years with epidemics and their sizes
+cumulative_incidence_by_ag<-left_join(cumulative_incidence_by_ag,epi_table[,c("city","subtype","reference_strain","year","incidence_per_mil")])
+cumulative_incidence_by_ag<-rename(cumulative_incidence_by_ag,replace=c("incidence_per_mil"= "incidence_current_season"))
+cumulative_incidence_by_ag<-data.frame(cumulative_incidence_by_ag)
+cumulative_incidence_by_ag$incidence_current_season[which(is.na(cumulative_incidence_by_ag$incidence_current_season))]<-0
+
+# add cumulative incidence for each variant
+cumulative_incidence_by_ag<-cumulative_incidence_by_ag%>%
+  dplyr::group_by(city,subtype,reference_strain)%>%
+  dplyr::arrange(year,.by_group=TRUE)%>%
+  dplyr::mutate(cumulative_prior_incidence_same_ag = cumsum(incidence_current_season)- incidence_current_season)
+
+# need to divide cumulative incidence by city-specific mean epidemic size
+overall_mean_size<-epi_table%>%
+  subset(.,epi_alarm=="Y")%>%
+  dplyr::group_by(city)%>%
+  dplyr::summarise(mean_epi_size=mean(incidence_per_mil))
+
+cumulative_incidence_by_ag<-cumulative_incidence_by_ag%>%left_join(overall_mean_size)
+
+cumulative_incidence_by_ag$standardised_prior_cumulative<-cumulative_incidence_by_ag$cumulative_prior_incidence_same_ag/cumulative_incidence_by_ag$mean_epi_size
+cumulative_incidence_by_ag$standardised_current_season<-cumulative_incidence_by_ag$incidence_current_season/cumulative_incidence_by_ag$mean_epi_size
+
+cumulative_incidence_by_ag<-cumulative_incidence_by_ag%>%left_join(data.frame(city=epi_table$city,reference_strain=epi_table$reference_strain,year=epi_table$year,epi_alarm=factor(epi_table$epi_alarm,levels = c("Y","N"))))
+cumulative_incidence_by_ag$epi_alarm[is.na(cumulative_incidence_by_ag$epi_alarm)==TRUE]<-"N"
+
+cumulative_incidence_by_ag$epi_alarm2<-cumulative_incidence_by_ag$epi_alarm%>%
+  mapvalues(.,from=c("Y","N"),to=c(1,0))
+
+# append epi_table with cumulative incidence ------------------------------
+
+epi_table_with_clim_2<-left_join(epi_table_with_clim,cumulative_incidence_by_ag[c("city","subtype","reference_strain","year","standardised_prior_cumulative")])
+
+
+# lm models ---------------------------------------------------------------
+
+epi_table_with_clim_2%>%
+  subset(.,epi_alarm=="Y")%>%
+  lm(scaled_incidence_subtype_city ~ start + log(prior_everything_scaled+0.0001) + as.factor(new_ag_marker) + standardised_prior_cumulative+ mean_epi_ah + mean_epi_temp, data=.)%>%
+  summary()
+
+#lm with early climate
+epi_table_with_clim_2%>%
+  subset(.,epi_alarm=="Y")%>%
+  lm(scaled_incidence_subtype_city ~ start + log(prior_everything_scaled+0.0001) + as.factor(new_ag_marker) + standardised_prior_cumulative+ early_ah + early_temp, data=.)%>%
+  summary()
+
+#drop start
+epi_table_with_clim_2%>%
+  subset(.,epi_alarm=="Y")%>%
+  lm(scaled_incidence_subtype_city ~ log(prior_everything_scaled+0.0001) + as.factor(new_ag_marker) + standardised_prior_cumulative+ early_ah + early_temp, data=.)%>%
+  summary()
+
+#drop prior same season
+epi_table_with_clim_2%>%
+  subset(.,epi_alarm=="Y")%>%
+  lm(scaled_incidence_subtype_city ~ start + as.factor(new_ag_marker) + standardised_prior_cumulative+ early_ah + early_temp, data=.)%>%
+  summary()
+
+#drop start and prior same season
+epi_table_with_clim_2%>%
+  subset(.,epi_alarm=="Y")%>%
+  lm(scaled_incidence_subtype_city ~ as.factor(new_ag_marker) + standardised_prior_cumulative+ early_ah + early_temp, data=.)%>%
+  summary()
+
+#drop new ag
+epi_table_with_clim_2%>%
+  subset(.,epi_alarm=="Y")%>%
+  lm(scaled_incidence_subtype_city ~ start + log(prior_everything_scaled+0.0001) + standardised_prior_cumulative+ early_ah + early_temp, data=.)%>%
+  summary()
+
+#drop prior cumulative same ag var
+epi_table_with_clim_2%>%
+  subset(.,epi_alarm=="Y")%>%
+  lm(scaled_incidence_subtype_city ~ start + log(prior_everything_scaled+0.0001) + new_ag_marker + early_ah + early_temp, data=.)%>%
+  summary()
+
+#drop new ag and prior cumulative same ag var
+epi_table_with_clim_2%>%
+  subset(.,epi_alarm=="Y")%>%
+  lm(scaled_incidence_subtype_city ~ start + log(prior_everything_scaled+0.0001) + early_ah + early_temp, data=.)%>%
   summary()
 
 
+epi_table_with_clim_2%>%
+  subset(.,epi_alarm=="Y")%>%
+  lm(scaled_incidence_subtype_city ~ start + log(prior_everything_scaled+0.0001), data=.)%>%
+  summary()
 
 
+# adding interaction and random slope -------------------------------------
+epi_table_with_clim_2<-epi_table_with_clim_2%>%
+  dplyr::mutate(first_in_season = ifelse(delay==0,"Y","N"))
+
+temp_data<-epi_table_with_clim_2%>%
+  subset(.,epi_alarm=="Y" & !is.na(standardised_prior_cumulative))
+
+full_model<-temp_data%>%
+  lmer(log(scaled_incidence_subtype_city+0.0001) ~ start + (1 + prior_everything_scaled|first_in_season) + 
+         (1 + standardised_prior_cumulative|new_ag_marker)  + early_ah + early_temp,data=.)
+
+model.1<-temp_data%>%
+  lmer(log(scaled_incidence_subtype_city+0.0001) ~ (1 + prior_everything_scaled|first_in_season) + 
+         (1 + standardised_prior_cumulative|new_ag_marker)  + early_ah + early_temp,data=.)
+
+model.2<-temp_data%>%
+  lmer(log(scaled_incidence_subtype_city+0.0001) ~ start + 
+         (1 + standardised_prior_cumulative|new_ag_marker)  + early_ah + early_temp,data=.)
+
+model.3<-temp_data%>%
+  lmer(log(scaled_incidence_subtype_city+0.0001) ~ start + (1 + prior_everything_scaled|first_in_season)+
+          early_ah + early_temp,data=.)
+
+model.4<-temp_data%>%
+  lmer(log(scaled_incidence_subtype_city+0.0001) ~ start + (1 + prior_everything_scaled|first_in_season) + 
+         (1 + standardised_prior_cumulative|new_ag_marker) + early_temp,data=.)
+
+model.5<-temp_data%>%
+  lmer(log(scaled_incidence_subtype_city+0.0001) ~ start + (1 + prior_everything_scaled|first_in_season) + 
+         (1 + standardised_prior_cumulative|new_ag_marker)  + early_ah ,data=.)
+
+anova(model.1,full_model)
+anova(model.2,full_model)
+anova(model.3,full_model)
+anova(model.4,full_model)
+anova(model.5,full_model)
 # onset -------------------------------------------------------------------
 find_preonset_sample<-function(x, n_fortnight = 1){
   x<-as.vector(x)
@@ -116,12 +308,12 @@ glm_1ftn<-climate_1ftn_prior%>%glm(initiate ~ sample_mean_d.AH + sample_mean_d.t
                                family=binomial())%>%summary(.)%>%
   reformat_glm_func()
 
-glm_2ftn<-climate_1ftn_prior%>%glm(initiate ~ sample_mean_d.AH + sample_mean_d.temp,
+glm_2ftn<-climate_2ftn_prior%>%glm(initiate ~ sample_mean_d.AH + sample_mean_d.temp,
                                    data=.,
                                    family=binomial())%>%summary(.)%>%
   reformat_glm_func()
 
-glm_3ftn<-climate_1ftn_prior%>%glm(initiate ~ sample_mean_d.AH + sample_mean_d.temp,
+glm_3ftn<-climate_3ftn_prior%>%glm(initiate ~ sample_mean_d.AH + sample_mean_d.temp,
                                    data=.,
                                    family=binomial())%>%summary(.)%>%
   reformat_glm_func()
