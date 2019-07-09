@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 ################################
-## fit the specified stan model
+## fit the specified epi probability stan model
 ## to the specified clean dataset,
 ## and save the result as an .Rds
 ## file
@@ -16,7 +16,7 @@ suppressPackageStartupMessages(library(shinystan))
 
 ## read command line args
 args <- commandArgs(trailingOnly=TRUE)
-model_src_path <- "normed_multilevel_incidence_regression.stan"
+model_src_path <- "multilevel_epi_probability_model.stan"
 datapath <- "../dat/cleaned/clean_stan_data.csv"
 mcmc_output_path <- '../out/mcmc_chains/stan_fit_output.Rds'
 
@@ -33,16 +33,15 @@ fixed_seed = 232032
 ## load data
 dat <- read_csv(datapath,
                 col_types = cols())
-dat <- dat[!is.na(dat$log_relative_epi_size),]
+
 
 ## make data into list
 data_list <- list(
     n_cities = max(dat$city_id),
-    n_epidemics = length(dat$epi_z_score),
+    n_possible_epidemics = length(dat$epidemic_flag),
+    epi_occurred = dat$epidemic_flag,
     n_subtypes = max(dat$subtype_id),
     subtype = dat$subtype_id,
-    incidences = log(dat$incidence_per_mil),
-    normed_metric = dat$log_relative_epi_size,
     city = dat$city_id,
     antigenic_change = dat$new_ag_marker,
     abs_humidity = dat$mean_epi_ah,
@@ -52,11 +51,6 @@ data_list <- list(
     start_date = dat$start)
 
 hyperparam_list <- list(
-    mean_city_reporting_rates_per_mil = 0,
-    sd_city_reporting_rates_per_mil = 5000,
-    alpha_average_epi_attack_rate = 2,
-    beta_average_epi_attack_rate = 10,
-    sd_sd_incidences = 5,
     sd_mean_effect_sizes = 1,
     sd_sd_effect_sizes = 0.1,
     sd_mean_intercept = 1,

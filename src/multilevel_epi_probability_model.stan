@@ -8,21 +8,20 @@ data {
 
   int<lower=0> n_cities;
   int<lower=0> n_subtypes;
-  int<lower=0> n_epidemics;
-  vector[n_epidemics] normed_metric;
-  int<lower=0, upper=n_cities> city[n_epidemics];
-  int<lower=0, upper=n_subtypes> subtype[n_epidemics];
+  int<lower=0> n_possible_epidemics;
+  int<lower=0, upper=1> epi_occurred[n_possible_epidemics];
+  int<lower=0, upper=n_cities> city[n_possible_epidemics];
+  int<lower=0, upper=n_subtypes> subtype[n_possible_epidemics];
 
   // predictors
-  vector<lower=0, upper=1>[n_epidemics] antigenic_change;
-  vector<lower=0>[n_epidemics] abs_humidity;
-  vector<lower=0>[n_epidemics] temperature;
-  vector<lower=0>[n_epidemics] cumulative_prior_incidence;
-  vector<lower=0>[n_epidemics] other_subtype_activity;
-  vector<lower=0>[n_epidemics] start_date;
+  vector<lower=0, upper=1>[n_possible_epidemics] antigenic_change;
+  vector<lower=0>[n_possible_epidemics] abs_humidity;
+  vector<lower=0>[n_possible_epidemics] temperature;
+  vector<lower=0>[n_possible_epidemics] cumulative_prior_incidence;
+  vector<lower=0>[n_possible_epidemics] other_subtype_activity;
+  vector<lower=0>[n_possible_epidemics] start_date;
 
   // hyperparameters set at runtime
-  real<lower=0> sd_sd_incidences;
   real<lower=0> sd_mean_effect_sizes;
   real<lower=0> sd_sd_effect_sizes;
   real<lower=0> sd_mean_intercept;
@@ -32,10 +31,10 @@ data {
 transformed data {
 
   // center and scale predictors 
-  vector[n_epidemics] abs_humidity_std;
-  vector[n_epidemics] temperature_std;
-  vector[n_epidemics] other_subtype_activity_std;
-  vector[n_epidemics] cumulative_prior_incidence_std;
+  vector[n_possible_epidemics] abs_humidity_std;
+  vector[n_possible_epidemics] temperature_std;
+  vector[n_possible_epidemics] other_subtype_activity_std;
+  vector[n_possible_epidemics] cumulative_prior_incidence_std;
   
   abs_humidity_std = gelman_standardize(abs_humidity);
 
@@ -51,8 +50,6 @@ transformed data {
   
 
 parameters{
-  real<lower=0> sd_incidences;
-
 
   // non centered hierarchical effects
   vector[n_subtypes] intercept_errors;
@@ -91,10 +88,11 @@ parameters{
 
 transformed parameters{
 
-  vector[n_epidemics] expected_incidences;
+  vector[n_possible_epidemics] logit_epi_prob;
+  vector[n_possible_epidemics] epi_prob;
 
-  for(epi_id in 1:n_epidemics){
-    expected_incidences[epi_id] =
+  for(epi_id in 1:n_possible_epidemics){
+    logit_epi_prob[epi_id] =
 
       mean_intercept +
       intercept_errors[subtype[epi_id]] *
@@ -132,11 +130,13 @@ transformed parameters{
       other_subtype_activity_std[epi_id];
 
   }
+
+  epi_prob = inv_logit(logit_epi_prob);
 }
 
 model {
   
-  normed_metric ~ normal(expected_incidences, sd_incidences);
+  epi_occurred ~ bernoulli(epi_prob);
 
   // non-centered intercept errors
   intercept_errors ~ normal(0, 1);
@@ -154,8 +154,6 @@ model {
   effect_start_date_errors ~ normal(0, 1);
 
   effect_temperature_errors ~ normal(0, 1);
-
-  sd_incidences ~ normal(0, sd_sd_incidences);
 
 
   mean_intercept ~ normal(0, sd_mean_intercept);
@@ -184,10 +182,3 @@ model {
   
 }
 
-generated quantities {
-  vector[n_epidemics] possible_sizes_given_params;
-
-  for(epi_id in 1:n_epidemics){
-    possible_sizes_given_params[epi_id] = normal_rng(expected_incidences[epi_id], sd_incidences);
-  }
-}
