@@ -53,57 +53,84 @@ transformed data {
 parameters{
   real<lower=0> sd_incidences;
 
-  vector[n_subtypes] intercepts;
-  vector[n_subtypes] effect_antigenic_change;
-  vector[n_subtypes] effect_abs_humidity;
-  vector[n_subtypes] effect_temperature;
-  vector[n_subtypes] effect_cumulative_prior_inc;
-  vector[n_subtypes] effect_other_subtype_activity;
-  vector[n_subtypes] effect_start_date;
+
+  // non centered hierarchical effects
+  vector[n_subtypes] intercept_errors;
+  vector[n_subtypes] effect_antigenic_change_errors;
+  vector[n_subtypes] effect_abs_humidity_errors;
+  vector[n_subtypes] effect_temperature_errors;
+  vector[n_subtypes] effect_cumulative_prior_inc_errors;
+  vector[n_subtypes] effect_other_subtype_activity_errors;
+  vector[n_subtypes] effect_start_date_errors;
 
 
   real mean_intercept;
   real<lower=0> sd_intercept;
   
 
+  real<lower=0> sd_effects;
+  
   real mean_effect_antigenic_change;
-  real<lower=0> sd_effect_antigenic_change;
+  //real<lower=0> sd_effect_antigenic_change;
 
   real mean_effect_abs_humidity;
-  real<lower=0> sd_effect_abs_humidity;
+  //real<lower=0> sd_effect_abs_humidity;
   
   real mean_effect_temperature;
-  real<lower=0> sd_effect_temperature;
+  //real<lower=0> sd_effect_temperature;
 
   real mean_effect_cumulative_prior_inc;
-  real<lower=0> sd_effect_cumulative_prior_inc;
+  //real<lower=0> sd_effect_cumulative_prior_inc;
 
   real mean_effect_other_subtype_activity;
-  real<lower=0> sd_effect_other_subtype_activity;
+  //real<lower=0> sd_effect_other_subtype_activity;
 
   real mean_effect_start_date;
-  real<lower=0> sd_effect_start_date;
+  //  real<lower=0> sd_effect_start_date;
 }
 
 transformed parameters{
 
   vector[n_epidemics] expected_incidences;
 
-
   for(epi_id in 1:n_epidemics){
     expected_incidences[epi_id] =
-      intercepts[subtype[epi_id]] +
-      effect_antigenic_change[subtype[epi_id]] *
+
+      mean_intercept +
+      intercept_errors[subtype[epi_id]] *
+      sd_intercept +
+      
+      (mean_effect_antigenic_change +
+       effect_antigenic_change_errors[subtype[epi_id]] *
+       sd_effects) *
       antigenic_change[epi_id] +
-      effect_abs_humidity[subtype[epi_id]] *
+
+      (mean_effect_abs_humidity +
+       effect_abs_humidity_errors[subtype[epi_id]] *
+       sd_effects) *
       abs_humidity_std[epi_id] +
-      effect_start_date[subtype[epi_id]] * start_date[epi_id] +
-      effect_temperature[subtype[epi_id]] * temperature_std[epi_id] +
-      effect_cumulative_prior_inc[subtype[epi_id]] *
+
+      (mean_effect_start_date +
+       effect_start_date_errors[subtype[epi_id]] *
+       sd_effects) *
+      start_date[epi_id] +
+
+      (mean_effect_temperature +
+       effect_temperature_errors[subtype[epi_id]] *
+       sd_effects) *
+      temperature_std[epi_id] +
+      
+      (mean_effect_cumulative_prior_inc +
+       effect_cumulative_prior_inc_errors[subtype[epi_id]] *
+       sd_effects) *
       (1 - antigenic_change[epi_id]) *
       cumulative_prior_incidence_std[epi_id] +
-      effect_other_subtype_activity[subtype[epi_id]] *
+
+      (mean_effect_other_subtype_activity +
+       effect_other_subtype_activity_errors[subtype[epi_id]] *
+       sd_effects) *
       other_subtype_activity_std[epi_id];
+
   }
 }
 
@@ -111,26 +138,22 @@ model {
   
   normed_metric ~ normal(expected_incidences, sd_incidences);
 
-  intercepts ~ normal(mean_intercept, sd_intercept);
+  // non-centered intercept errors
+  intercept_errors ~ normal(0, 1);
+
   
   // regression coeffecients hierarchical by subtype
-  effect_antigenic_change ~ normal(mean_effect_antigenic_change,
-                                   sd_effect_antigenic_change);
+  effect_antigenic_change_errors ~ normal(0, 1);
 
-  effect_abs_humidity ~ normal(mean_effect_abs_humidity,
-                               sd_effect_abs_humidity);
+  effect_abs_humidity_errors ~ normal(0, 1);
 
-  effect_cumulative_prior_inc ~ normal(mean_effect_cumulative_prior_inc,
-                                       sd_effect_cumulative_prior_inc);
+  effect_cumulative_prior_inc_errors ~ normal(0, 1);
 
-  effect_other_subtype_activity ~ normal(mean_effect_other_subtype_activity,
-                                         sd_effect_other_subtype_activity);
+  effect_other_subtype_activity_errors ~ normal(0, 1);
 
-  effect_start_date ~ normal(mean_effect_start_date,
-                             sd_effect_start_date);
+  effect_start_date_errors ~ normal(0, 1);
 
-  effect_temperature ~ normal(mean_effect_temperature,
-                              sd_effect_temperature);
+  effect_temperature_errors ~ normal(0, 1);
 
   sd_incidences ~ normal(0, sd_sd_incidences);
 
@@ -141,23 +164,24 @@ model {
   // weakly informative priors on mean regression effects
   
   mean_effect_antigenic_change ~ normal(0, sd_mean_effect_sizes);
-  sd_effect_antigenic_change ~ normal(0, sd_sd_effect_sizes);
+  //sd_effect_antigenic_change ~ normal(0, sd_sd_effect_sizes);
 
   mean_effect_abs_humidity ~ normal(0, sd_mean_effect_sizes);
-  sd_effect_abs_humidity ~ normal(0, sd_sd_effect_sizes);
+  //sd_effect_abs_humidity ~ normal(0, sd_sd_effect_sizes);
   
   mean_effect_temperature ~ normal(0, sd_mean_effect_sizes);
-  sd_effect_temperature ~ normal(0, sd_sd_effect_sizes);
+  //sd_effect_temperature ~ normal(0, sd_sd_effect_sizes);
 
   mean_effect_cumulative_prior_inc ~ normal(0, sd_mean_effect_sizes);
-  sd_effect_cumulative_prior_inc ~ normal(0, sd_sd_effect_sizes);
+  //sd_effect_cumulative_prior_inc ~ normal(0, sd_sd_effect_sizes);
 
   mean_effect_other_subtype_activity ~ normal(0, sd_mean_effect_sizes);
-  sd_effect_other_subtype_activity ~ normal(0, sd_sd_effect_sizes);
+  //sd_effect_other_subtype_activity ~ normal(0, sd_sd_effect_sizes);
 
   mean_effect_start_date ~ normal(0, sd_mean_effect_sizes);
-  sd_effect_start_date ~ normal(0, sd_sd_effect_sizes);
+  //sd_effect_start_date ~ normal(0, sd_sd_effect_sizes);
 
+  sd_effects ~ normal(0, sd_sd_effect_sizes);
   
 }
 

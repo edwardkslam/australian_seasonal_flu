@@ -58,9 +58,9 @@ hyperparam_list <- list(
     sd_city_reporting_rates_per_mil = 5000,
     alpha_average_epi_attack_rate = 2,
     beta_average_epi_attack_rate = 10,
-    sd_sd_incidences = 1,
+    sd_sd_incidences = 5,
     sd_mean_effect_sizes = 1,
-    sd_sd_effect_sizes = 1,
+    sd_sd_effect_sizes = 0.25,
     sd_mean_intercept = 1,
     sd_sd_intercept = 1)
 
