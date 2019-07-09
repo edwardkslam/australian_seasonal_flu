@@ -18,7 +18,7 @@ suppressPackageStartupMessages(library(shinystan))
 args <- commandArgs(trailingOnly=TRUE)
 model_src_path <- "multilevel_epi_probability_model.stan"
 datapath <- "../dat/cleaned/clean_stan_data.csv"
-mcmc_output_path <- '../out/mcmc_chains/stan_fit_output.Rds'
+mcmc_output_path <- '../out/mcmc_chains/prob_stan_fit_output.Rds'
 
 ## set stan options
 n_cores <- parallel::detectCores()
@@ -33,6 +33,8 @@ fixed_seed = 232032
 ## load data
 dat <- read_csv(datapath,
                 col_types = cols())
+
+dat <- dat[!is.na(dat$new_ag_marker),]
 
 
 ## make data into list
