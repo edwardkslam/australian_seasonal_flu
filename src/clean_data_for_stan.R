@@ -139,7 +139,7 @@ cumulative_incidence_by_ag <- cumulative_incidence_by_ag %>%
 ## normalize cumulative incidence by city-
 ## and subtype-specific mean epidemic size
 cumulative_incidence_by_ag <- cumulative_incidence_by_ag %>%
-    dplyr::group_by(city, subtype) %>%
+    group_by(city, subtype) %>%
     mutate(mean_epi_size = mean(incidence_per_mil, na.rm=TRUE)) ## want mean size IF an epi happens
 
 cumulative_incidence_by_ag$standardised_prior_cumulative <-
@@ -150,8 +150,7 @@ cumulative_incidence_by_ag$standardised_current_season <-
     cumulative_incidence_by_ag$incidence_current_season /
     cumulative_incidence_by_ag$mean_epi_size
 
-dat <- cumulative_incidence_by_ag %>%
-    subset(!is.na(incidence_current_season))
+dat <- cumulative_incidence_by_ag
 
 dat$city_id <- as.numeric(
     factor(dat$city, 
@@ -161,9 +160,14 @@ dat$subtype_id <- as.numeric(
     factor(dat$subtype, 
            levels=unique(dat$subtype)))
 
+dat <- dat %>% group_by(city) %>%
+    mutate(
+        mean_inc = mean(incidence_per_mil, na.rm=TRUE)) %>%
+    ungroup()
+
+
 epi_variation <- epi_dat %>% group_by(subtype, city) %>%
     summarise(mean_log_inc = mean(log(incidence_per_mil),na.rm=TRUE),
-              mean_inc = mean(incidence_per_mil, na.rm=TRUE),
               sd_log_inc = sd(log(incidence_per_mil),na.rm=TRUE))
 
 epi_variation$cv_log_inc <- epi_variation$sd_log_inc / epi_variation$mean_log_inc
@@ -207,6 +211,7 @@ columns_wanted = c("city_id",
                    "new_ag_marker",
                    "mean_epi_ah",
                    "mean_epi_temp",
+                   "mean_inc",
                    "mean_log_inc",
                    "sd_log_inc",
                    "cv_log_inc",

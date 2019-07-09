@@ -90,47 +90,59 @@ parameters{
 }
 
 transformed parameters{
-
   vector[n_epidemics] expected_incidences;
 
+  vector[n_subtypes] intercept;
+  vector[n_subtypes] effect_antigenic_change;
+  vector[n_subtypes] effect_abs_humidity;
+  vector[n_subtypes] effect_start_date;
+  vector[n_subtypes] effect_temperature;
+  vector[n_subtypes] effect_cumulative_prior_inc;
+  vector[n_subtypes] effect_other_subtype_activity;
+
+  intercept = mean_intercept + intercept_errors * sd_intercept;
+
+  effect_antigenic_change = mean_effect_antigenic_change +
+    effect_antigenic_change_errors * sd_effect_antigenic_change;
+
+  effect_abs_humidity = mean_effect_abs_humidity +
+    effect_abs_humidity_errors * sd_effect_abs_humidity;
+  
+  effect_start_date = mean_effect_start_date +
+    effect_start_date_errors * sd_effect_start_date;
+
+  effect_temperature = mean_effect_temperature +
+    effect_temperature_errors * sd_effect_temperature;
+  
+  effect_cumulative_prior_inc = mean_effect_cumulative_prior_inc +
+    effect_cumulative_prior_inc_errors * sd_effect_cumulative_prior_inc;
+
+  effect_other_subtype_activity = mean_effect_other_subtype_activity +
+    effect_other_subtype_activity_errors * sd_effect_other_subtype_activity;
+
+  // calculate expected values of normed incidence
   for(epi_id in 1:n_epidemics){
     expected_incidences[epi_id] =
-
-      mean_intercept +
-      intercept_errors[subtype[epi_id]] *
-      sd_intercept +
+      intercept[subtype[epi_id]] +
       
-      (mean_effect_antigenic_change +
-       effect_antigenic_change_errors[subtype[epi_id]] *
-       sd_effect_antigenic_change) *
+      effect_antigenic_change[subtype[epi_id]] *
       antigenic_change[epi_id] +
 
-      (mean_effect_abs_humidity +
-       effect_abs_humidity_errors[subtype[epi_id]] *
-       sd_effect_abs_humidity) *
+      effect_abs_humidity[subtype[epi_id]] *
       abs_humidity_std[epi_id] +
 
-      (mean_effect_start_date +
-       effect_start_date_errors[subtype[epi_id]] *
-       sd_effect_start_date) *
+      effect_start_date[subtype[epi_id]] *
       start_date[epi_id] +
 
-      (mean_effect_temperature +
-       effect_temperature_errors[subtype[epi_id]] *
-       sd_effect_temperature) *
+      effect_temperature[subtype[epi_id]] *
       temperature_std[epi_id] +
       
-      (mean_effect_cumulative_prior_inc +
-       effect_cumulative_prior_inc_errors[subtype[epi_id]] *
-       sd_effect_cumulative_prior_inc) *
+      effect_cumulative_prior_inc[subtype[epi_id]] *
       (1 - antigenic_change[epi_id]) *
       cumulative_prior_incidence_std[epi_id] +
 
-      (mean_effect_other_subtype_activity +
-       effect_other_subtype_activity_errors[subtype[epi_id]] *
-       sd_effect_other_subtype_activity) *
+      effect_other_subtype_activity[subtype[epi_id]] *
       other_subtype_activity_std[epi_id];
-
   }
 }
 

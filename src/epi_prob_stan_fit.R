@@ -54,7 +54,7 @@ data_list <- list(
 
 hyperparam_list <- list(
     sd_mean_effect_sizes = 1,
-    sd_sd_effect_sizes = 0.1,
+    sd_sd_effect_sizes = 1,
     sd_mean_intercept = 1,
     sd_sd_intercept = 1)
 

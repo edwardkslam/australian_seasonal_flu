@@ -58,7 +58,7 @@ hyperparam_list <- list(
     beta_average_epi_attack_rate = 10,
     sd_sd_incidences = 5,
     sd_mean_effect_sizes = 1,
-    sd_sd_effect_sizes = 0.1,
+    sd_sd_effect_sizes = 1,
     sd_mean_intercept = 1,
     sd_sd_intercept = 1)
 
