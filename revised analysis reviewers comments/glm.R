@@ -12,7 +12,7 @@ library(tidyr)
 # loading data ------------------------------------------------------------
 raw_table<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/raw_data.csv")
 raw_table<-raw_table%>%
-  dplyr::mutate(fortnights_since_start_of_year = yday(specimen_date)%/%14+1)%>%
+  dplyr::mutate(fortnights_since_start_of_year = lubridate::yday(specimen_date)%/%14+1)%>%
   dplyr::group_by(city,year,assumed_antigenic_variant,fortnights_since_start_of_year)%>%
   dplyr::summarise(count=n())
 
@@ -157,98 +157,69 @@ cumulative_incidence_by_ag$epi_alarm2<-cumulative_incidence_by_ag$epi_alarm%>%
 epi_table_with_clim_2<-left_join(epi_table_with_clim,cumulative_incidence_by_ag[c("city","subtype","reference_strain","year","standardised_prior_cumulative")])
 
 
-# lm models ---------------------------------------------------------------
 
-epi_table_with_clim_2%>%
-  subset(.,epi_alarm=="Y")%>%
-  lm(scaled_incidence_subtype_city ~ start + log(prior_everything_scaled+0.0001) + as.factor(new_ag_marker) + standardised_prior_cumulative+ mean_epi_ah + mean_epi_temp, data=.)%>%
-  summary()
+# adding "interaction" between prior everything and first in season -------------------------------------
 
-#lm with early climate
-epi_table_with_clim_2%>%
-  subset(.,epi_alarm=="Y")%>%
-  lm(scaled_incidence_subtype_city ~ start + log(prior_everything_scaled+0.0001) + as.factor(new_ag_marker) + standardised_prior_cumulative+ early_ah + early_temp, data=.)%>%
-  summary()
-
-#drop start
-epi_table_with_clim_2%>%
-  subset(.,epi_alarm=="Y")%>%
-  lm(scaled_incidence_subtype_city ~ log(prior_everything_scaled+0.0001) + as.factor(new_ag_marker) + standardised_prior_cumulative+ early_ah + early_temp, data=.)%>%
-  summary()
-
-#drop prior same season
-epi_table_with_clim_2%>%
-  subset(.,epi_alarm=="Y")%>%
-  lm(scaled_incidence_subtype_city ~ start + as.factor(new_ag_marker) + standardised_prior_cumulative+ early_ah + early_temp, data=.)%>%
-  summary()
-
-#drop start and prior same season
-epi_table_with_clim_2%>%
-  subset(.,epi_alarm=="Y")%>%
-  lm(scaled_incidence_subtype_city ~ as.factor(new_ag_marker) + standardised_prior_cumulative+ early_ah + early_temp, data=.)%>%
-  summary()
-
-#drop new ag
-epi_table_with_clim_2%>%
-  subset(.,epi_alarm=="Y")%>%
-  lm(scaled_incidence_subtype_city ~ start + log(prior_everything_scaled+0.0001) + standardised_prior_cumulative+ early_ah + early_temp, data=.)%>%
-  summary()
-
-#drop prior cumulative same ag var
-epi_table_with_clim_2%>%
-  subset(.,epi_alarm=="Y")%>%
-  lm(scaled_incidence_subtype_city ~ start + log(prior_everything_scaled+0.0001) + new_ag_marker + early_ah + early_temp, data=.)%>%
-  summary()
-
-#drop new ag and prior cumulative same ag var
-epi_table_with_clim_2%>%
-  subset(.,epi_alarm=="Y")%>%
-  lm(scaled_incidence_subtype_city ~ start + log(prior_everything_scaled+0.0001) + early_ah + early_temp, data=.)%>%
-  summary()
-
-
-epi_table_with_clim_2%>%
-  subset(.,epi_alarm=="Y")%>%
-  lm(scaled_incidence_subtype_city ~ start + log(prior_everything_scaled+0.0001), data=.)%>%
-  summary()
-
-
-# adding interaction and random slope -------------------------------------
 epi_table_with_clim_2<-epi_table_with_clim_2%>%
-  dplyr::mutate(first_in_season = ifelse(delay==0,"Y","N"))
+  dplyr::mutate(first_in_season = ifelse(delay==0,1,0))
 
 temp_data<-epi_table_with_clim_2%>%
   subset(.,epi_alarm=="Y" & !is.na(standardised_prior_cumulative))
 
+temp_data<-temp_data%>%dplyr::mutate(pes = ifelse(first_in_season==1,0,log(prior_everything_scaled)),
+                                     spc = ifelse(new_ag_marker==1,0,standardised_prior_cumulative))
+
 full_model<-temp_data%>%
-  lmer(log(scaled_incidence_subtype_city+0.0001) ~ start + (1 + prior_everything_scaled|first_in_season) + 
-         (1 + standardised_prior_cumulative|new_ag_marker)  + early_ah + early_temp,data=.)
+  lm(log(scaled_incidence_subtype_city) ~ start + as.factor(first_in_season) + pes + 
+         as.factor(new_ag_marker)+spc+ early_ah + early_temp,data=.)
+
+full_model%>%
+  summary()
 
 model.1<-temp_data%>%
-  lmer(log(scaled_incidence_subtype_city+0.0001) ~ (1 + prior_everything_scaled|first_in_season) + 
-         (1 + standardised_prior_cumulative|new_ag_marker)  + early_ah + early_temp,data=.)
+  lm(log(scaled_incidence_subtype_city) ~ start + 
+       as.factor(new_ag_marker)+spc+ early_ah + early_temp,data=.)
+
+model.1%>%
+  summary()
 
 model.2<-temp_data%>%
-  lmer(log(scaled_incidence_subtype_city+0.0001) ~ start + 
-         (1 + standardised_prior_cumulative|new_ag_marker)  + early_ah + early_temp,data=.)
+  lm(log(scaled_incidence_subtype_city) ~ as.factor(first_in_season) + pes + 
+       as.factor(new_ag_marker)+spc+ early_ah + early_temp,data=.)
+
+model.2%>%
+  summary()
 
 model.3<-temp_data%>%
-  lmer(log(scaled_incidence_subtype_city+0.0001) ~ start + (1 + prior_everything_scaled|first_in_season)+
-          early_ah + early_temp,data=.)
+  lm(log(scaled_incidence_subtype_city) ~ start + as.factor(first_in_season) + pes + 
+       early_ah + early_temp,data=.)
+
+model.3%>%
+  summary()
 
 model.4<-temp_data%>%
-  lmer(log(scaled_incidence_subtype_city+0.0001) ~ start + (1 + prior_everything_scaled|first_in_season) + 
-         (1 + standardised_prior_cumulative|new_ag_marker) + early_temp,data=.)
+  lm(log(scaled_incidence_subtype_city) ~ start + as.factor(first_in_season) + pes + 
+       as.factor(new_ag_marker)+spc + early_temp,data=.)
+
+model.4%>%
+  summary()
 
 model.5<-temp_data%>%
-  lmer(log(scaled_incidence_subtype_city+0.0001) ~ start + (1 + prior_everything_scaled|first_in_season) + 
-         (1 + standardised_prior_cumulative|new_ag_marker)  + early_ah ,data=.)
+  lm(log(scaled_incidence_subtype_city) ~ start + as.factor(first_in_season) + pes + 
+       as.factor(new_ag_marker)+spc + early_ah,data=.)
 
-anova(model.1,full_model)
-anova(model.2,full_model)
-anova(model.3,full_model)
-anova(model.4,full_model)
-anova(model.5,full_model)
+model.5%>%
+  summary()
+
+
+
+
+
+
+
+
+
+
 # onset -------------------------------------------------------------------
 find_preonset_sample<-function(x, n_fortnight = 1){
   x<-as.vector(x)
@@ -296,24 +267,4 @@ reformat_glm_func<-function(x){
   return(coef_temp)
 }
 
-epi_firsts<-epi_table%>%subset(.,first_n_biggest=="Y")
 
-climate_1ftn_prior<-adply(epi_firsts,1,function(x){multi_fortnight_climate_func(x,1)},.expand=FALSE)
-climate_2ftn_prior<-adply(epi_firsts,1,function(x){multi_fortnight_climate_func(x,2)},.expand=FALSE)
-climate_3ftn_prior<-adply(epi_firsts,1,function(x){multi_fortnight_climate_func(x,3)},.expand=FALSE)
-
-
-glm_1ftn<-climate_1ftn_prior%>%glm(initiate ~ sample_mean_d.AH + sample_mean_d.temp,
-                               data=.,
-                               family=binomial())%>%summary(.)%>%
-  reformat_glm_func()
-
-glm_2ftn<-climate_2ftn_prior%>%glm(initiate ~ sample_mean_d.AH + sample_mean_d.temp,
-                                   data=.,
-                                   family=binomial())%>%summary(.)%>%
-  reformat_glm_func()
-
-glm_3ftn<-climate_3ftn_prior%>%glm(initiate ~ sample_mean_d.AH + sample_mean_d.temp,
-                                   data=.,
-                                   family=binomial())%>%summary(.)%>%
-  reformat_glm_func()
