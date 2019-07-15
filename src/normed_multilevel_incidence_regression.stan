@@ -34,12 +34,15 @@ transformed data {
   // center and scale predictors 
   vector[n_epidemics] abs_humidity_std;
   vector[n_epidemics] temperature_std;
+  vector[n_epidemics] start_date_std;
   vector[n_epidemics] other_subtype_activity_std;
   vector[n_epidemics] cumulative_prior_incidence_std;
   
   abs_humidity_std = gelman_standardize(abs_humidity);
 
   temperature_std = gelman_standardize(temperature);
+  
+  start_date_std = gelman_standardize(start_date);
   
   other_subtype_activity_std =
     gelman_standardize(other_subtype_activity);
@@ -132,7 +135,7 @@ transformed parameters{
       abs_humidity_std[epi_id] +
 
       effect_start_date[subtype[epi_id]] *
-      start_date[epi_id] +
+      start_date_std[epi_id] +
 
       effect_temperature[subtype[epi_id]] *
       temperature_std[epi_id] +

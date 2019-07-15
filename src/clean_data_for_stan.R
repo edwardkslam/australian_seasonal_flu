@@ -160,11 +160,10 @@ dat$subtype_id <- as.numeric(
     factor(dat$subtype, 
            levels=unique(dat$subtype)))
 
-dat <- dat %>% group_by(city) %>%
+dat <- dat %>% group_by(city, subtype) %>%
     mutate(
         mean_inc = mean(incidence_per_mil, na.rm=TRUE)) %>%
     ungroup()
-
 
 epi_variation <- epi_dat %>% group_by(subtype, city) %>%
     summarise(mean_log_inc = mean(log(incidence_per_mil),na.rm=TRUE),
@@ -177,7 +176,8 @@ dat <- dat %>% left_join(epi_variation,
                          by = c('subtype', 'city'))
 dat$epi_z_score <- (log(dat$incidence_per_mil) - dat$mean_log_inc) / dat$sd_log_inc
 
-dat$log_relative_epi_size <- log(dat$incidence_per_mil / dat$mean_inc)
+dat$mean_centered_log_epi_size <-
+    log(dat$incidence_per_mil) - dat$mean_log_inc
     
 no_epi <- dat$epi_alarm=='N' |
     is.na(dat$epi_alarm)
@@ -216,7 +216,7 @@ columns_wanted = c("city_id",
                    "sd_log_inc",
                    "cv_log_inc",
                    "epi_z_score",
-                   "log_relative_epi_size")
+                   "mean_centered_log_epi_size")
 ## data integrity checks
 cat("\nChecking data integrity...\n\n")
 check_data_integrity(dat)

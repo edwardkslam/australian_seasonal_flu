@@ -41,12 +41,12 @@ fit <- readRDS(mcmc_fit_path)
 parameter_names = tibble(
 
     parameter_name = c(
-        'mean_effect_antigenic_change',
-        'mean_effect_abs_humidity',
-        'mean_effect_cumulative_prior_inc',
-        'mean_effect_other_subtype_activity',
-        'mean_effect_start_date',
-        'mean_effect_temperature'),
+        'effect_antigenic_change',
+        'effect_abs_humidity',
+        'effect_cumulative_prior_inc',
+        'effect_other_subtype_activity',
+        'effect_start_date',
+        'effect_temperature'),
 
     display_name = c(
         'antigenic change',
@@ -57,12 +57,20 @@ parameter_names = tibble(
         'temperature')
 )
     
-tidychains <- fit %>% gather_draws(mean_effect_abs_humidity,
-                                   mean_effect_cumulative_prior_inc,
-                                   mean_effect_antigenic_change,
-                                   mean_effect_other_subtype_activity,
-                                   mean_effect_temperature,
-                                   mean_effect_start_date)
+tidychains <- fit %>% gather_draws(effect_abs_humidity[subtype_id],
+                                   effect_cumulative_prior_inc[subtype_id],
+                                   effect_antigenic_change[subtype_id],
+                                   effect_other_subtype_activity[subtype_id],
+                                   effect_temperature[subtype_id],
+                                   effect_start_date[subtype_id])
+
+## SQL-ishly reintroduce subtype human-readable names
+tidychains <-
+    tidychains %>%
+    inner_join(
+        distinct(dat, subtype_id, subtype),
+        by='subtype_id') %>%
+    group_by(subtype, .variable)
 
 quants <- tidychains %>%
     do(tibble(post_quant = quantile(.$.value, ppoints(100))))
@@ -72,30 +80,31 @@ quants <- quants %>%
 
 quants$parameter_name <- factor(quants$parameter_name)
 
-pointcolor <- "#56c9ff"
-
 quants <- quants %>% left_join(parameter_names,
                                by = 'parameter_name')
 
+
 effect_fig <- quants %>%
-    ggplot(aes(x = post_quant)) +
+    ggplot(aes(x = post_quant,
+               fill = subtype)) +
     geom_dotplot(
-        fill=pointcolor,
         alpha=1,
-        binwidth=0.1) +
+        binwidth=0.125) +
     geom_vline(xintercept=0) + 
-    scale_x_continuous(limits=c(-2, 2)) + 
-    facet_wrap(vars(display_name), ncol=2) +
+    scale_x_continuous(limits=c(-2, 2)) +
+    scale_fill_manual(values = subtype_colors) + 
+    facet_grid(rows=vars(subtype), cols=vars(display_name)) +
     xlab("regression coeffecient\n(common effect size scale)") +
     ylab("posterior frequency") +
     theme_classic() +
     theme_cowplot() +
+    theme(legend.position = "none") + 
     panel_border()
 
 
 save_plot(save_path,
           effect_fig,
           base_height=9,
-          base_aspect_ratio=0.75)
+          base_aspect_ratio=1.61)
 
 

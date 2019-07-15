@@ -16,9 +16,9 @@ suppressPackageStartupMessages(library(shinystan))
 
 ## read command line args
 args <- commandArgs(trailingOnly=TRUE)
-model_src_path <- "normed_incidence_regression.stan"
-datapath <- "../dat/cleaned/clean_stan_data.csv"
-mcmc_output_path <- '../out/mcmc_chains/stan_fit_output.Rds'
+model_src_path <- args[1]
+datapath <- args[2]
+mcmc_output_path <- args[3]
 
 ## set stan options
 n_cores <- parallel::detectCores()
@@ -33,7 +33,7 @@ fixed_seed = 232032
 ## load data
 dat <- read_csv(datapath,
                 col_types = cols())
-dat <- dat[!is.na(dat$mean_centered_log_epi_size) & dat$subtype=='H3',]
+dat <- dat[!is.na(dat$mean_centered_log_epi_size),]
 
 ## make data into list
 data_list <- list(

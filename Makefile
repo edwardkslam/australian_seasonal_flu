@@ -75,12 +75,16 @@ CLEAN_STAN_DATA = $(CLEANED_DATA_DIR)/clean_stan_data.csv
 ################################
 # for Bayesian analyses in Stan
 ################################
-MODEL_FITTING_SCRIPT = $(SRC)/stan_fit.R
-INCIDENCE_MODEL_NAME = multilevel_incidence_model
+MODEL_FITTING_SCRIPT = $(SRC)/fit_stan_model.R
+NORMED_INCIDENCE_MODEL_NAME = normed_multilevel_incidence_regression
 MODEL_DATA = $(CLEAN_STAN_DATA)
-MODELS = $(INCIDENCE_MODEL_NAME)
+MODELS = $(NORMED_INCIDENCE_MODEL_NAME)
 CHAINS = $(addsuffix $(CHAINS_SUFFIX), \
-   $(addprefix $(MCMC_CHAINS)/, $(MODELS))) 
+   $(addprefix $(MCMC_CHAINS)/, $(MODELS)))
+
+.PHONY: chains
+
+chains: $(CHAINS)
 
 
 #################################
@@ -116,20 +120,38 @@ $(MCMC_CHAINS)/%$(CHAINS_SUFFIX): $(SRC)/%.stan $(MODEL_FITTING_SCRIPT) $(STAN_D
 # figures
 ##################################
 
-FIGURES := figure_final_size_difference.$(FIGEXT) figure_susceptibility_distribution.$(FIGEXT) figure_posterior_effects.$(FIGEXT)
+PLOTTING_STYLE = $(SRC)/plotting_style.R
+
+FIGURES := figure_final_size_difference.$(FIGEXT) figure_susceptibility_distribution.$(FIGEXT) figure_posterior_effects.$(FIGEXT) figure_posterior_by_subtype.$(FIGEXT)
 
 FIG_PATHS := $(addprefix $(OUT)/, $(FIGURES))
 
 FIG_DEPS = flu_final_size_model.py model_parameters.py
 FIG_DEP_PATHS = $(addprefix $(SRC)/, $(FIG_DEPS)) 
 
-$(OUT)/figure%.$(FIGEXT): $(SRC)/figure%.$(SRCEXT) $(OUT)/mcmc_chains/stan_fit_output.Rds $(CLEAN_STAN_DATA)
+$(OUT)/figure_posterior_effects.$(FIGEXT): $(SRC)/figure_posterior_effects.$(SRCEXT) $(MCMC_CHAINS)/$(NORMED_INCIDENCE_MODEL_NAME)$(CHAINS_SUFFIX) $(CLEAN_STAN_DATA) $(PLOTTING_STYLE)
+	$(MKDIR) $(dir $@)
+	$(R_COMMAND) $^ $@
+
+$(OUT)/figure_posterior_by_subtype.$(FIGEXT): $(SRC)/figure_posterior_by_subtype.$(SRCEXT) $(MCMC_CHAINS)/$(NORMED_INCIDENCE_MODEL_NAME)$(CHAINS_SUFFIX) $(CLEAN_STAN_DATA) $(PLOTTING_STYLE)
 	$(MKDIR) $(dir $@)
 	$(R_COMMAND) $^ $@
 
 .PHONY: figs
 figs: $(FIG_PATHS)
 	@echo $(FIG_PATHS)
+
+##################################
+# reported quantities and diagnostics
+##################################
+
+$(OUT)/chain_diagnostics.csv: $(SRC)/chain_diagnostics.R $(CHAINS) $(CLEAN_STAN_DATA)
+	$(MKDIR) $(dir $@)
+	$(R_COMMAND) $^ $@
+
+$(OUT)/reported_quantities.csv: $(SRC)/extract_reported_quantities.R $(CHAINS) $(CLEAN_STAN_DATA)
+	$(MKDIR) $(dir $@)
+	$(R_COMMAND) $^ $@
 
 #################################
 # cleanup
