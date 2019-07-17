@@ -1,0 +1,2 @@
+"","models","rhat_max_parm","rhat_max_val","neff_min_parm","neff_min_val"
+"1","out/mcmc_chains/stan_fit_output.Rds","sd_effect_abs_humidity",1.00224236538258,"lp__",0.196092670962996

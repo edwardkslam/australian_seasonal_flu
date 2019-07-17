@@ -77,8 +77,9 @@ CLEAN_STAN_DATA = $(CLEANED_DATA_DIR)/clean_stan_data.csv
 ################################
 MODEL_FITTING_SCRIPT = $(SRC)/fit_stan_model.R
 NORMED_INCIDENCE_MODEL_NAME = normed_multilevel_incidence_regression
+EPIDEMIC_PROBABILITY_MODEL_NAME = multilevel_epi_probability_model
 MODEL_DATA = $(CLEAN_STAN_DATA)
-MODELS = $(NORMED_INCIDENCE_MODEL_NAME)
+MODELS = $(NORMED_INCIDENCE_MODEL_NAME) $(EPIDEMIC_PROBABILITY_MODEL_NAME)
 CHAINS = $(addsuffix $(CHAINS_SUFFIX), \
    $(addprefix $(MCMC_CHAINS)/, $(MODELS)))
 
@@ -122,6 +123,8 @@ $(MCMC_CHAINS)/%$(CHAINS_SUFFIX): $(SRC)/%.stan $(MODEL_FITTING_SCRIPT) $(STAN_D
 
 PLOTTING_STYLE = $(SRC)/plotting_style.R
 
+FIG_CLEANUP = @$(RM) Rplots.pdf
+
 FIGURES := figure_final_size_difference.$(FIGEXT) figure_susceptibility_distribution.$(FIGEXT) figure_posterior_effects.$(FIGEXT) figure_posterior_by_subtype.$(FIGEXT)
 
 FIG_PATHS := $(addprefix $(OUT)/, $(FIGURES))
@@ -132,10 +135,18 @@ FIG_DEP_PATHS = $(addprefix $(SRC)/, $(FIG_DEPS))
 $(OUT)/figure_posterior_effects.$(FIGEXT): $(SRC)/figure_posterior_effects.$(SRCEXT) $(MCMC_CHAINS)/$(NORMED_INCIDENCE_MODEL_NAME)$(CHAINS_SUFFIX) $(CLEAN_STAN_DATA) $(PLOTTING_STYLE)
 	$(MKDIR) $(dir $@)
 	$(R_COMMAND) $^ $@
+	$(FIG_CLEANUP)
 
 $(OUT)/figure_posterior_by_subtype.$(FIGEXT): $(SRC)/figure_posterior_by_subtype.$(SRCEXT) $(MCMC_CHAINS)/$(NORMED_INCIDENCE_MODEL_NAME)$(CHAINS_SUFFIX) $(CLEAN_STAN_DATA) $(PLOTTING_STYLE)
 	$(MKDIR) $(dir $@)
 	$(R_COMMAND) $^ $@
+	$(FIG_CLEANUP)
+
+$(OUT)/figure_epi_prob.$(FIGEXT): $(SRC)/figure_epi_prob.$(SRCEXT) $(MCMC_CHAINS)/$(EPIDEMIC_PROBABILITY_MODEL_NAME)$(CHAINS_SUFFIX) $(CLEAN_STAN_DATA) $(PLOTTING_STYLE)
+	$(MKDIR) $(dir $@)
+	$(R_COMMAND) $^ $@
+	$(FIG_CLEANUP)
+
 
 .PHONY: figs
 figs: $(FIG_PATHS)

@@ -33,12 +33,19 @@ fixed_seed = 232032
 ## load data
 dat <- read_csv(datapath,
                 col_types = cols())
-dat <- dat[!is.na(dat$mean_centered_log_epi_size),]
+
+if(grepl('normed', model_src_path)){
+    dat <- dat[!is.na(dat$mean_centered_log_epi_size),]
+} else {
+    dat <- dat[!is.na(dat$new_ag_marker),]
+}
 
 ## make data into list
 data_list <- list(
     n_cities = max(dat$city_id),
     n_epidemics = length(dat$mean_centered_log_epi_size),
+    n_possible_epidemics = length(dat$epidemic_flag),
+    epi_occurred = dat$epidemic_flag,
     n_subtypes = max(dat$subtype_id),
     subtype = dat$subtype_id,
     incidences = log(dat$incidence_per_mil),

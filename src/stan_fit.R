@@ -16,7 +16,7 @@ suppressPackageStartupMessages(library(shinystan))
 
 ## read command line args
 args <- commandArgs(trailingOnly=TRUE)
-model_src_path <- "normed_incidence_regression.stan"
+model_src_path <- "multilevel_epi_probability_model.stan"
 datapath <- "../dat/cleaned/clean_stan_data.csv"
 mcmc_output_path <- '../out/mcmc_chains/stan_fit_output.Rds'
 
@@ -33,16 +33,19 @@ fixed_seed = 232032
 ## load data
 dat <- read_csv(datapath,
                 col_types = cols())
-dat <- dat[!is.na(dat$mean_centered_log_epi_size) & dat$subtype=='H3',]
+##dat <- dat[!is.na(dat$mean_centered_log_epi_size) & dat$subtype=='H3',]
+dat <- dat[!is.na(dat$new_ag_marker),]
 
 ## make data into list
 data_list <- list(
     n_cities = max(dat$city_id),
     n_epidemics = length(dat$mean_centered_log_epi_size),
+    n_possible_epidemics = length(dat$epidemic_flag),
     n_subtypes = max(dat$subtype_id),
     subtype = dat$subtype_id,
     incidences = log(dat$incidence_per_mil),
     normed_metric = dat$mean_centered_log_epi_size,
+    epi_occurred = dat$epidemic_flag,
     city = dat$city_id,
     antigenic_change = dat$new_ag_marker,
     abs_humidity = dat$mean_epi_ah,

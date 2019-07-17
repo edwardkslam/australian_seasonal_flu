@@ -62,21 +62,27 @@ transformed parameters{
   vector[n_possible_epidemics] logit_epi_prob;
   vector[n_possible_epidemics] epi_prob;
 
+  vector[n_subtypes] intercept;
+  vector[n_subtypes] effect_antigenic_change;
+  vector[n_subtypes] effect_cumulative_prior_inc;
+
+  intercept = mean_intercept + intercept_errors * sd_intercept;
+
+  effect_antigenic_change = mean_effect_antigenic_change +
+    effect_antigenic_change_errors * sd_effect_antigenic_change;
+
+  effect_cumulative_prior_inc = mean_effect_cumulative_prior_inc +
+    effect_cumulative_prior_inc_errors * sd_effect_cumulative_prior_inc;
+
+  // calculate expected values of normed incidence
   for(epi_id in 1:n_possible_epidemics){
     logit_epi_prob[epi_id] =
-
-      mean_intercept +
-      intercept_errors[subtype[epi_id]] *
-      sd_intercept +
+      intercept[subtype[epi_id]] +
       
-      (mean_effect_antigenic_change +
-       effect_antigenic_change_errors[subtype[epi_id]] *
-       sd_effect_antigenic_change) *
+      effect_antigenic_change[subtype[epi_id]] *
       antigenic_change[epi_id] +
-
-      (mean_effect_cumulative_prior_inc +
-       effect_cumulative_prior_inc_errors[subtype[epi_id]] *
-       sd_effect_cumulative_prior_inc) *
+      
+      effect_cumulative_prior_inc[subtype[epi_id]] *
       (1 - antigenic_change[epi_id]) *
       cumulative_prior_incidence_std[epi_id];
   }
