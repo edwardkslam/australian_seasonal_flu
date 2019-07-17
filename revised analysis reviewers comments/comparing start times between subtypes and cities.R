@@ -47,20 +47,43 @@ subtype_start_plot<-epi_table %>%
   xlab("Subtype")+
   ylab("Start Fortnight")+
   theme_bw()+
+  scale_y_continuous(breaks =seq(1,26,2), limits = c(0,26))+
   theme(strip.background = element_blank(),
-        strip.text = element_text(size=20),
-        panel.border = element_rect(colour = "black"),
-        axis.title.x=element_blank(),
-        axis.ticks.x=element_blank(),
+        strip.text = element_text(size=25),
+        axis.title=element_text(size=25),
         axis.text.x =element_text(size=20),
-        axis.title.y=element_text(size=25),
         axis.text.y =element_text(size=20),
-        legend.title=element_text(size=20), 
-        legend.text=element_text(size=17),
-        #legend.position="none",
+        axis.ticks.length = unit(0.4,"cm"),
+        panel.border = element_rect(colour = "black"),
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())
 
+city_start_plot<-epi_table%>%subset(.,year!=2009) %>%
+  ggplot(.,aes(x=city,y= start))+
+  geom_boxplot(outlier.size=0)+ 
+  geom_quasirandom(aes(colour=subtype),dodge.width=.7,cex=5,alpha=0.6)+
+  scale_x_discrete(breaks=cities,
+                   labels=substr(cities,1,3))+
+  scale_y_continuous(breaks =seq(1,26,2), limits = c(0,26))+
+  
+  scale_color_manual(name = "Subtype",
+                     values=c("B/Yam"="#CC79A7",
+                              "B/Vic"="#009E73",
+                              "H1sea"="#56B4E9",
+                              "H1pdm09"="#999999",
+                              "H3"="#E69F00"))+
+  xlab("City")+
+  ylab("Start Fortnight")+
+  theme_bw()+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size=25),
+        axis.title=element_text(size=25),
+        axis.text.x =element_text(size=20),
+        axis.text.y =element_text(size=20),
+        axis.ticks.length = unit(0.4,"cm"),
+        panel.border = element_rect(colour = "black"),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())
 
 # anova -------------------------------------------------------------------
 
@@ -75,6 +98,9 @@ TukeyHSD(anova_model)
 # save plot ---------------------------------------------------------------
 base_dir2<-"C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/figures/reviewer comments/"
 ggsave(plot = subtype_start_plot,filename = paste(base_dir2,"figure_S1.png",sep=""), 
+       width=15, height=8,limitsize=FALSE)
+
+ggsave(plot = city_start_plot,filename = paste(base_dir2,"figure_S2.png",sep=""), 
        width=15, height=8,limitsize=FALSE)
 
 write.csv(sstable,paste(base_dir2,"anova_table.csv",sep=""))
