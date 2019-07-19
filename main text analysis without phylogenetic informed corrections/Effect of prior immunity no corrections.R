@@ -23,13 +23,9 @@ library(tidyr)
 #     subtype_logistics_regression (Table S9)
 
 # Loading data ------------------------------------------------------------
-if(Sys.info()['sysname']=="Windows"){
-  epi_table_no_corrections<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/epi_table_no_corrections.csv")
-}
+epi_table_no_corrections<-read.csv("./dat/raw/epi_table_no_corrections.csv")
 
-if(Sys.info()['sysname']=="Darwin"){
-  epi_table_no_corrections<-read.csv("~/Dropbox/PhD/code for manuscript/epi_table_no_corrections.csv")
-}
+
 
 cities<-c("ADELAIDE","BRISBANE","MELBOURNE","PERTH","SYDNEY")
 
@@ -113,18 +109,18 @@ size_plot_table<-cumulative_incidence_by_ag%>%
   subset(.,epi_alarm=="Y")
 
 # need to divide cumulative incidence by city-specific mean epidemic size
-mean_epi_size<-epi_table_no_corrections%>%
+mean_epi_size1<-epi_table_no_corrections%>%
   subset(.,epi_alarm=="Y" &year!=2009)%>%
   dplyr::group_by(city)%>%
   dplyr::summarise(mean_epi_size_c=mean(incidence_per_mil))
 
-size_plot_table<-left_join(size_plot_table,mean_epi_size)
+size_plot_table<-left_join(size_plot_table,mean_epi_size1)
 
-mean_epi_size<-epi_table_no_corrections%>%
+mean_epi_size2<-epi_table_no_corrections%>%
   subset(.,epi_alarm=="Y" &year!=2009)%>%
   dplyr::group_by(subtype,city)%>%
   dplyr::summarise(mean_epi_size_sc=mean(incidence_per_mil))
-size_plot_table<-left_join(size_plot_table,mean_epi_size)
+size_plot_table<-left_join(size_plot_table,mean_epi_size2)
 
 size_plot_table<-size_plot_table%>%
   dplyr::group_by(city)%>%
@@ -142,12 +138,13 @@ size_plot_table<-size_plot_table%>%
                 scaled_incidence_current_season_sc= log(incidence_current_season)-mean(log(incidence_current_season),na.rm=TRUE),
                 scaled_cumulative_incidence_sc = cumulative_prior_incidence_same_ag/mean_epi_size_sc)
 
-cumulative_incidence_by_ag<-cumulative_incidence_by_ag%>%left_join(data.frame(city=epi_table_no_corrections$city,reference_strain=epi_table_no_corrections$reference_strain,year=epi_table_no_corrections$year,epi_alarm=factor(epi_table_no_corrections$epi_alarm,levels = c("Y","N"))))
+cumulative_incidence_by_ag<-left_join(cumulative_incidence_by_ag,mean_epi_size1)%>%
+  dplyr::mutate(scaled_cumulative_incidence_c = cumulative_prior_incidence_same_ag/mean_epi_size_c)
+
 cumulative_incidence_by_ag$epi_alarm[is.na(cumulative_incidence_by_ag$epi_alarm)==TRUE]<-"N"
 
 cumulative_incidence_by_ag$epi_alarm2<-cumulative_incidence_by_ag$epi_alarm%>%
   mapvalues(.,from=c("Y","N"),to=c(1,0))
-
 
 epi_size_cumulative_size_same_variant_plot<-size_plot_table %>%
   subset(.,subtype!="H1pdm09")%>%
@@ -180,7 +177,7 @@ epi_size_cumulative_size_same_variant_plot<-size_plot_table %>%
 # 2) Logistics regression plot: effect of cumulative incidence on p(successful epidemic) --------
 prob_successful_epi_cumulative_size_same_variant_plot<-cumulative_incidence_by_ag %>%
   subset(.,!(reference_strain%in%dodgy_prev$reference_strain))%>%
-  ggplot(.,aes(x=standardised_prior_cumulative,y= as.numeric(as.character(epi_alarm2))))+
+  ggplot(.,aes(x=scaled_cumulative_incidence_c,y= as.numeric(as.character(epi_alarm2))))+
   
   geom_jitter(aes(group = subtype, color=subtype),
               position=position_jitter(width=0.05,height=0.05),alpha=0.6,size=3.5)+
@@ -212,21 +209,21 @@ prob_successful_epi_cumulative_size_same_variant_plot<-cumulative_incidence_by_a
 subtype_logistics_regression<-cumulative_incidence_by_ag %>%
   subset(.,!(reference_strain%in%dodgy_prev$reference_strain))%>%
   dplyr::group_by(subtype)%>%
-  dplyr::summarise(OR= glm(as.numeric(as.character(epi_alarm2))~standardised_prior_cumulative,family=binomial)%>%coef(.)%>%.[2]%>%exp(.),
-                   SE= glm(as.numeric(as.character(epi_alarm2))~standardised_prior_cumulative,family=binomial)%>%summary(.)%>%coef(.)%>%.[2,2],
-                   p_value= glm(as.numeric(as.character(epi_alarm2))~standardised_prior_cumulative,family=binomial)%>%summary(.)%>%coef(.)%>%.[2,4])
+  dplyr::summarise(OR= glm(as.numeric(as.character(epi_alarm2))~scaled_cumulative_incidence_c,family=binomial)%>%coef(.)%>%.[2]%>%exp(.),
+                   SE= glm(as.numeric(as.character(epi_alarm2))~scaled_cumulative_incidence_c,family=binomial)%>%summary(.)%>%coef(.)%>%.[2,2],
+                   p_value= glm(as.numeric(as.character(epi_alarm2))~scaled_cumulative_incidence_c,family=binomial)%>%summary(.)%>%coef(.)%>%.[2,4])
 subtype_logistics_regression$holm_adjusted_p<-p.adjust(subtype_logistics_regression$p_value,method = "holm")
 
 
 
 # save plots --------------------------------------------------------------
 
-base_dir2<-"C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/figures/reviewer comments/"
-ggsave(plot = epi_size_cumulative_size_same_variant_plot,filename = paste(base_dir2,"figure_S20.png",sep=""), 
+ggsave(plot = epi_size_cumulative_size_same_variant_plot,"./figures/supp/figure_S20.png",
        width=20, height=8,limitsize=FALSE)
 
 
-ggsave(plot = prob_successful_epi_cumulative_size_same_variant_plot,filename = paste(base_dir2,"figure_S21.png",sep=""), 
+ggsave(plot = prob_successful_epi_cumulative_size_same_variant_plot,"./figures/supp/figure_S21.png",
        width=20, height=8,limitsize=FALSE)
 
+write.csv(subtype_logistics_regression%>%dplyr::mutate_if(is.numeric,signif,digits=3),"./tables/table_S14.csv",row.names = FALSE)
 
