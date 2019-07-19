@@ -23,7 +23,7 @@ library(tidyr)
 
 
 # Loading in data ---------------------------------------------------------
-epi_table_no_corrections<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/epi_table_no_corrections.csv")
+epi_table_no_corrections<-epi_table_no_corrections<-read.csv("./dat/raw/epi_table_no_corrections.csv")
 
 epi_table_no_corrections<-epi_table_no_corrections%>%
   dplyr::mutate(log_incidence = log(incidence_per_mil))
@@ -171,14 +171,14 @@ ag_change_synchrony_plot<-synchrony_table%>%
 
 
 # save plots --------------------------------------------------------------
-base_dir2<-"C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/figures/reviewer comments/"
 
-ggsave(plot = ag_change_incidence_plot,filename = paste(base_dir2,"figure_S17.png",sep=""), 
+
+ggsave(plot = ag_change_incidence_plot,"./figures/supp/figure_S17.png",
        width=13, height=8,limitsize=FALSE)
 
-ggsave(plot = ag_change_start_plot,filename = paste(base_dir2,"figure_S18.png",sep=""), 
+ggsave(plot = ag_change_start_plot,"./figures/supp/figure_S18.png",
        width=13, height=8,limitsize=FALSE)
 
-ggsave(plot = ag_change_synchrony_plot,filename = paste(base_dir2,"figure_S19.png",sep=""), 
+ggsave(plot = ag_change_synchrony_plot,"./figures/supp/figure_S19.png",
        width=12, height=5,limitsize=FALSE)
 

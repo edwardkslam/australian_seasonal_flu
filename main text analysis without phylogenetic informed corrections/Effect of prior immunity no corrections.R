@@ -25,8 +25,6 @@ library(tidyr)
 # Loading data ------------------------------------------------------------
 epi_table_no_corrections<-read.csv("./dat/raw/epi_table_no_corrections.csv")
 
-
-
 cities<-c("ADELAIDE","BRISBANE","MELBOURNE","PERTH","SYDNEY")
 
 epi_table_no_corrections$city<-factor(epi_table_no_corrections$city,levels = cities)
