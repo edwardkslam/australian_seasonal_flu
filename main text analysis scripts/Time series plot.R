@@ -16,7 +16,7 @@ library(tidyr)
 # load in data ------------------------------------------------------------
 
 
-raw_table<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/raw_data.csv")
+raw_table<-read.csv("./dat/raw/raw_data.csv")
 
 time_series_plot<-raw_table%>%
   subset(.,year!=2009)%>%
@@ -56,6 +56,6 @@ time_series_plot<-raw_table%>%
 
 
 # saving plots ------------------------------------------------------------
-base_dir<-"C:/Users/el382/Dropbox/PhD/code for manuscript/figures/main/"
-ggsave(plot = time_series_plot,filename = paste(base_dir,"figure_1.png",sep=""), 
+
+ggsave(plot = time_series_plot,"./figures/main/figure_1.png",
        width=18, height=10,limitsize=FALSE)
