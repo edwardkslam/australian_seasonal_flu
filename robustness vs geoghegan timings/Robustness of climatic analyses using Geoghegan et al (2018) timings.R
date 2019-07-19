@@ -22,40 +22,36 @@ library(tidyr)
 #       was incorrect and replaced it with estimates from Geoghegan et al. (2018).
 #       The timing value used for this set of analyses is stored in geog_epi_table$largest_geog_start
 #       Outputs
-#         i) largest_geog_results (Table S2)
-#         ii) stacked_climate_plots1 (Figure S4)
+#         i) largest_geog_results_pooled (Table S3)
+#         ii) largest_geog_results(Table S4)
+#         iii) stacked_climate_plots1 (Figure S4)
 #   2)  For each of the seasons between 2007 and 2015, we assumed that our timing estimate for the EARLIEST influenza A subtype 
 #       was incorrect and replaced it with estimates from Geoghegan et al. (2018).
 #       The timing value used for this set of analyses is stored in geog_epi_table$earliest_geog_start
 #       Outputs
-#         i) earliest_geog_results (Table S3)
+#         i) earliest_geog_results_pooled (Table S5)
+#         ii) earliest_geog_results (Table S6)
 #         ii) stacked_climate_plots2 (Figure S5)
 #   3)  For seasons between 2007 and 2015 in which the number of cases for the dominant influenza A subtype were small or 
 #       it was difficult to discern the period of epidemic from background activity, 
 #       we assumed that our timing estimate was incorrect and replaced it with estimates from Geoghegan et al. (2018).
 #       Outputs
-#         i) poor_geog_results (Table S4)
+#         i) poor_geog_results_pooled (Table S7)
+#         ii) poor_geog_results (Table S8)
 #         ii) stacked_climate_plots3 (Figure S6)
 #   4)  Utilising only the timing estimates by Geoghegan et al. (2018), we assessed if more generally, the onset of influenza A epidemic activity 
 #       in the seasons from 2007 to 2015 was preceded by periods of anomalous climatic conditions.
-#         i)just_geog_results (Table S5)
+#         i) just_geog_results_pooled (Table S9)
+#         ii) just_geog_results (Table S10)
 #         ii) stacked_climate_plots3 (Figure S7)
 
 # loading in data ---------------------------------------------------------
 
-if(Sys.info()['sysname']=="Windows"){
-  mean_fortnightly_climate_30years<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/mean_fortnightly_climate_30years.csv")
-  geog_epi_table<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/robustness vs geoghegan timings/epi_table_with_geoghegan_estimates.csv")
-  just_geog_estimates<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/robustness vs geoghegan timings/Geoghegan_2018_estimated_A_onsets.csv")%>%
-    subset(.,year%in%c(2007:2015))
-}
 
-if(Sys.info()['sysname']=="Darwin"){
-  mean_fortnightly_climate_30years<-read.csv("~/Dropbox/PhD/code for manuscript/mean_fortnightly_climate_30years.csv")
-  geog_epi_table<-read.csv("~/Dropbox/PhD/code for manuscript/robustness vs geoghegan timings/epi_table_with_geoghegan_estimates.csv")
-  just_geog_estimates<-read.csv("~/Dropbox/PhD/code for manuscript/robustness vs geoghegan timings/Geoghegan_2018_estimated_A_onsets.csv")%>%
-    subset(.,year%in%c(2007:2015))
-}
+mean_fortnightly_climate_30years<-read.csv("./dat/raw/mean_fortnightly_climate_30years.csv")
+geog_epi_table<-read.csv("./dat/raw/geoghegan/epi_table_with_geoghegan_estimates.csv")
+just_geog_estimates<-read.csv("./dat/raw/geoghegan/Geoghegan_2018_estimated_A_onsets.csv")%>%
+  subset(.,year%in%c(2007:2015))
 
 cities<-c("ADELAIDE","BRISBANE","MELBOURNE","PERTH","SYDNEY")
 geog_epi_table$city<-factor(geog_epi_table$city,levels = cities)
@@ -104,6 +100,8 @@ largest_use_geog_sample1<-adply(largest_use_geog_earliest,1,function(x){find_pre
 largest_use_geog_sample2<-adply(largest_use_geog_earliest,1,function(x){find_preonset_sample(x,2)})
 largest_use_geog_sample3<-adply(largest_use_geog_earliest,1,function(x){find_preonset_sample(x,3)})
 
+#quick calculator of d.AH -> d.RH
+#largest_use_geog_sample1%>%dplyr::group_by(city)%>%dplyr::summarise(mean_d.RH = mean_relative_humidity_calc(mean(mean_AH),mean(mean_temp))-mean_relative_humidity_calc(mean(mean_AH)+mean(sample_mean_d.AH),mean(mean_temp)))
 
 # data frame listing the years and fortnights during "winter", from which bootstrap sample will be drawn from 
 year_fortnight_1ftn<-expand.grid(year=c(1985:2015),start=c(8:17))    # start of 7 = 01 April ; end of 16 = 31 August
@@ -118,6 +116,7 @@ year_fortnight_3ftn<-expand.grid(year=c(1985:2015),start=c(10:17))    # start of
 year_fortnight_3ftn<-year_fortnight_3ftn%>%
   subset(.,year!=2009)
 
+samples_per_bootstrap_sample<-largest_use_geog_earliest$year%>%unique%>%length()
 bootstrap_n<-1000000
 bootstrap_sample_list_1ftn<-list()
 bootstrap_sample_list_2ftn<-list()
@@ -139,58 +138,84 @@ for(i in 1: length(cities)){
                              subset(.,year>=min_possible_year)%>%
                              dplyr::mutate(city=cities[i]),1,
                            function(x){find_preonset_sample(x,1)})
-  
-  
-  bootstrap_sample_list_1ftn[[i]]<-sample_n(sample_means_1ftn,bootstrap_n,replace=TRUE)
 
+  temp<-sample_n(sample_means_1ftn,bootstrap_n*samples_per_bootstrap_sample,replace=TRUE)%>%
+    #mean by every 15 rows to produce the 100kx 15
+    dplyr::group_by(G=trunc(samples_per_bootstrap_sample:(n()+samples_per_bootstrap_sample-1)/samples_per_bootstrap_sample))%>%
+    dplyr::summarise(bootstrap_sample_mean_d.AH = mean(sample_mean_d.AH,na.rm=TRUE),
+                     bootstrap_sample_mean_d.temp = mean(sample_mean_d.temp,na.rm=TRUE))
+  
+  bootstrap_sample_list_1ftn[[i]]<-temp
+  
+  empirical_values_1ftn<-largest_use_geog_sample1%>%subset(.,city==cities[i])%>%
+    dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
+                     empirical_mean_d.temp = mean(sample_mean_d.temp))
+  
+  
   largest_bootstrap_ttest_results_1ftn[[i]]<-data.frame(city = cities[i],
-                                                        mean_synthetic_sample_mean_d.AH = bootstrap_sample_list_1ftn[[i]]$sample_mean_d.AH %>% mean(),
-                                                        mean_emperical_sample_mean_d.AH = largest_use_geog_sample1%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH %>%mean(),
-                                                        d.AH_stat = t.test(bootstrap_sample_list_1ftn[[i]]$sample_mean_d.AH,largest_use_geog_sample1%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$statistic,
-                                                        d.AH_pvalue = t.test(bootstrap_sample_list_1ftn[[i]]$sample_mean_d.AH,largest_use_geog_sample1%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$p.value,
-                                                        mean_synthetic_sample_mean_d.temp = bootstrap_sample_list_1ftn[[i]]$sample_mean_d.temp %>% mean(),
-                                                        mean_emperical_sample_mean_d.temp = largest_use_geog_sample1%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp %>%mean(),
-                                                        d.temp_stat = t.test(bootstrap_sample_list_1ftn[[i]]$sample_mean_d.temp,largest_use_geog_sample1%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$statistic,
-                                                        d.temp_pvalue = t.test(bootstrap_sample_list_1ftn[[i]]$sample_mean_d.temp,largest_use_geog_sample1%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$p.value,
-                                                        num_preceding_fortnight = 1
-  )
+                                                mean_emperical_sample_mean_d.AH = empirical_values_1ftn$empirical_mean_d.AH,
+                                                d.AH_pvalue = sum(empirical_values_1ftn$empirical_mean_d.AH>=temp$bootstrap_sample_mean_d.AH)/bootstrap_n,
+                                                
+                                                mean_emperical_sample_mean_d.temp = empirical_values_1ftn$empirical_mean_d.temp,
+                                                d.temp_pvalue = sum(empirical_values_1ftn$empirical_mean_d.temp>=temp$bootstrap_sample_mean_d.temp)/bootstrap_n,
+                                                num_preceding_fortnight = 1
+                                                )
+  
+  
+  
   
   # mean of 4-week block samples
   sample_means_2ftn<-adply(year_fortnight_2ftn%>%
                              subset(.,year>=min_possible_year)%>%
                              dplyr::mutate(city=cities[i]),1,
-                           function(x){find_preonset_sample(x,1)})
+                           function(x){find_preonset_sample(x,2)})
   
-  bootstrap_sample_list_2ftn[[i]]<-sample_n(sample_means_2ftn,bootstrap_n,replace=TRUE)
+  temp<-sample_n(sample_means_2ftn,bootstrap_n*samples_per_bootstrap_sample,replace=TRUE)%>%
+    #mean by every 15 rows to produce the 100kx 15
+    dplyr::group_by(G=trunc(samples_per_bootstrap_sample:(n()+samples_per_bootstrap_sample-1)/samples_per_bootstrap_sample))%>%
+    dplyr::summarise(bootstrap_sample_mean_d.AH = mean(sample_mean_d.AH,na.rm=TRUE),
+                     bootstrap_sample_mean_d.temp = mean(sample_mean_d.temp,na.rm=TRUE))
+  
+  bootstrap_sample_list_2ftn[[i]]<-temp
+  
+  empirical_values_2ftn<-largest_use_geog_sample2%>%subset(.,city==cities[i])%>%
+    dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
+                     empirical_mean_d.temp = mean(sample_mean_d.temp))
+  
   
   largest_bootstrap_ttest_results_2ftn[[i]]<-data.frame(city = cities[i],
-                                                        mean_synthetic_sample_mean_d.AH = bootstrap_sample_list_2ftn[[i]]$sample_mean_d.AH %>% mean(),
-                                                        mean_emperical_sample_mean_d.AH = largest_use_geog_sample2%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH %>%mean(),
-                                                        d.AH_stat = t.test(bootstrap_sample_list_2ftn[[i]]$sample_mean_d.AH,largest_use_geog_sample2%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$statistic,
-                                                        d.AH_pvalue = t.test(bootstrap_sample_list_2ftn[[i]]$sample_mean_d.AH,largest_use_geog_sample2%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$p.value,
-                                                        mean_synthetic_sample_mean_d.temp = bootstrap_sample_list_2ftn[[i]]$sample_mean_d.temp %>% mean(),
-                                                        mean_emperical_sample_mean_d.temp = largest_use_geog_sample2%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp %>%mean(),
-                                                        d.temp_stat = t.test(bootstrap_sample_list_2ftn[[i]]$sample_mean_d.temp,largest_use_geog_sample2%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$statistic,
-                                                        d.temp_pvalue = t.test(bootstrap_sample_list_2ftn[[i]]$sample_mean_d.temp,largest_use_geog_sample2%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$p.value,
+                                                        mean_emperical_sample_mean_d.AH = empirical_values_2ftn$empirical_mean_d.AH,
+                                                        d.AH_pvalue = sum(empirical_values_2ftn$empirical_mean_d.AH>=temp$bootstrap_sample_mean_d.AH)/bootstrap_n,
+                                                        
+                                                        mean_emperical_sample_mean_d.temp = empirical_values_2ftn$empirical_mean_d.temp,
+                                                        d.temp_pvalue = sum(empirical_values_2ftn$empirical_mean_d.temp>=temp$bootstrap_sample_mean_d.temp)/bootstrap_n,
                                                         num_preceding_fortnight = 2
   )
   # mean of 6-week block samples
   sample_means_3ftn<-adply(year_fortnight_3ftn%>%
                              subset(.,year>=min_possible_year)%>%
                              dplyr::mutate(city=cities[i]),1,
-                           function(x){find_preonset_sample(x,1)})
+                           function(x){find_preonset_sample(x,3)})
   
-  bootstrap_sample_list_3ftn[[i]]<-sample_n(sample_means_3ftn,bootstrap_n,replace=TRUE)
+  temp<-sample_n(sample_means_3ftn,bootstrap_n*samples_per_bootstrap_sample,replace=TRUE)%>%
+    #mean by every 15 rows to produce the 100kx 15
+    dplyr::group_by(G=trunc(samples_per_bootstrap_sample:(n()+samples_per_bootstrap_sample-1)/samples_per_bootstrap_sample))%>%
+    dplyr::summarise(bootstrap_sample_mean_d.AH = mean(sample_mean_d.AH,na.rm=TRUE),
+                     bootstrap_sample_mean_d.temp = mean(sample_mean_d.temp,na.rm=TRUE))
+  
+  bootstrap_sample_list_3ftn[[i]]<-temp
+  
+  empirical_values_3ftn<-largest_use_geog_sample3%>%subset(.,city==cities[i])%>%
+    dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
+                     empirical_mean_d.temp = mean(sample_mean_d.temp))
+  
   
   largest_bootstrap_ttest_results_3ftn[[i]]<-data.frame(city = cities[i],
-                                                        mean_synthetic_sample_mean_d.AH = bootstrap_sample_list_3ftn[[i]]$sample_mean_d.AH %>% mean(),
-                                                        mean_emperical_sample_mean_d.AH = largest_use_geog_sample3%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH %>%mean(),
-                                                        d.AH_stat = t.test(bootstrap_sample_list_3ftn[[i]]$sample_mean_d.AH,largest_use_geog_sample3%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$statistic,
-                                                        d.AH_pvalue = t.test(bootstrap_sample_list_3ftn[[i]]$sample_mean_d.AH,largest_use_geog_sample3%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$p.value,
-                                                        mean_synthetic_sample_mean_d.temp = bootstrap_sample_list_3ftn[[i]]$sample_mean_d.temp %>% mean(),
-                                                        mean_emperical_sample_mean_d.temp = largest_use_geog_sample3%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp %>%mean(),
-                                                        d.temp_stat = t.test(bootstrap_sample_list_3ftn[[i]]$sample_mean_d.temp,largest_use_geog_sample3%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$statistic,
-                                                        d.temp_pvalue = t.test(bootstrap_sample_list_3ftn[[i]]$sample_mean_d.temp,largest_use_geog_sample3%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$p.value,
+                                                        mean_emperical_sample_mean_d.AH = empirical_values_3ftn$empirical_mean_d.AH,
+                                                        d.AH_pvalue = sum(empirical_values_3ftn$empirical_mean_d.AH>=temp$bootstrap_sample_mean_d.AH)/bootstrap_n,
+                                                        
+                                                        mean_emperical_sample_mean_d.temp = empirical_values_3ftn$empirical_mean_d.temp,
+                                                        d.temp_pvalue = sum(empirical_values_3ftn$empirical_mean_d.temp>=temp$bootstrap_sample_mean_d.temp)/bootstrap_n,
                                                         num_preceding_fortnight = 3
   )
 }
@@ -211,6 +236,69 @@ largest_geog_results<-largest_geog_results%>%
          ManuscriptTable_AH = paste(round(mean_emperical_sample_mean_d.AH,3),"  (",round(d.AH_pvalue,3),")",sep=""))
 
 
+#pooled
+pooled_bootstrap_sample_1ftn<-list()
+pooled_bootstrap_sample_2ftn<-list()
+pooled_bootstrap_sample_3ftn<-list()
+
+#subsample 1/5 of each city specific bootstrap distribution and then combine it together so that overall bootstrap n = 100,000
+for(i in 1:length(cities)){
+  pooled_bootstrap_sample_1ftn[[i]]<-sample_frac(bootstrap_sample_list_1ftn[[i]],1/length(cities))
+  pooled_bootstrap_sample_2ftn[[i]]<-sample_frac(bootstrap_sample_list_2ftn[[i]],1/length(cities))
+  pooled_bootstrap_sample_3ftn[[i]]<-sample_frac(bootstrap_sample_list_3ftn[[i]],1/length(cities))
+}
+
+pooled_bootstrap_sample_1ftn<-ldply(pooled_bootstrap_sample_1ftn)
+pooled_bootstrap_sample_2ftn<-ldply(pooled_bootstrap_sample_2ftn)
+pooled_bootstrap_sample_3ftn<-ldply(pooled_bootstrap_sample_3ftn)
+
+empirical_sample_pooled_1ftn<-largest_use_geog_sample1%>%
+  dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
+                   empirical_mean_d.temp = mean(sample_mean_d.temp))
+
+empirical_sample_pooled_2ftn<-largest_use_geog_sample2%>%
+  dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
+                   empirical_mean_d.temp = mean(sample_mean_d.temp))
+
+empirical_sample_pooled_3ftn<-largest_use_geog_sample3%>%
+  dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
+                   empirical_mean_d.temp = mean(sample_mean_d.temp))
+
+pooled_results_1ftn<-data.frame(num_preceding_fortnight = 1,
+                                mean_emperical_sample_mean_d.AH = empirical_sample_pooled_1ftn$empirical_mean_d.AH,
+                                d.AH_pvalue = sum(empirical_sample_pooled_1ftn$empirical_mean_d.AH>=pooled_bootstrap_sample_1ftn$bootstrap_sample_mean_d.AH)/bootstrap_n,
+                                
+                                mean_emperical_sample_mean_d.temp = empirical_sample_pooled_1ftn$empirical_mean_d.temp,
+                                d.temp_pvalue = sum(empirical_sample_pooled_1ftn$empirical_mean_d.temp>=pooled_bootstrap_sample_1ftn$bootstrap_sample_mean_d.temp)/bootstrap_n)
+
+pooled_results_2ftn<-data.frame(num_preceding_fortnight = 2,
+                                mean_emperical_sample_mean_d.AH = empirical_sample_pooled_2ftn$empirical_mean_d.AH,
+                                d.AH_pvalue = sum(empirical_sample_pooled_2ftn$empirical_mean_d.AH>=pooled_bootstrap_sample_2ftn$bootstrap_sample_mean_d.AH)/bootstrap_n,
+                                
+                                mean_emperical_sample_mean_d.temp = empirical_sample_pooled_2ftn$empirical_mean_d.temp,
+                                d.temp_pvalue = sum(empirical_sample_pooled_2ftn$empirical_mean_d.temp>=pooled_bootstrap_sample_2ftn$bootstrap_sample_mean_d.temp)/bootstrap_n)
+
+
+pooled_results_3ftn<-data.frame(num_preceding_fortnight = 3,
+                                mean_emperical_sample_mean_d.AH = empirical_sample_pooled_3ftn$empirical_mean_d.AH,
+                                d.AH_pvalue = sum(empirical_sample_pooled_3ftn$empirical_mean_d.AH>=pooled_bootstrap_sample_3ftn$bootstrap_sample_mean_d.AH)/bootstrap_n,
+                                
+                                mean_emperical_sample_mean_d.temp = empirical_sample_pooled_3ftn$empirical_mean_d.temp,
+                                d.temp_pvalue = sum(empirical_sample_pooled_3ftn$empirical_mean_d.temp>=pooled_bootstrap_sample_3ftn$bootstrap_sample_mean_d.temp)/bootstrap_n)
+
+largest_geog_results_pooled<-rbind(pooled_results_1ftn,pooled_results_2ftn,pooled_results_3ftn)
+largest_geog_results_pooled<-largest_geog_results_pooled%>%mutate(.,
+                                                    ManuscriptTable_Temp = paste(signif(mean_emperical_sample_mean_d.temp,3),"  (",signif(d.temp_pvalue,3),")",sep=""),
+                                                    ManuscriptTable_AH = paste(signif(mean_emperical_sample_mean_d.AH,3),"  (",signif(d.AH_pvalue,3),")",sep=""))
+
+
+print(largest_geog_results_pooled)
+
+
+
+
+
+
 # 2) i) earliest use Geoghegan ; compare against "typical wintertime conditions" ------------------------------------
 earliest_use_geog_sample1<-adply(earliest_use_geog_earliest,1,function(x){find_preonset_sample(x,1)})
 earliest_use_geog_sample2<-adply(earliest_use_geog_earliest,1,function(x){find_preonset_sample(x,2)})
@@ -229,11 +317,11 @@ year_fortnight_3ftn<-expand.grid(year=c(1985:2015),start=c(10:17))    # start of
 year_fortnight_3ftn<-year_fortnight_3ftn%>%
   subset(.,year!=2009)
 
+samples_per_bootstrap_sample<-earliest_use_geog_earliest$year%>%unique%>%length()
 bootstrap_n<-1000000
 earliest_bootstrap_ttest_results_1ftn<-list()
 earliest_bootstrap_ttest_results_2ftn<-list()
 earliest_bootstrap_ttest_results_3ftn<-list()
-
 for(i in 1: length(cities)){
   min_possible_year<-mean_fortnightly_climate_30years%>%
     subset(.,city==cities[i])%>%
@@ -247,58 +335,83 @@ for(i in 1: length(cities)){
                              dplyr::mutate(city=cities[i]),1,
                            function(x){find_preonset_sample(x,1)})
   
+  temp<-sample_n(sample_means_1ftn,bootstrap_n*samples_per_bootstrap_sample,replace=TRUE)%>%
+    #mean by every 15 rows to produce the 100kx 15
+    dplyr::group_by(G=trunc(samples_per_bootstrap_sample:(n()+samples_per_bootstrap_sample-1)/samples_per_bootstrap_sample))%>%
+    dplyr::summarise(bootstrap_sample_mean_d.AH = mean(sample_mean_d.AH,na.rm=TRUE),
+                     bootstrap_sample_mean_d.temp = mean(sample_mean_d.temp,na.rm=TRUE))
   
-  bootstrap_sample_list_1ftn[[i]]<-sample_n(sample_means_1ftn,bootstrap_n,replace=TRUE)
-
+  bootstrap_sample_list_1ftn[[i]]<-temp
+  
+  empirical_values_1ftn<-earliest_use_geog_sample1%>%subset(.,city==cities[i])%>%
+    dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
+                     empirical_mean_d.temp = mean(sample_mean_d.temp))
+  
+  
   earliest_bootstrap_ttest_results_1ftn[[i]]<-data.frame(city = cities[i],
-                                                         mean_synthetic_sample_mean_d.AH = bootstrap_sample_list_1ftn[[i]]$sample_mean_d.AH %>% mean(),
-                                                         mean_emperical_sample_mean_d.AH = earliest_use_geog_sample1%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH %>%mean(),
-                                                         d.AH_stat = t.test(bootstrap_sample_list_1ftn[[i]]$sample_mean_d.AH,earliest_use_geog_sample1%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$statistic,
-                                                         d.AH_pvalue = t.test(bootstrap_sample_list_1ftn[[i]]$sample_mean_d.AH,earliest_use_geog_sample1%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$p.value,
-                                                         mean_synthetic_sample_mean_d.temp = bootstrap_sample_list_1ftn[[i]]$sample_mean_d.temp %>% mean(),
-                                                         mean_emperical_sample_mean_d.temp = earliest_use_geog_sample1%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp %>%mean(),
-                                                         d.temp_stat = t.test(bootstrap_sample_list_1ftn[[i]]$sample_mean_d.temp,earliest_use_geog_sample1%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$statistic,
-                                                         d.temp_pvalue = t.test(bootstrap_sample_list_1ftn[[i]]$sample_mean_d.temp,earliest_use_geog_sample1%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$p.value,
+                                                         mean_emperical_sample_mean_d.AH = empirical_values_1ftn$empirical_mean_d.AH,
+                                                         d.AH_pvalue = sum(empirical_values_1ftn$empirical_mean_d.AH>=temp$bootstrap_sample_mean_d.AH)/bootstrap_n,
+                                                         
+                                                         mean_emperical_sample_mean_d.temp = empirical_values_1ftn$empirical_mean_d.temp,
+                                                         d.temp_pvalue = sum(empirical_values_1ftn$empirical_mean_d.temp>=temp$bootstrap_sample_mean_d.temp)/bootstrap_n,
                                                          num_preceding_fortnight = 1
   )
+  
+  
+  
   
   # mean of 4-week block samples
   sample_means_2ftn<-adply(year_fortnight_2ftn%>%
                              subset(.,year>=min_possible_year)%>%
                              dplyr::mutate(city=cities[i]),1,
-                           function(x){find_preonset_sample(x,1)})
+                           function(x){find_preonset_sample(x,2)})
   
-  bootstrap_sample_list_2ftn[[i]]<-sample_n(sample_means_2ftn,bootstrap_n,replace=TRUE)
+  temp<-sample_n(sample_means_2ftn,bootstrap_n*samples_per_bootstrap_sample,replace=TRUE)%>%
+    #mean by every 15 rows to produce the 100kx 15
+    dplyr::group_by(G=trunc(samples_per_bootstrap_sample:(n()+samples_per_bootstrap_sample-1)/samples_per_bootstrap_sample))%>%
+    dplyr::summarise(bootstrap_sample_mean_d.AH = mean(sample_mean_d.AH,na.rm=TRUE),
+                     bootstrap_sample_mean_d.temp = mean(sample_mean_d.temp,na.rm=TRUE))
+  
+  bootstrap_sample_list_2ftn[[i]]<-temp
+  
+  empirical_values_2ftn<-earliest_use_geog_sample2%>%subset(.,city==cities[i])%>%
+    dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
+                     empirical_mean_d.temp = mean(sample_mean_d.temp))
+  
   
   earliest_bootstrap_ttest_results_2ftn[[i]]<-data.frame(city = cities[i],
-                                                         mean_synthetic_sample_mean_d.AH = bootstrap_sample_list_2ftn[[i]]$sample_mean_d.AH %>% mean(),
-                                                         mean_emperical_sample_mean_d.AH = earliest_use_geog_sample2%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH %>%mean(),
-                                                         d.AH_stat = t.test(bootstrap_sample_list_2ftn[[i]]$sample_mean_d.AH,earliest_use_geog_sample2%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$statistic,
-                                                         d.AH_pvalue = t.test(bootstrap_sample_list_2ftn[[i]]$sample_mean_d.AH,earliest_use_geog_sample2%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$p.value,
-                                                         mean_synthetic_sample_mean_d.temp = bootstrap_sample_list_2ftn[[i]]$sample_mean_d.temp %>% mean(),
-                                                         mean_emperical_sample_mean_d.temp = earliest_use_geog_sample2%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp %>%mean(),
-                                                         d.temp_stat = t.test(bootstrap_sample_list_2ftn[[i]]$sample_mean_d.temp,earliest_use_geog_sample2%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$statistic,
-                                                         d.temp_pvalue = t.test(bootstrap_sample_list_2ftn[[i]]$sample_mean_d.temp,earliest_use_geog_sample2%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$p.value,
+                                                         mean_emperical_sample_mean_d.AH = empirical_values_2ftn$empirical_mean_d.AH,
+                                                         d.AH_pvalue = sum(empirical_values_2ftn$empirical_mean_d.AH>=temp$bootstrap_sample_mean_d.AH)/bootstrap_n,
+                                                         
+                                                         mean_emperical_sample_mean_d.temp = empirical_values_2ftn$empirical_mean_d.temp,
+                                                         d.temp_pvalue = sum(empirical_values_2ftn$empirical_mean_d.temp>=temp$bootstrap_sample_mean_d.temp)/bootstrap_n,
                                                          num_preceding_fortnight = 2
   )
-  
   # mean of 6-week block samples
   sample_means_3ftn<-adply(year_fortnight_3ftn%>%
                              subset(.,year>=min_possible_year)%>%
                              dplyr::mutate(city=cities[i]),1,
-                           function(x){find_preonset_sample(x,1)})
+                           function(x){find_preonset_sample(x,3)})
   
-  bootstrap_sample_list_3ftn[[i]]<-sample_n(sample_means_3ftn,bootstrap_n,replace=TRUE)
+  temp<-sample_n(sample_means_3ftn,bootstrap_n*samples_per_bootstrap_sample,replace=TRUE)%>%
+    #mean by every 15 rows to produce the 100kx 15
+    dplyr::group_by(G=trunc(samples_per_bootstrap_sample:(n()+samples_per_bootstrap_sample-1)/samples_per_bootstrap_sample))%>%
+    dplyr::summarise(bootstrap_sample_mean_d.AH = mean(sample_mean_d.AH,na.rm=TRUE),
+                     bootstrap_sample_mean_d.temp = mean(sample_mean_d.temp,na.rm=TRUE))
+  
+  bootstrap_sample_list_3ftn[[i]]<-temp
+  
+  empirical_values_3ftn<-earliest_use_geog_sample3%>%subset(.,city==cities[i])%>%
+    dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
+                     empirical_mean_d.temp = mean(sample_mean_d.temp))
+  
   
   earliest_bootstrap_ttest_results_3ftn[[i]]<-data.frame(city = cities[i],
-                                                         mean_synthetic_sample_mean_d.AH = bootstrap_sample_list_3ftn[[i]]$sample_mean_d.AH %>% mean(),
-                                                         mean_emperical_sample_mean_d.AH = earliest_use_geog_sample3%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH %>%mean(),
-                                                         d.AH_stat = t.test(bootstrap_sample_list_3ftn[[i]]$sample_mean_d.AH,earliest_use_geog_sample3%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$statistic,
-                                                         d.AH_pvalue = t.test(bootstrap_sample_list_3ftn[[i]]$sample_mean_d.AH,earliest_use_geog_sample3%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$p.value,
-                                                         mean_synthetic_sample_mean_d.temp = bootstrap_sample_list_3ftn[[i]]$sample_mean_d.temp %>% mean(),
-                                                         mean_emperical_sample_mean_d.temp = earliest_use_geog_sample3%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp %>%mean(),
-                                                         d.temp_stat = t.test(bootstrap_sample_list_3ftn[[i]]$sample_mean_d.temp,earliest_use_geog_sample3%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$statistic,
-                                                         d.temp_pvalue = t.test(bootstrap_sample_list_3ftn[[i]]$sample_mean_d.temp,earliest_use_geog_sample3%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$p.value,
+                                                         mean_emperical_sample_mean_d.AH = empirical_values_3ftn$empirical_mean_d.AH,
+                                                         d.AH_pvalue = sum(empirical_values_3ftn$empirical_mean_d.AH>=temp$bootstrap_sample_mean_d.AH)/bootstrap_n,
+                                                         
+                                                         mean_emperical_sample_mean_d.temp = empirical_values_3ftn$empirical_mean_d.temp,
+                                                         d.temp_pvalue = sum(empirical_values_3ftn$empirical_mean_d.temp>=temp$bootstrap_sample_mean_d.temp)/bootstrap_n,
                                                          num_preceding_fortnight = 3
   )
 }
@@ -319,6 +432,65 @@ earliest_geog_results<-earliest_geog_results%>%
          ManuscriptTable_AH = paste(round(mean_emperical_sample_mean_d.AH,3),"  (",round(d.AH_pvalue,3),")",sep=""))
 
 
+#pooled
+pooled_bootstrap_sample_1ftn<-list()
+pooled_bootstrap_sample_2ftn<-list()
+pooled_bootstrap_sample_3ftn<-list()
+
+#subsample 1/5 of each city specific bootstrap distribution and then combine it together so that overall bootstrap n = 100,000
+for(i in 1:length(cities)){
+  pooled_bootstrap_sample_1ftn[[i]]<-sample_frac(bootstrap_sample_list_1ftn[[i]],1/length(cities))
+  pooled_bootstrap_sample_2ftn[[i]]<-sample_frac(bootstrap_sample_list_2ftn[[i]],1/length(cities))
+  pooled_bootstrap_sample_3ftn[[i]]<-sample_frac(bootstrap_sample_list_3ftn[[i]],1/length(cities))
+}
+
+pooled_bootstrap_sample_1ftn<-ldply(pooled_bootstrap_sample_1ftn)
+pooled_bootstrap_sample_2ftn<-ldply(pooled_bootstrap_sample_2ftn)
+pooled_bootstrap_sample_3ftn<-ldply(pooled_bootstrap_sample_3ftn)
+
+empirical_sample_pooled_1ftn<-earliest_use_geog_sample1%>%
+  dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
+                   empirical_mean_d.temp = mean(sample_mean_d.temp))
+
+empirical_sample_pooled_2ftn<-earliest_use_geog_sample2%>%
+  dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
+                   empirical_mean_d.temp = mean(sample_mean_d.temp))
+
+empirical_sample_pooled_3ftn<-earliest_use_geog_sample3%>%
+  dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
+                   empirical_mean_d.temp = mean(sample_mean_d.temp))
+
+pooled_results_1ftn<-data.frame(num_preceding_fortnight = 1,
+                                mean_emperical_sample_mean_d.AH = empirical_sample_pooled_1ftn$empirical_mean_d.AH,
+                                d.AH_pvalue = sum(empirical_sample_pooled_1ftn$empirical_mean_d.AH>=pooled_bootstrap_sample_1ftn$bootstrap_sample_mean_d.AH)/bootstrap_n,
+                                
+                                mean_emperical_sample_mean_d.temp = empirical_sample_pooled_1ftn$empirical_mean_d.temp,
+                                d.temp_pvalue = sum(empirical_sample_pooled_1ftn$empirical_mean_d.temp>=pooled_bootstrap_sample_1ftn$bootstrap_sample_mean_d.temp)/bootstrap_n)
+
+pooled_results_2ftn<-data.frame(num_preceding_fortnight = 2,
+                                mean_emperical_sample_mean_d.AH = empirical_sample_pooled_2ftn$empirical_mean_d.AH,
+                                d.AH_pvalue = sum(empirical_sample_pooled_2ftn$empirical_mean_d.AH>=pooled_bootstrap_sample_2ftn$bootstrap_sample_mean_d.AH)/bootstrap_n,
+                                
+                                mean_emperical_sample_mean_d.temp = empirical_sample_pooled_2ftn$empirical_mean_d.temp,
+                                d.temp_pvalue = sum(empirical_sample_pooled_2ftn$empirical_mean_d.temp>=pooled_bootstrap_sample_2ftn$bootstrap_sample_mean_d.temp)/bootstrap_n)
+
+
+pooled_results_3ftn<-data.frame(num_preceding_fortnight = 3,
+                                mean_emperical_sample_mean_d.AH = empirical_sample_pooled_3ftn$empirical_mean_d.AH,
+                                d.AH_pvalue = sum(empirical_sample_pooled_3ftn$empirical_mean_d.AH>=pooled_bootstrap_sample_3ftn$bootstrap_sample_mean_d.AH)/bootstrap_n,
+                                
+                                mean_emperical_sample_mean_d.temp = empirical_sample_pooled_3ftn$empirical_mean_d.temp,
+                                d.temp_pvalue = sum(empirical_sample_pooled_3ftn$empirical_mean_d.temp>=pooled_bootstrap_sample_3ftn$bootstrap_sample_mean_d.temp)/bootstrap_n)
+
+earliest_geog_results_pooled<-rbind(pooled_results_1ftn,pooled_results_2ftn,pooled_results_3ftn)
+earliest_geog_results_pooled<-earliest_geog_results_pooled%>%mutate(.,
+                                                                  ManuscriptTable_Temp = paste(signif(mean_emperical_sample_mean_d.temp,3),"  (",signif(d.temp_pvalue,3),")",sep=""),
+                                                                  ManuscriptTable_AH = paste(signif(mean_emperical_sample_mean_d.AH,3),"  (",signif(d.AH_pvalue,3),")",sep=""))
+
+
+print(earliest_geog_results_pooled)
+
+
 # 3) i) replace poorly defined timings with Geoghegan ; compare against "typical wintertime conditions"------------------------------------
 poor_use_geog_sample1<-adply(poor_use_geog_earliest,1,function(x){find_preonset_sample(x,1)})
 poor_use_geog_sample2<-adply(poor_use_geog_earliest,1,function(x){find_preonset_sample(x,2)})
@@ -337,6 +509,7 @@ year_fortnight_3ftn<-expand.grid(year=c(1985:2015),start=c(10:17))    # start of
 year_fortnight_3ftn<-year_fortnight_3ftn%>%
   subset(.,year!=2009)
 
+samples_per_bootstrap_sample<-poor_use_geog_earliest$year%>%unique%>%length()
 bootstrap_n<-1000000
 poor_bootstrap_ttest_results_1ftn<-list()
 poor_bootstrap_ttest_results_2ftn<-list()
@@ -356,62 +529,86 @@ for(i in 1: length(cities)){
                              dplyr::mutate(city=cities[i]),1,
                            function(x){find_preonset_sample(x,1)})
   
+  temp<-sample_n(sample_means_1ftn,bootstrap_n*samples_per_bootstrap_sample,replace=TRUE)%>%
+    #mean by every 15 rows to produce the 100kx 15
+    dplyr::group_by(G=trunc(samples_per_bootstrap_sample:(n()+samples_per_bootstrap_sample-1)/samples_per_bootstrap_sample))%>%
+    dplyr::summarise(bootstrap_sample_mean_d.AH = mean(sample_mean_d.AH,na.rm=TRUE),
+                     bootstrap_sample_mean_d.temp = mean(sample_mean_d.temp,na.rm=TRUE))
   
-  bootstrap_sample_list_1ftn[[i]]<-sample_n(sample_means_1ftn,bootstrap_n,replace=TRUE)
+  bootstrap_sample_list_1ftn[[i]]<-temp
+  
+  empirical_values_1ftn<-poor_use_geog_sample1%>%subset(.,city==cities[i])%>%
+    dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
+                     empirical_mean_d.temp = mean(sample_mean_d.temp))
+  
   
   poor_bootstrap_ttest_results_1ftn[[i]]<-data.frame(city = cities[i],
-                                                     mean_synthetic_sample_mean_d.AH = bootstrap_sample_list_1ftn[[i]]$sample_mean_d.AH %>% mean(),
-                                                     mean_emperical_sample_mean_d.AH = poor_use_geog_sample1%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH %>%mean(),
-                                                     d.AH_stat = t.test(bootstrap_sample_list_1ftn[[i]]$sample_mean_d.AH,poor_use_geog_sample1%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$statistic,
-                                                     d.AH_pvalue = t.test(bootstrap_sample_list_1ftn[[i]]$sample_mean_d.AH,poor_use_geog_sample1%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$p.value,
-                                                     mean_synthetic_sample_mean_d.temp = bootstrap_sample_list_1ftn[[i]]$sample_mean_d.temp %>% mean(),
-                                                     mean_emperical_sample_mean_d.temp = poor_use_geog_sample1%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp %>%mean(),
-                                                     d.temp_stat = t.test(bootstrap_sample_list_1ftn[[i]]$sample_mean_d.temp,poor_use_geog_sample1%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$statistic,
-                                                     d.temp_pvalue = t.test(bootstrap_sample_list_1ftn[[i]]$sample_mean_d.temp,poor_use_geog_sample1%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$p.value,
+                                                     mean_emperical_sample_mean_d.AH = empirical_values_1ftn$empirical_mean_d.AH,
+                                                     d.AH_pvalue = sum(empirical_values_1ftn$empirical_mean_d.AH>=temp$bootstrap_sample_mean_d.AH)/bootstrap_n,
+                                                     
+                                                     mean_emperical_sample_mean_d.temp = empirical_values_1ftn$empirical_mean_d.temp,
+                                                     d.temp_pvalue = sum(empirical_values_1ftn$empirical_mean_d.temp>=temp$bootstrap_sample_mean_d.temp)/bootstrap_n,
                                                      num_preceding_fortnight = 1
   )
+  
+  
+  
   
   # mean of 4-week block samples
   sample_means_2ftn<-adply(year_fortnight_2ftn%>%
                              subset(.,year>=min_possible_year)%>%
                              dplyr::mutate(city=cities[i]),1,
-                           function(x){find_preonset_sample(x,1)})
+                           function(x){find_preonset_sample(x,2)})
   
-  bootstrap_sample_list_2ftn[[i]]<-sample_n(sample_means_2ftn,bootstrap_n,replace=TRUE)
+  temp<-sample_n(sample_means_2ftn,bootstrap_n*samples_per_bootstrap_sample,replace=TRUE)%>%
+    #mean by every 15 rows to produce the 100kx 15
+    dplyr::group_by(G=trunc(samples_per_bootstrap_sample:(n()+samples_per_bootstrap_sample-1)/samples_per_bootstrap_sample))%>%
+    dplyr::summarise(bootstrap_sample_mean_d.AH = mean(sample_mean_d.AH,na.rm=TRUE),
+                     bootstrap_sample_mean_d.temp = mean(sample_mean_d.temp,na.rm=TRUE))
+  
+  bootstrap_sample_list_2ftn[[i]]<-temp
+  
+  empirical_values_2ftn<-poor_use_geog_sample2%>%subset(.,city==cities[i])%>%
+    dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
+                     empirical_mean_d.temp = mean(sample_mean_d.temp))
+  
   
   poor_bootstrap_ttest_results_2ftn[[i]]<-data.frame(city = cities[i],
-                                                     mean_synthetic_sample_mean_d.AH = bootstrap_sample_list_2ftn[[i]]$sample_mean_d.AH %>% mean(),
-                                                     mean_emperical_sample_mean_d.AH = poor_use_geog_sample2%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH %>%mean(),
-                                                     d.AH_stat = t.test(bootstrap_sample_list_2ftn[[i]]$sample_mean_d.AH,poor_use_geog_sample2%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$statistic,
-                                                     d.AH_pvalue = t.test(bootstrap_sample_list_2ftn[[i]]$sample_mean_d.AH,poor_use_geog_sample2%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$p.value,
-                                                     mean_synthetic_sample_mean_d.temp = bootstrap_sample_list_2ftn[[i]]$sample_mean_d.temp %>% mean(),
-                                                     mean_emperical_sample_mean_d.temp = poor_use_geog_sample2%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp %>%mean(),
-                                                     d.temp_stat = t.test(bootstrap_sample_list_2ftn[[i]]$sample_mean_d.temp,poor_use_geog_sample2%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$statistic,
-                                                     d.temp_pvalue = t.test(bootstrap_sample_list_2ftn[[i]]$sample_mean_d.temp,poor_use_geog_sample2%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$p.value,
+                                                     mean_emperical_sample_mean_d.AH = empirical_values_2ftn$empirical_mean_d.AH,
+                                                     d.AH_pvalue = sum(empirical_values_2ftn$empirical_mean_d.AH>=temp$bootstrap_sample_mean_d.AH)/bootstrap_n,
+                                                     
+                                                     mean_emperical_sample_mean_d.temp = empirical_values_2ftn$empirical_mean_d.temp,
+                                                     d.temp_pvalue = sum(empirical_values_2ftn$empirical_mean_d.temp>=temp$bootstrap_sample_mean_d.temp)/bootstrap_n,
                                                      num_preceding_fortnight = 2
   )
-  
   # mean of 6-week block samples
   sample_means_3ftn<-adply(year_fortnight_3ftn%>%
                              subset(.,year>=min_possible_year)%>%
                              dplyr::mutate(city=cities[i]),1,
-                           function(x){find_preonset_sample(x,1)})
+                           function(x){find_preonset_sample(x,3)})
   
-  bootstrap_sample_list_3ftn[[i]]<-sample_n(sample_means_3ftn,bootstrap_n,replace=TRUE)
+  temp<-sample_n(sample_means_3ftn,bootstrap_n*samples_per_bootstrap_sample,replace=TRUE)%>%
+    #mean by every 15 rows to produce the 100kx 15
+    dplyr::group_by(G=trunc(samples_per_bootstrap_sample:(n()+samples_per_bootstrap_sample-1)/samples_per_bootstrap_sample))%>%
+    dplyr::summarise(bootstrap_sample_mean_d.AH = mean(sample_mean_d.AH,na.rm=TRUE),
+                     bootstrap_sample_mean_d.temp = mean(sample_mean_d.temp,na.rm=TRUE))
+  
+  bootstrap_sample_list_3ftn[[i]]<-temp
+  
+  empirical_values_3ftn<-poor_use_geog_sample3%>%subset(.,city==cities[i])%>%
+    dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
+                     empirical_mean_d.temp = mean(sample_mean_d.temp))
+  
   
   poor_bootstrap_ttest_results_3ftn[[i]]<-data.frame(city = cities[i],
-                                                     mean_synthetic_sample_mean_d.AH = bootstrap_sample_list_3ftn[[i]]$sample_mean_d.AH %>% mean(),
-                                                     mean_emperical_sample_mean_d.AH = poor_use_geog_sample3%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH %>%mean(),
-                                                     d.AH_stat = t.test(bootstrap_sample_list_3ftn[[i]]$sample_mean_d.AH,poor_use_geog_sample3%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$statistic,
-                                                     d.AH_pvalue = t.test(bootstrap_sample_list_3ftn[[i]]$sample_mean_d.AH,poor_use_geog_sample3%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$p.value,
-                                                     mean_synthetic_sample_mean_d.temp = bootstrap_sample_list_3ftn[[i]]$sample_mean_d.temp %>% mean(),
-                                                     mean_emperical_sample_mean_d.temp = poor_use_geog_sample3%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp %>%mean(),
-                                                     d.temp_stat = t.test(bootstrap_sample_list_3ftn[[i]]$sample_mean_d.temp,poor_use_geog_sample3%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$statistic,
-                                                     d.temp_pvalue = t.test(bootstrap_sample_list_3ftn[[i]]$sample_mean_d.temp,poor_use_geog_sample3%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$p.value,
+                                                     mean_emperical_sample_mean_d.AH = empirical_values_3ftn$empirical_mean_d.AH,
+                                                     d.AH_pvalue = sum(empirical_values_3ftn$empirical_mean_d.AH>=temp$bootstrap_sample_mean_d.AH)/bootstrap_n,
+                                                     
+                                                     mean_emperical_sample_mean_d.temp = empirical_values_3ftn$empirical_mean_d.temp,
+                                                     d.temp_pvalue = sum(empirical_values_3ftn$empirical_mean_d.temp>=temp$bootstrap_sample_mean_d.temp)/bootstrap_n,
                                                      num_preceding_fortnight = 3
   )
 }
-
 
 poor_geog_results<-rbind(ldply(poor_bootstrap_ttest_results_1ftn),
                          ldply(poor_bootstrap_ttest_results_2ftn),
@@ -426,6 +623,65 @@ poor_geog_results<-poor_geog_results%>%
   mutate(.,
          ManuscriptTable_Temp = paste(round(mean_emperical_sample_mean_d.temp,3),"  (",round(d.temp_pvalue,3),")",sep=""),
          ManuscriptTable_AH = paste(round(mean_emperical_sample_mean_d.AH,3),"  (",round(d.AH_pvalue,3),")",sep=""))
+
+#pooled
+pooled_bootstrap_sample_1ftn<-list()
+pooled_bootstrap_sample_2ftn<-list()
+pooled_bootstrap_sample_3ftn<-list()
+
+#subsample 1/5 of each city specific bootstrap distribution and then combine it together so that overall bootstrap n = 100,000
+for(i in 1:length(cities)){
+  pooled_bootstrap_sample_1ftn[[i]]<-sample_frac(bootstrap_sample_list_1ftn[[i]],1/length(cities))
+  pooled_bootstrap_sample_2ftn[[i]]<-sample_frac(bootstrap_sample_list_2ftn[[i]],1/length(cities))
+  pooled_bootstrap_sample_3ftn[[i]]<-sample_frac(bootstrap_sample_list_3ftn[[i]],1/length(cities))
+}
+
+pooled_bootstrap_sample_1ftn<-ldply(pooled_bootstrap_sample_1ftn)
+pooled_bootstrap_sample_2ftn<-ldply(pooled_bootstrap_sample_2ftn)
+pooled_bootstrap_sample_3ftn<-ldply(pooled_bootstrap_sample_3ftn)
+
+empirical_sample_pooled_1ftn<-poor_use_geog_sample1%>%
+  dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
+                   empirical_mean_d.temp = mean(sample_mean_d.temp))
+
+empirical_sample_pooled_2ftn<-poor_use_geog_sample2%>%
+  dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
+                   empirical_mean_d.temp = mean(sample_mean_d.temp))
+
+empirical_sample_pooled_3ftn<-poor_use_geog_sample3%>%
+  dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
+                   empirical_mean_d.temp = mean(sample_mean_d.temp))
+
+pooled_results_1ftn<-data.frame(num_preceding_fortnight = 1,
+                                mean_emperical_sample_mean_d.AH = empirical_sample_pooled_1ftn$empirical_mean_d.AH,
+                                d.AH_pvalue = sum(empirical_sample_pooled_1ftn$empirical_mean_d.AH>=pooled_bootstrap_sample_1ftn$bootstrap_sample_mean_d.AH)/bootstrap_n,
+                                
+                                mean_emperical_sample_mean_d.temp = empirical_sample_pooled_1ftn$empirical_mean_d.temp,
+                                d.temp_pvalue = sum(empirical_sample_pooled_1ftn$empirical_mean_d.temp>=pooled_bootstrap_sample_1ftn$bootstrap_sample_mean_d.temp)/bootstrap_n)
+
+pooled_results_2ftn<-data.frame(num_preceding_fortnight = 2,
+                                mean_emperical_sample_mean_d.AH = empirical_sample_pooled_2ftn$empirical_mean_d.AH,
+                                d.AH_pvalue = sum(empirical_sample_pooled_2ftn$empirical_mean_d.AH>=pooled_bootstrap_sample_2ftn$bootstrap_sample_mean_d.AH)/bootstrap_n,
+                                
+                                mean_emperical_sample_mean_d.temp = empirical_sample_pooled_2ftn$empirical_mean_d.temp,
+                                d.temp_pvalue = sum(empirical_sample_pooled_2ftn$empirical_mean_d.temp>=pooled_bootstrap_sample_2ftn$bootstrap_sample_mean_d.temp)/bootstrap_n)
+
+
+pooled_results_3ftn<-data.frame(num_preceding_fortnight = 3,
+                                mean_emperical_sample_mean_d.AH = empirical_sample_pooled_3ftn$empirical_mean_d.AH,
+                                d.AH_pvalue = sum(empirical_sample_pooled_3ftn$empirical_mean_d.AH>=pooled_bootstrap_sample_3ftn$bootstrap_sample_mean_d.AH)/bootstrap_n,
+                                
+                                mean_emperical_sample_mean_d.temp = empirical_sample_pooled_3ftn$empirical_mean_d.temp,
+                                d.temp_pvalue = sum(empirical_sample_pooled_3ftn$empirical_mean_d.temp>=pooled_bootstrap_sample_3ftn$bootstrap_sample_mean_d.temp)/bootstrap_n)
+
+poor_geog_results_pooled<-rbind(pooled_results_1ftn,pooled_results_2ftn,pooled_results_3ftn)
+poor_geog_results_pooled<-poor_geog_results_pooled%>%mutate(.,
+                                                                  ManuscriptTable_Temp = paste(signif(mean_emperical_sample_mean_d.temp,3),"  (",signif(d.temp_pvalue,3),")",sep=""),
+                                                                  ManuscriptTable_AH = paste(signif(mean_emperical_sample_mean_d.AH,3),"  (",signif(d.AH_pvalue,3),")",sep=""))
+
+
+print(poor_geog_results_pooled)
+
 
 
 # 4) i) Just Geoghegan ; compare against "typical wintertime conditions" ------------------------------------
@@ -446,11 +702,11 @@ year_fortnight_3ftn<-expand.grid(year=c(1985:2015),start=c(10:17))    # start of
 year_fortnight_3ftn<-year_fortnight_3ftn%>%
   subset(.,year!=2009)
 
+samples_per_bootstrap_sample<-just_geog_estimates%>%subset(.,year!=2009)%>%.$year%>%unique%>%length()
 bootstrap_n<-1000000
 just_geog_bootstrap_ttest_results_1ftn<-list()
 just_geog_bootstrap_ttest_results_2ftn<-list()
 just_geog_bootstrap_ttest_results_3ftn<-list()
-
 
 for(i in 1: length(cities)){
   min_possible_year<-mean_fortnightly_climate_30years%>%
@@ -465,58 +721,83 @@ for(i in 1: length(cities)){
                              dplyr::mutate(city=cities[i]),1,
                            function(x){find_preonset_sample(x,1)})
   
+  temp<-sample_n(sample_means_1ftn,bootstrap_n*samples_per_bootstrap_sample,replace=TRUE)%>%
+    #mean by every 15 rows to produce the 100kx 15
+    dplyr::group_by(G=trunc(samples_per_bootstrap_sample:(n()+samples_per_bootstrap_sample-1)/samples_per_bootstrap_sample))%>%
+    dplyr::summarise(bootstrap_sample_mean_d.AH = mean(sample_mean_d.AH,na.rm=TRUE),
+                     bootstrap_sample_mean_d.temp = mean(sample_mean_d.temp,na.rm=TRUE))
   
-  bootstrap_sample_list_1ftn[[i]]<-sample_n(sample_means_1ftn,bootstrap_n,replace=TRUE)
+  bootstrap_sample_list_1ftn[[i]]<-temp
+  
+  empirical_values_1ftn<-just_geog_sample1%>%subset(.,city==cities[i])%>%
+    dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
+                     empirical_mean_d.temp = mean(sample_mean_d.temp))
+  
   
   just_geog_bootstrap_ttest_results_1ftn[[i]]<-data.frame(city = cities[i],
-                                                          mean_synthetic_sample_mean_d.AH = bootstrap_sample_list_1ftn[[i]]$sample_mean_d.AH %>% mean(),
-                                                          mean_emperical_sample_mean_d.AH = just_geog_sample1%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH %>%mean(),
-                                                          d.AH_stat = t.test(bootstrap_sample_list_1ftn[[i]]$sample_mean_d.AH,just_geog_sample1%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$statistic,
-                                                          d.AH_pvalue = t.test(bootstrap_sample_list_1ftn[[i]]$sample_mean_d.AH,just_geog_sample1%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$p.value,
-                                                          mean_synthetic_sample_mean_d.temp = bootstrap_sample_list_1ftn[[i]]$sample_mean_d.temp %>% mean(),
-                                                          mean_emperical_sample_mean_d.temp = just_geog_sample1%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp %>%mean(),
-                                                          d.temp_stat = t.test(bootstrap_sample_list_1ftn[[i]]$sample_mean_d.temp,just_geog_sample1%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$statistic,
-                                                          d.temp_pvalue = t.test(bootstrap_sample_list_1ftn[[i]]$sample_mean_d.temp,just_geog_sample1%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$p.value,
+                                                          mean_emperical_sample_mean_d.AH = empirical_values_1ftn$empirical_mean_d.AH,
+                                                          d.AH_pvalue = sum(empirical_values_1ftn$empirical_mean_d.AH>=temp$bootstrap_sample_mean_d.AH)/bootstrap_n,
+                                                          
+                                                          mean_emperical_sample_mean_d.temp = empirical_values_1ftn$empirical_mean_d.temp,
+                                                          d.temp_pvalue = sum(empirical_values_1ftn$empirical_mean_d.temp>=temp$bootstrap_sample_mean_d.temp)/bootstrap_n,
                                                           num_preceding_fortnight = 1
   )
+  
+  
+  
   
   # mean of 4-week block samples
   sample_means_2ftn<-adply(year_fortnight_2ftn%>%
                              subset(.,year>=min_possible_year)%>%
                              dplyr::mutate(city=cities[i]),1,
-                           function(x){find_preonset_sample(x,1)})
+                           function(x){find_preonset_sample(x,2)})
   
-  bootstrap_sample_list_2ftn[[i]]<-sample_n(sample_means_2ftn,bootstrap_n,replace=TRUE)
+  temp<-sample_n(sample_means_2ftn,bootstrap_n*samples_per_bootstrap_sample,replace=TRUE)%>%
+    #mean by every 15 rows to produce the 100kx 15
+    dplyr::group_by(G=trunc(samples_per_bootstrap_sample:(n()+samples_per_bootstrap_sample-1)/samples_per_bootstrap_sample))%>%
+    dplyr::summarise(bootstrap_sample_mean_d.AH = mean(sample_mean_d.AH,na.rm=TRUE),
+                     bootstrap_sample_mean_d.temp = mean(sample_mean_d.temp,na.rm=TRUE))
+  
+  bootstrap_sample_list_2ftn[[i]]<-temp
+  
+  empirical_values_2ftn<-just_geog_sample2%>%subset(.,city==cities[i])%>%
+    dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
+                     empirical_mean_d.temp = mean(sample_mean_d.temp))
+  
   
   just_geog_bootstrap_ttest_results_2ftn[[i]]<-data.frame(city = cities[i],
-                                                          mean_synthetic_sample_mean_d.AH = bootstrap_sample_list_2ftn[[i]]$sample_mean_d.AH %>% mean(),
-                                                          mean_emperical_sample_mean_d.AH = just_geog_sample2%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH %>%mean(),
-                                                          d.AH_stat = t.test(bootstrap_sample_list_2ftn[[i]]$sample_mean_d.AH,just_geog_sample2%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$statistic,
-                                                          d.AH_pvalue = t.test(bootstrap_sample_list_2ftn[[i]]$sample_mean_d.AH,just_geog_sample2%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$p.value,
-                                                          mean_synthetic_sample_mean_d.temp = bootstrap_sample_list_2ftn[[i]]$sample_mean_d.temp %>% mean(),
-                                                          mean_emperical_sample_mean_d.temp = just_geog_sample2%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp %>%mean(),
-                                                          d.temp_stat = t.test(bootstrap_sample_list_2ftn[[i]]$sample_mean_d.temp,just_geog_sample2%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$statistic,
-                                                          d.temp_pvalue = t.test(bootstrap_sample_list_2ftn[[i]]$sample_mean_d.temp,just_geog_sample2%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$p.value,
+                                                          mean_emperical_sample_mean_d.AH = empirical_values_2ftn$empirical_mean_d.AH,
+                                                          d.AH_pvalue = sum(empirical_values_2ftn$empirical_mean_d.AH>=temp$bootstrap_sample_mean_d.AH)/bootstrap_n,
+                                                          
+                                                          mean_emperical_sample_mean_d.temp = empirical_values_2ftn$empirical_mean_d.temp,
+                                                          d.temp_pvalue = sum(empirical_values_2ftn$empirical_mean_d.temp>=temp$bootstrap_sample_mean_d.temp)/bootstrap_n,
                                                           num_preceding_fortnight = 2
   )
-  
   # mean of 6-week block samples
   sample_means_3ftn<-adply(year_fortnight_3ftn%>%
                              subset(.,year>=min_possible_year)%>%
                              dplyr::mutate(city=cities[i]),1,
-                           function(x){find_preonset_sample(x,1)})
+                           function(x){find_preonset_sample(x,3)})
   
-  bootstrap_sample_list_3ftn[[i]]<-sample_n(sample_means_3ftn,bootstrap_n,replace=TRUE)
+  temp<-sample_n(sample_means_3ftn,bootstrap_n*samples_per_bootstrap_sample,replace=TRUE)%>%
+    #mean by every 15 rows to produce the 100kx 15
+    dplyr::group_by(G=trunc(samples_per_bootstrap_sample:(n()+samples_per_bootstrap_sample-1)/samples_per_bootstrap_sample))%>%
+    dplyr::summarise(bootstrap_sample_mean_d.AH = mean(sample_mean_d.AH,na.rm=TRUE),
+                     bootstrap_sample_mean_d.temp = mean(sample_mean_d.temp,na.rm=TRUE))
+  
+  bootstrap_sample_list_3ftn[[i]]<-temp
+  
+  empirical_values_3ftn<-just_geog_sample3%>%subset(.,city==cities[i])%>%
+    dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
+                     empirical_mean_d.temp = mean(sample_mean_d.temp))
+  
   
   just_geog_bootstrap_ttest_results_3ftn[[i]]<-data.frame(city = cities[i],
-                                                          mean_synthetic_sample_mean_d.AH = bootstrap_sample_list_3ftn[[i]]$sample_mean_d.AH %>% mean(),
-                                                          mean_emperical_sample_mean_d.AH = just_geog_sample3%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH %>%mean(),
-                                                          d.AH_stat = t.test(bootstrap_sample_list_3ftn[[i]]$sample_mean_d.AH,just_geog_sample3%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$statistic,
-                                                          d.AH_pvalue = t.test(bootstrap_sample_list_3ftn[[i]]$sample_mean_d.AH,just_geog_sample3%>%subset(.,city==cities[i])%>%.$sample_mean_d.AH)%>%.$p.value,
-                                                          mean_synthetic_sample_mean_d.temp = bootstrap_sample_list_3ftn[[i]]$sample_mean_d.temp %>% mean(),
-                                                          mean_emperical_sample_mean_d.temp = just_geog_sample3%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp %>%mean(),
-                                                          d.temp_stat = t.test(bootstrap_sample_list_3ftn[[i]]$sample_mean_d.temp,just_geog_sample3%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$statistic,
-                                                          d.temp_pvalue = t.test(bootstrap_sample_list_3ftn[[i]]$sample_mean_d.temp,just_geog_sample3%>%subset(.,city==cities[i])%>%.$sample_mean_d.temp)%>%.$p.value,
+                                                          mean_emperical_sample_mean_d.AH = empirical_values_3ftn$empirical_mean_d.AH,
+                                                          d.AH_pvalue = sum(empirical_values_3ftn$empirical_mean_d.AH>=temp$bootstrap_sample_mean_d.AH)/bootstrap_n,
+                                                          
+                                                          mean_emperical_sample_mean_d.temp = empirical_values_3ftn$empirical_mean_d.temp,
+                                                          d.temp_pvalue = sum(empirical_values_3ftn$empirical_mean_d.temp>=temp$bootstrap_sample_mean_d.temp)/bootstrap_n,
                                                           num_preceding_fortnight = 3
   )
 }
@@ -535,6 +816,81 @@ just_geog_results<-just_geog_results%>%
   mutate(.,
          ManuscriptTable_Temp = paste(round(mean_emperical_sample_mean_d.temp,3),"  (",round(d.temp_pvalue,3),")",sep=""),
          ManuscriptTable_AH = paste(round(mean_emperical_sample_mean_d.AH,3),"  (",round(d.AH_pvalue,3),")",sep=""))
+
+#pooled
+pooled_bootstrap_sample_1ftn<-list()
+pooled_bootstrap_sample_2ftn<-list()
+pooled_bootstrap_sample_3ftn<-list()
+
+#subsample 1/5 of each city specific bootstrap distribution and then combine it together so that overall bootstrap n = 100,000
+for(i in 1:length(cities)){
+  pooled_bootstrap_sample_1ftn[[i]]<-sample_frac(bootstrap_sample_list_1ftn[[i]],1/length(cities))
+  pooled_bootstrap_sample_2ftn[[i]]<-sample_frac(bootstrap_sample_list_2ftn[[i]],1/length(cities))
+  pooled_bootstrap_sample_3ftn[[i]]<-sample_frac(bootstrap_sample_list_3ftn[[i]],1/length(cities))
+}
+
+pooled_bootstrap_sample_1ftn<-ldply(pooled_bootstrap_sample_1ftn)
+pooled_bootstrap_sample_2ftn<-ldply(pooled_bootstrap_sample_2ftn)
+pooled_bootstrap_sample_3ftn<-ldply(pooled_bootstrap_sample_3ftn)
+
+empirical_sample_pooled_1ftn<-just_geog_sample1%>%
+  dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
+                   empirical_mean_d.temp = mean(sample_mean_d.temp))
+
+empirical_sample_pooled_2ftn<-just_geog_sample2%>%
+  dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
+                   empirical_mean_d.temp = mean(sample_mean_d.temp))
+
+empirical_sample_pooled_3ftn<-just_geog_sample3%>%
+  dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
+                   empirical_mean_d.temp = mean(sample_mean_d.temp))
+
+pooled_results_1ftn<-data.frame(num_preceding_fortnight = 1,
+                                mean_emperical_sample_mean_d.AH = empirical_sample_pooled_1ftn$empirical_mean_d.AH,
+                                d.AH_pvalue = sum(empirical_sample_pooled_1ftn$empirical_mean_d.AH>=pooled_bootstrap_sample_1ftn$bootstrap_sample_mean_d.AH)/bootstrap_n,
+                                
+                                mean_emperical_sample_mean_d.temp = empirical_sample_pooled_1ftn$empirical_mean_d.temp,
+                                d.temp_pvalue = sum(empirical_sample_pooled_1ftn$empirical_mean_d.temp>=pooled_bootstrap_sample_1ftn$bootstrap_sample_mean_d.temp)/bootstrap_n)
+
+pooled_results_2ftn<-data.frame(num_preceding_fortnight = 2,
+                                mean_emperical_sample_mean_d.AH = empirical_sample_pooled_2ftn$empirical_mean_d.AH,
+                                d.AH_pvalue = sum(empirical_sample_pooled_2ftn$empirical_mean_d.AH>=pooled_bootstrap_sample_2ftn$bootstrap_sample_mean_d.AH)/bootstrap_n,
+                                
+                                mean_emperical_sample_mean_d.temp = empirical_sample_pooled_2ftn$empirical_mean_d.temp,
+                                d.temp_pvalue = sum(empirical_sample_pooled_2ftn$empirical_mean_d.temp>=pooled_bootstrap_sample_2ftn$bootstrap_sample_mean_d.temp)/bootstrap_n)
+
+
+pooled_results_3ftn<-data.frame(num_preceding_fortnight = 3,
+                                mean_emperical_sample_mean_d.AH = empirical_sample_pooled_3ftn$empirical_mean_d.AH,
+                                d.AH_pvalue = sum(empirical_sample_pooled_3ftn$empirical_mean_d.AH>=pooled_bootstrap_sample_3ftn$bootstrap_sample_mean_d.AH)/bootstrap_n,
+                                
+                                mean_emperical_sample_mean_d.temp = empirical_sample_pooled_3ftn$empirical_mean_d.temp,
+                                d.temp_pvalue = sum(empirical_sample_pooled_3ftn$empirical_mean_d.temp>=pooled_bootstrap_sample_3ftn$bootstrap_sample_mean_d.temp)/bootstrap_n)
+
+just_geog_geog_results_pooled<-rbind(pooled_results_1ftn,pooled_results_2ftn,pooled_results_3ftn)
+just_geog_geog_results_pooled<-just_geog_geog_results_pooled%>%mutate(.,
+                                                                  ManuscriptTable_Temp = paste(signif(mean_emperical_sample_mean_d.temp,3),"  (",signif(d.temp_pvalue,3),")",sep=""),
+                                                                  ManuscriptTable_AH = paste(signif(mean_emperical_sample_mean_d.AH,3),"  (",signif(d.AH_pvalue,3),")",sep=""))
+
+
+print(just_geog_geog_results_pooled)
+
+
+# saving bootstrap result tables ------------------------------------------
+
+write.csv(largest_geog_results_pooled,"./tables/table_S3.csv",row.names = FALSE)
+write.csv(largest_geog_results,"./tables/table_S4.csv",row.names = FALSE)
+
+write.csv(earliest_geog_results_pooled,"./tables/table_S5.csv",row.names = FALSE)
+write.csv(earliest_geog_results,"./tables/table_S6.csv",row.names = FALSE)
+
+write.csv(poor_geog_results_pooled,"./tables/table_S7.csv",row.names = FALSE)
+write.csv(poor_geog_results,"./tables/table_S8.csv",row.names = FALSE)
+
+write.csv(just_geog_geog_results_pooled,"./tables/table_S9.csv",row.names = FALSE)
+write.csv(just_geog_results,"./tables/table_S10.csv",row.names = FALSE)
+
+
 
 
 ########################################################################################
@@ -609,7 +965,7 @@ mean_relative_humidity_calc<-function(mean_ah,mean_temp){
 centered_df1<-adply(geog_epi_table%>%subset(.,firstNbiggest_largest_geog=="Y" & year!=2009),1,climate_centered,point="largest_geog",.expand=FALSE,.id = NULL)
 
 mean_stats1<-centered_df1%>%
-  dplyr::group_by(city,relative_fortnight)%>%
+  dplyr::group_by(relative_fortnight)%>%
   dplyr::summarise(mean_temp=mean(mean_temp),
                    mean_d.temp=mean(d.temp),
                    sd_d.temp=sd(d.temp),
@@ -668,8 +1024,7 @@ AT_plot1<-mean_stats1%>%
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())+
-  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
+        panel.grid.minor = element_blank())
 
 AH_plot1<-mean_stats1%>%
   ggplot(data=.,aes(x=relative_fortnight,y=mean_d.AH))+
@@ -708,8 +1063,7 @@ AH_plot1<-mean_stats1%>%
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())+
-  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
+        panel.grid.minor = element_blank())
 
 fig_S4<-grid.arrange(AT_plot1,AH_plot1,ncol=1)
 
@@ -718,7 +1072,7 @@ fig_S4<-grid.arrange(AT_plot1,AH_plot1,ncol=1)
 centered_df2<-adply(geog_epi_table%>%subset(.,firstNbiggest_earliest_geog=="Y" & year!=2009),1,climate_centered,point="earliest_geog",.expand=FALSE,.id = NULL)
 
 mean_stats2<-centered_df2%>%
-  dplyr::group_by(city,relative_fortnight)%>%
+  dplyr::group_by(relative_fortnight)%>%
   dplyr::summarise(mean_temp=mean(mean_temp),
                    mean_d.temp=mean(d.temp),
                    sd_d.temp=sd(d.temp),
@@ -776,8 +1130,7 @@ AT_plot2<-mean_stats2%>%
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())+
-  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
+        panel.grid.minor = element_blank())
 
 AH_plot2<-mean_stats2%>%
   ggplot(data=.,aes(x=relative_fortnight,y=mean_d.AH))+
@@ -816,8 +1169,7 @@ AH_plot2<-mean_stats2%>%
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())+
-  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
+        panel.grid.minor = element_blank())
 
 fig_S5<-grid.arrange(AT_plot2,AH_plot2,ncol=1)
 
@@ -828,7 +1180,7 @@ centered_df3<-adply(geog_epi_table%>%subset(.,firstNbiggest_poor_geog=="Y" & yea
 
 
 mean_stats3<-centered_df3%>%
-  dplyr::group_by(city,relative_fortnight)%>%
+  dplyr::group_by(relative_fortnight)%>%
   dplyr::summarise(mean_temp=mean(mean_temp),
                    mean_d.temp=mean(d.temp),
                    sd_d.temp=sd(d.temp),
@@ -886,8 +1238,7 @@ AT_plot3<-mean_stats3%>%
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())+
-  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
+        panel.grid.minor = element_blank())
 
 AH_plot3<-mean_stats3%>%
   ggplot(data=.,aes(x=relative_fortnight,y=mean_d.AH))+
@@ -926,8 +1277,7 @@ AH_plot3<-mean_stats3%>%
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())+
-  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
+        panel.grid.minor = element_blank())
 
 fig_S6<-grid.arrange(AT_plot3,AH_plot3,ncol=1)
 
@@ -936,7 +1286,7 @@ fig_S6<-grid.arrange(AT_plot3,AH_plot3,ncol=1)
 centered_df4<-adply(just_geog_estimates%>%subset(.,year!=2009),1,climate_centered,point="start",.expand=FALSE,.id=NULL)
 
 mean_stats4<-centered_df4%>%
-  dplyr::group_by(city,relative_fortnight)%>%
+  dplyr::group_by(relative_fortnight)%>%
   dplyr::summarise(mean_temp=mean(mean_temp),
                    mean_d.temp=mean(d.temp),
                    sd_d.temp=sd(d.temp),
@@ -994,8 +1344,7 @@ AT_plot4<-mean_stats4%>%
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())+
-  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
+        panel.grid.minor = element_blank())
 
 AH_plot4<-mean_stats4%>%
   ggplot(data=.,aes(x=relative_fortnight,y=mean_d.AH))+
@@ -1034,22 +1383,21 @@ AH_plot4<-mean_stats4%>%
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())+
-  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
+        panel.grid.minor = element_blank())
 
 fig_S7<-grid.arrange(AT_plot4,AH_plot4,ncol=1)
 
 
 # save plots --------------------------------------------------------------
 
-base_dir2<-"C:/Users/el382/Dropbox/PhD/code for manuscript/figures/supp/"
+base_dir2<-"C:/Users/el382/Dropbox/PhD/code for manuscript/figures/reviewer comments/"
 
-ggsave(plot = fig_S4,filename = paste(base_dir2,"figure_S4",".png",sep=""), 
+ggsave(plot = fig_S4,filename = "./figures/supp/figure_S4.png", 
        width=12, height=11,limitsize=FALSE)
-ggsave(plot = fig_S5,filename = paste(base_dir2,"figure_S5",".png",sep=""), 
+ggsave(plot = fig_S5,filename = "./figures/supp/figure_S5.png", 
        width=12, height=11,limitsize=FALSE)
-ggsave(plot = fig_S6,filename = paste(base_dir2,"figure_S6",".png",sep=""), 
+ggsave(plot = fig_S6,filename = "./figures/supp/figure_S6.png", 
        width=12, height=11,limitsize=FALSE)
-ggsave(plot = fig_S7,filename = paste(base_dir2,"figure_S7",".png",sep=""), 
+ggsave(plot = fig_S7,filename = "./figures/supp/figure_S7.png", 
        width=12, height=11,limitsize=FALSE)
 
