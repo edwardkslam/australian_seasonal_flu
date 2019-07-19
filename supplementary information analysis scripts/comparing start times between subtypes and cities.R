@@ -90,7 +90,7 @@ lm_model<-epi_table %>%
 
 sstable <- Anova(lm_model, type = 3)
 sstable<-round(sstable,3)
-TukeyHSD(anova_model)
+TukeyHSD(aov(lm_model))
 
 
 # save plot ---------------------------------------------------------------
