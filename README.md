@@ -155,7 +155,7 @@ Additional columns were appended to ``epi_table.csv``:
 
 #### ``main text analysis scripts/Climatic factors and epidemic onset.R``
 This set of analyses considers whether or not the onset of epidemics are preceded with fluctuations in climatic factors that are:
-1) anomalous when compared with against "typical wintertime" fluctuations using the bootstrap sampling method presented by Shaman (2010). The output is a data frame: final_results (Table S1).
+1) anomalous when compared with against "typical wintertime" fluctuations using the bootstrap sampling method presented by Shaman (2010). (Tables S1 & S2).
 2) anomalous when compared against historical averages that typical for that time of the year. The output is two figures: T_plot and AH-plot (Figure 2).
 
 #### ``main text analysis scripts/Effect of antigenic change.R``
@@ -167,9 +167,9 @@ Here we assess the effect of antigenic change on:
 #### ``main text analysis scripts/Effect of prior immunity.R``
 Here we assess the effect of accumulated antigenic-variant specific immunity on:
 1) epidemic incidence (Figure 4)
-2) probability of successful epidemic initiation (Figure S16 and Table S6)
+2) probability of successful epidemic initiation (Figure S16 and Table S11)
 
-#### ``main text analysis scripts/Effect of prior immunity.R``
+#### ``main text analysis scripts/Effect of prior activity within same season.R``
 Here we assess the effect of heterosubtypic competition on the size of subsequent epidemic:
 1)  the relationship between prior epidemic activity by other subtypes within the same season and city and the relative size of an epidemic (Figure 5).
 2)  the relationship between delay in onset timing and relative size of an epidemic (Figure 5).
@@ -183,7 +183,7 @@ Here we assess (whilst making no corrctions for potential mis-identification dur
 #### ``main text analysis without phylogenetic informed corrections/Effect of prior immunity no corrections.R``
 Here we assess (whilst making no corrctions for potential mis-identification during antigenic characterisation) the effect of accumulated antigenic-variant specific immunity on:
 1) epidemic incidence (Figure S20)
-2) probability of successful epidemic initiation (Figure S21 and Table S9)
+2) probability of successful epidemic initiation (Figure S21 and Table S14)
 
 
 #### ``robustness vs geoghegan timings/Robustness of climatic analyses using Geoghegan et al (2018) timings.R``
@@ -193,15 +193,15 @@ ii) anomalous when compared against historical averages that typical for that ti
 
 We incorporate alternative estimates for the onset timing of Influenza A epidemic activity from Geoghegan et al. (2018), based on the following series of assumptions: \
 1) For each of the seasons between 2007 and 2015, we assumed that our timing estimate for the DOMINANT influenza A subtype was incorrect and replaced it with estimates from Geoghegan et al. (2018). \
-    i) Table S2; ii) Figure S4
+    i) Table S3; ii) Table S4; iii) Figure S4
 2) For each of the seasons between 2007 and 2015, we assumed that our timing estimate for the EARLIEST influenza A subtype was incorrect and replaced it with estimates from Geoghegan et al. (2018). \
-    i) Table S3; ii) Figure S5
+    i) Table S5; ii) Table S6; iii) Figure S5
 3) For seasons between 2007 and 2015 in which the number of cases for the dominant influenza A subtype were small or it was difficult to discern the period of epidemic from background activity, we assumed that our timing estimate was incorrect and replaced it with estimates from Geoghegan et al. (2018). \
-    i) Table S4; ii) Figure S6
+    i) Table S7; ii) Table S8; iii) Figure S6
 
 We also considered whether or not, more generally, Influenza A epidemic activity was preceded by anomalous fluctuations. \
 4) Utilising only the timing estimates by Geoghegan et al. (2018), we assessed if more generally, the onset of influenza A epidemic activity in the seasons from 2007 to 2015 was preceded by periods of anomalous climatic conditions. \
-    i) Table S5; ii) Figure S7
+    i) Table S9; ii) Table S10; iii) Figure S7
 
 #### ``robustness vs geoghegan timings/Robustness of ag change analyses using Geoghegan et al (2018) timings.R``
 Here we assess the robustness towards potential inaccuracies in our epidemic onset timing estimates, of our analyses on the effect of antigenic change on: \
