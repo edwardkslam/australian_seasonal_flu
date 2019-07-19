@@ -15,21 +15,15 @@ library(zoo)
 # Figure S3
 
 # Loading data ------------------------------------------------------------
-if(Sys.info()['sysname']=="Windows"){
-  mean_fortnightly_climate_30years<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/mean_fortnightly_climate_30years.csv")
-  epi_table<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/epi_table.csv")
-  
-  raw_table<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/raw_data.csv")
-  raw_table<-raw_table%>%
-    dplyr::mutate(fortnights_since_start_of_year = lubridate::yday(specimen_date)%/%14+1)%>%
-    dplyr::group_by(city,year,assumed_antigenic_variant,fortnights_since_start_of_year)%>%
-    dplyr::summarise(count=n())
-}
 
-if(Sys.info()['sysname']=="Darwin"){
-  mean_fortnightly_climate_30years<-read.csv("~/Dropbox/PhD/code for manuscript/mean_fortnightly_climate_30years.csv")
-  epi_table<-read.csv("~/Dropbox/PhD/code for manuscript/epi_table.csv")
-}
+mean_fortnightly_climate_30years<-read.csv("./dat/raw/mean_fortnightly_climate_30years.csv")
+epi_table<-read.csv("./dat/raw/epi_table.csv")
+  
+raw_table<-read.csv("./dat/raw/raw_data.csv")
+raw_table<-raw_table%>%
+  dplyr::mutate(fortnights_since_start_of_year = lubridate::yday(specimen_date)%/%14+1)%>%
+  dplyr::group_by(city,year,assumed_antigenic_variant,fortnights_since_start_of_year)%>%
+  dplyr::summarise(count=n())
 
 cities<-c("ADELAIDE","BRISBANE","MELBOURNE","PERTH","SYDNEY")
 
@@ -263,6 +257,5 @@ figS3<-grid.arrange(yaxis_common,
                                early_epi_ah_plot + theme(legend.position="none",axis.title.y = element_blank()),nrow=2),
                     mylegend, ncol=3,widths=c(1,14,2))
 
-base_dir2<-"C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/figures/reviewer comments/"
-ggsave(plot = figS3,filename = paste(base_dir2,"figure_S3.png",sep=""), 
+ggsave(plot = figS3,"./figures/supp/figure_S3.png",
        width=18, height=12,limitsize=FALSE)
