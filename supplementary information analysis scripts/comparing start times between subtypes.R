@@ -26,13 +26,19 @@ epi_table$city<-factor(epi_table$city,levels = cities)
 
 
 # plot --------------------------------------------------------------------
+epi_table<-epi_table%>%
+  dplyr::group_by(city)%>%
+  dplyr::mutate(normalised_start = (start-mean(start,na.rm=TRUE))/sd(start,na.rm=TRUE))
+
+
 
 subtype_list<-c("H3","H1sea","H1pdm09","B/Vic","B/Yam")
 subtype_comparisons<-combn(subtype_list,2,simplify=FALSE)
 
 subtype_start_plot<-epi_table %>%
   subset(.,year!=2009)%>%
-  ggplot(.,aes(x=subtype,y= start))+
+  ggplot(.,aes(x=subtype,y= normalised_start))+
+  geom_boxplot(outlier.size=0)+ 
   geom_jitter(aes(color=subtype),
               position=position_jitter(width=0.1,height=0.01),alpha=0.6,size=3.5)+
   ggpubr::stat_compare_means(method = "wilcox.test",comparisons = subtype_comparisons,textsize =10)+
@@ -42,7 +48,7 @@ subtype_start_plot<-epi_table %>%
                               "H1sea"="#56B4E9",
                               "H1pdm09"="#999999",
                               "H3"="#E69F00"))+
-  scale_y_continuous(breaks =seq(1,26,2), limits = c(0,38))+
+  scale_y_continuous(breaks =seq(-2,2,1), limits = c(-2,11))+
   xlab("Subtype")+
   ylab("Start Fortnight")+
   theme_bw()+
@@ -50,16 +56,14 @@ subtype_start_plot<-epi_table %>%
         strip.text = element_text(size=20),
         panel.border = element_rect(colour = "black"),
         axis.title.x=element_blank(),
-        axis.text.x=element_blank(),
         axis.ticks.x=element_blank(),
         axis.title.y=element_text(size=25),
-        axis.text.y =element_text(size=20,margin=margin(t=0,r=7,b=0,l=0)),
+        axis.text.y =element_text(size=20),
         legend.title=element_text(size=20), 
         legend.text=element_text(size=17),
         #legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())+
-  facet_grid(~city)
+        panel.grid.minor = element_blank())
 
 
 # save plot ---------------------------------------------------------------

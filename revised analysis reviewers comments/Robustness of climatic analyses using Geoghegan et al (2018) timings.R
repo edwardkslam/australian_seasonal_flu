@@ -104,6 +104,8 @@ largest_use_geog_sample1<-adply(largest_use_geog_earliest,1,function(x){find_pre
 largest_use_geog_sample2<-adply(largest_use_geog_earliest,1,function(x){find_preonset_sample(x,2)})
 largest_use_geog_sample3<-adply(largest_use_geog_earliest,1,function(x){find_preonset_sample(x,3)})
 
+#quick calculator of d.AH -> d.RH
+largest_use_geog_sample1%>%dplyr::group_by(city)%>%dplyr::summarise(mean_d.RH = mean_relative_humidity_calc(mean(mean_AH),mean(mean_temp))-mean_relative_humidity_calc(mean(mean_AH)+mean(sample_mean_d.AH),mean(mean_temp)))
 
 # data frame listing the years and fortnights during "winter", from which bootstrap sample will be drawn from 
 year_fortnight_1ftn<-expand.grid(year=c(1985:2015),start=c(8:17))    # start of 7 = 01 April ; end of 16 = 31 August

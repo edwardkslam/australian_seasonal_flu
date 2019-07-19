@@ -23,8 +23,25 @@ library(tidyr)
 
 
 # Loading in data ---------------------------------------------------------
-epi_table_no_corrections<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/epi_table_no_corrections.csv")
+epi_table_no_corrections<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/epi_table_no_corrections.csv")
 
+epi_table_no_corrections<-epi_table_no_corrections%>%
+  dplyr::mutate(log_incidence = log(incidence_per_mil))
+
+epi_table_no_corrections<-epi_table_no_corrections%>%
+  subset(year!=2009)%>%
+  dplyr::group_by(city)%>%
+  dplyr::mutate(z_score_incidence_city = ifelse(epi_alarm=="Y",
+                                                (log_incidence-mean(log_incidence,na.rm=TRUE))/sd(log_incidence,na.rm = TRUE),
+                                                NA),
+                scaled_incidence_city = log_incidence-mean(log_incidence,na.rm=TRUE))
+
+epi_table_no_corrections<-epi_table_no_corrections%>%
+  dplyr::group_by(city,subtype)%>%
+  dplyr::mutate(incidence_z_score_subtype_city = ifelse(epi_alarm=="Y",
+                                                        (log_incidence-mean(log_incidence,na.rm=TRUE))/sd(log_incidence,na.rm = TRUE),
+                                                        NA),
+                scaled_incidence_subtype_city = log_incidence - mean(log_incidence,na.rm=TRUE))
 
 # Figure S17: Comparing epidemic sizes between seasons with and without antigenic change  -------------------------------------
 # Grouped by city and subtype
@@ -33,19 +50,15 @@ ag_change_incidence_plot<-epi_table_no_corrections%>%
   subset(.,year!=2009)%>%
   subset(.,subtype!="H1pdm09")%>%
   subset(.,!is.na(new_ag_marker))%>%
-  ggplot(.,aes(x=as.factor(new_ag_marker),y=incidence_per_mil))+
-  geom_boxplot(outlier.size=0)+ 
-  geom_jitter(aes(x=as.factor(new_ag_marker),y=incidence_per_mil,colour=subtype),
-              position=position_jitter(width=0.06,height=0),
-              alpha=0.6,
-              size=5)+
-  
-  scale_color_manual(name = "Subtype",
-                     values=c("B/Yam"="#CC79A7",
-                              "B/Vic"="#009E73",
-                              "H1sea"="#56B4E9",
-                              "H1pdm09"="#999999",
-                              "H3"="#E69F00"))+
+  ggplot(.,aes(x=as.factor(new_ag_marker),y=scaled_incidence_city))+
+  geom_boxplot(outlier.size=0)+
+  geom_quasirandom(aes(colour=city),dodge.width=.7,cex=5,alpha=0.6)+
+  scale_color_manual(name = "City",
+                     values=c("ADELAIDE"="#CC79A7",
+                              "BRISBANE"="#009E73",
+                              "MELBOURNE"="#56B4E9",
+                              "PERTH"="#999999",
+                              "SYDNEY"="#E69F00"))+
   stat_compare_means(method = "wilcox.test", label = "p.format",label.x.npc="middle",size=5)+
   scale_x_discrete(labels=c("0"="No Ag \n Change",
                             "1"="Ag \n Change"))+
@@ -63,7 +76,7 @@ ag_change_incidence_plot<-epi_table_no_corrections%>%
         legend.position="none",
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())+
-  facet_grid(subtype~city,scales = "free_y", labeller = label_wrap_gen(width=10))
+  facet_grid(~subtype,scales = "free_y", labeller = label_wrap_gen(width=10))
 
 
 # Figure S18 Comparing epidemic onset timing between seasons with and without antigenic change ---------------------------------------------------------------
@@ -76,17 +89,17 @@ ag_change_start_plot<-epi_table_no_corrections%>%
   subset(.,!is.na(new_ag_marker))%>%
   ggplot(.,aes(x=as.factor(new_ag_marker),y=start))+
   geom_boxplot(outlier.size=0)+ 
-  geom_jitter(aes(x=as.factor(new_ag_marker),y=start,colour=subtype),
-              position=position_jitter(width=0.1,height=0.1),
-              alpha=0.6,
-              size=5)+
+  geom_quasirandom(aes(colour=city),
+                   dodge.width=.7,
+                   cex=5,
+                   alpha=0.6)+
   
-  scale_color_manual(name = "Subtype",
-                     values=c("B/Yam"="#CC79A7",
-                              "B/Vic"="#009E73",
-                              "H1sea"="#56B4E9",
-                              "H1pdm09"="#999999",
-                              "H3"="#E69F00"))+
+  scale_color_manual(name = "City",
+                     values=c("ADELAIDE"="#CC79A7",
+                              "BRISBANE"="#009E73",
+                              "MELBOURNE"="#56B4E9",
+                              "PERTH"="#999999",
+                              "SYDNEY"="#E69F00"))+
   stat_compare_means(method = "wilcox.test", label = "p.format",label.x.npc="middle",size=5)+
   scale_x_discrete(labels=c("0"="No Ag \n Change",
                             "1"="Ag \n Change"))+
@@ -104,7 +117,7 @@ ag_change_start_plot<-epi_table_no_corrections%>%
                    legend.position="none",
                    panel.grid.major = element_blank(), 
                    panel.grid.minor = element_blank())+
-  facet_grid(subtype~city,scales = "free_y", labeller = label_wrap_gen(width=10))
+  facet_grid(~subtype,scales = "free_y", labeller = label_wrap_gen(width=10))
 
 
 # Figure S19  Comparing temporal synchrony of epidemics across cities between seasons with and without antigenic change ---------------------------------------------------------------
@@ -158,13 +171,13 @@ ag_change_synchrony_plot<-synchrony_table%>%
 
 
 # save plots --------------------------------------------------------------
-base_dir2<-"C:/Users/el382/Dropbox/PhD/code for manuscript/figures/supp/"
+base_dir2<-"C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/figures/reviewer comments/"
 
 ggsave(plot = ag_change_incidence_plot,filename = paste(base_dir2,"figure_S17.png",sep=""), 
-       width=13, height=13,limitsize=FALSE)
+       width=13, height=8,limitsize=FALSE)
 
 ggsave(plot = ag_change_start_plot,filename = paste(base_dir2,"figure_S18.png",sep=""), 
-       width=13, height=13,limitsize=FALSE)
+       width=13, height=8,limitsize=FALSE)
 
 ggsave(plot = ag_change_synchrony_plot,filename = paste(base_dir2,"figure_S19.png",sep=""), 
        width=12, height=5,limitsize=FALSE)

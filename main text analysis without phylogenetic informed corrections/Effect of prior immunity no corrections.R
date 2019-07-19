@@ -24,7 +24,7 @@ library(tidyr)
 
 # Loading data ------------------------------------------------------------
 if(Sys.info()['sysname']=="Windows"){
-  epi_table_no_corrections<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/epi_table_no_corrections.csv")
+  epi_table_no_corrections<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/epi_table_no_corrections.csv")
 }
 
 if(Sys.info()['sysname']=="Darwin"){
@@ -35,6 +35,22 @@ cities<-c("ADELAIDE","BRISBANE","MELBOURNE","PERTH","SYDNEY")
 
 epi_table_no_corrections$city<-factor(epi_table_no_corrections$city,levels = cities)
 
+epi_table_no_corrections<-epi_table_no_corrections%>%
+  dplyr::mutate(log_incidence = log(incidence_per_mil))
+
+epi_table_no_corrections<-epi_table_no_corrections%>%
+  dplyr::group_by(city)%>%
+  dplyr::mutate(z_score_incidence_city = ifelse(epi_alarm=="Y",
+                                                (log_incidence-mean(log_incidence,na.rm=TRUE))/sd(log_incidence,na.rm = TRUE),
+                                                NA),
+                scaled_incidence_city = log_incidence-mean(log_incidence,na.rm=TRUE))
+
+epi_table_no_corrections<-epi_table_no_corrections%>%
+  dplyr::group_by(city,subtype)%>%
+  dplyr::mutate(incidence_z_score_subtype_city = ifelse(epi_alarm=="Y",
+                                                        (log_incidence-mean(log_incidence,na.rm=TRUE))/sd(log_incidence,na.rm = TRUE),
+                                                        NA),
+                scaled_incidence_subtype_city = log_incidence - mean(log_incidence,na.rm=TRUE))
 
 # 1) Effect of ag variant specific cumulative incidence on epidemic incidence --------
 
@@ -81,8 +97,9 @@ cumulative_incidence_by_ag<-cumulative_incidence_by_ag%>%
   dplyr::mutate(years_since_emergence=year-min(year))
 
 # filling in which are the years with epidemics and their sizes
-cumulative_incidence_by_ag<-left_join(cumulative_incidence_by_ag,epi_table_no_corrections[,c("city","subtype","reference_strain","year","incidence_per_mil")])
+cumulative_incidence_by_ag<-left_join(cumulative_incidence_by_ag,epi_table_no_corrections[,c("city","subtype","reference_strain","year","epi_alarm","incidence_per_mil")])
 cumulative_incidence_by_ag<-rename(cumulative_incidence_by_ag,replace=c("incidence_per_mil"= "incidence_current_season"))
+
 cumulative_incidence_by_ag<-data.frame(cumulative_incidence_by_ag)
 cumulative_incidence_by_ag$incidence_current_season[which(is.na(cumulative_incidence_by_ag$incidence_current_season))]<-0
 
@@ -92,16 +109,38 @@ cumulative_incidence_by_ag<-cumulative_incidence_by_ag%>%
   dplyr::arrange(year,.by_group=TRUE)%>%
   dplyr::mutate(cumulative_prior_incidence_same_ag = cumsum(incidence_current_season)- incidence_current_season)
 
+size_plot_table<-cumulative_incidence_by_ag%>%
+  subset(.,epi_alarm=="Y")
+
 # need to divide cumulative incidence by city-specific mean epidemic size
-overall_mean_size<-epi_table_no_corrections%>%
-  subset(.,epi_alarm=="Y")%>%
+mean_epi_size<-epi_table_no_corrections%>%
+  subset(.,epi_alarm=="Y" &year!=2009)%>%
   dplyr::group_by(city)%>%
-  dplyr::summarise(mean_epi_size=mean(incidence_per_mil))
+  dplyr::summarise(mean_epi_size_c=mean(incidence_per_mil))
 
-cumulative_incidence_by_ag<-cumulative_incidence_by_ag%>%left_join(overall_mean_size)
+size_plot_table<-left_join(size_plot_table,mean_epi_size)
 
-cumulative_incidence_by_ag$standardised_prior_cumulative<-cumulative_incidence_by_ag$cumulative_prior_incidence_same_ag/cumulative_incidence_by_ag$mean_epi_size
-cumulative_incidence_by_ag$standardised_current_season<-cumulative_incidence_by_ag$incidence_current_season/cumulative_incidence_by_ag$mean_epi_size
+mean_epi_size<-epi_table_no_corrections%>%
+  subset(.,epi_alarm=="Y" &year!=2009)%>%
+  dplyr::group_by(subtype,city)%>%
+  dplyr::summarise(mean_epi_size_sc=mean(incidence_per_mil))
+size_plot_table<-left_join(size_plot_table,mean_epi_size)
+
+size_plot_table<-size_plot_table%>%
+  dplyr::group_by(city)%>%
+  dplyr::mutate(z_score_incidence_current_season_c = ifelse(epi_alarm=="Y",
+                                                            (log(incidence_current_season)-mean(log(incidence_current_season),na.rm=TRUE))/sd(log(incidence_current_season),na.rm = TRUE),
+                                                            NA),
+                scaled_incidence_current_season_c= log(incidence_current_season)-mean(log(incidence_current_season),na.rm=TRUE),
+                scaled_cumulative_incidence_c = cumulative_prior_incidence_same_ag/mean_epi_size_c)
+
+size_plot_table<-size_plot_table%>%
+  dplyr::group_by(subtype,city)%>%
+  dplyr::mutate(z_score_incidence_current_season_sc = ifelse(epi_alarm=="Y",
+                                                             (log(incidence_current_season)-mean(log(incidence_current_season),na.rm=TRUE))/sd(log(incidence_current_season),na.rm = TRUE),
+                                                             NA),
+                scaled_incidence_current_season_sc= log(incidence_current_season)-mean(log(incidence_current_season),na.rm=TRUE),
+                scaled_cumulative_incidence_sc = cumulative_prior_incidence_same_ag/mean_epi_size_sc)
 
 cumulative_incidence_by_ag<-cumulative_incidence_by_ag%>%left_join(data.frame(city=epi_table_no_corrections$city,reference_strain=epi_table_no_corrections$reference_strain,year=epi_table_no_corrections$year,epi_alarm=factor(epi_table_no_corrections$epi_alarm,levels = c("Y","N"))))
 cumulative_incidence_by_ag$epi_alarm[is.na(cumulative_incidence_by_ag$epi_alarm)==TRUE]<-"N"
@@ -110,21 +149,20 @@ cumulative_incidence_by_ag$epi_alarm2<-cumulative_incidence_by_ag$epi_alarm%>%
   mapvalues(.,from=c("Y","N"),to=c(1,0))
 
 
-epi_size_cumulative_size_same_variant_plot<-cumulative_incidence_by_ag %>%
+epi_size_cumulative_size_same_variant_plot<-size_plot_table %>%
   subset(.,subtype!="H1pdm09")%>%
   subset(.,epi_alarm=="Y")%>%
   subset(.,!(reference_strain%in%dodgy_prev$reference_strain))%>%
-  ggplot(.,aes(x=standardised_prior_cumulative,y= standardised_current_season))+
-  geom_jitter(aes(group = subtype, color=subtype),
+  ggplot(.,aes(x= scaled_cumulative_incidence_c ,y=scaled_incidence_current_season_c ))+
+  geom_jitter(aes(group = subtype, color=city),
               position=position_jitter(width=0.01,height=0.01),alpha=0.6,size=5)+
-  geom_smooth(method='lm',formula=y~x, se = FALSE)+
   stat_cor(method = "pearson",size=8)+
-  scale_color_manual(name = "Subtype",
-                     values=c("B/Yam"="#CC79A7",
-                              "B/Vic"="#009E73",
-                              "H1sea"="#56B4E9",
-                              "H1pdm09"="#999999",
-                              "H3"="#E69F00"))+
+  scale_color_manual(name = "City",
+                     values=c("ADELAIDE"="#CC79A7",
+                              "BRISBANE"="#009E73",
+                              "MELBOURNE"="#56B4E9",
+                              "PERTH"="#999999",
+                              "SYDNEY"="#E69F00"))+
   xlab("Antigenic variant-specific cumulative incidence")+
   ylab("Epidemic incidence")+
   theme_bw()+
@@ -135,7 +173,6 @@ epi_size_cumulative_size_same_variant_plot<-cumulative_incidence_by_ag %>%
         axis.text.y =element_text(size=20,margin=margin(t=0,r=7,b=0,l=0)),
         axis.ticks.length = unit(0.4,"cm"),
         panel.border = element_rect(colour = "black"),
-        legend.position = "none",
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())+
   facet_grid(~subtype)
@@ -184,7 +221,7 @@ subtype_logistics_regression$holm_adjusted_p<-p.adjust(subtype_logistics_regress
 
 # save plots --------------------------------------------------------------
 
-base_dir2<-"C:/Users/el382/Dropbox/PhD/code for manuscript/figures/supp/"
+base_dir2<-"C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/figures/reviewer comments/"
 ggsave(plot = epi_size_cumulative_size_same_variant_plot,filename = paste(base_dir2,"figure_S20.png",sep=""), 
        width=20, height=8,limitsize=FALSE)
 

@@ -466,8 +466,8 @@ AH_plot<-mean_stats%>%
 
 
 # save plot ---------------------------------------------------------------
-base_dir<-"C:/Users/el382/Dropbox/PhD/code for manuscript/figures/reviewer comments/"
+base_dir<-"C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/figures/reviewer comments/"
 
 fig2<-grid.arrange(T_plot,AH_plot,ncol=1)
-ggsave(plot = fig2,filename = paste(base_dir,"figure_2",".pdf",sep=""),
+ggsave(plot = fig2,filename = paste(base_dir,"figure_2",".png",sep=""),
        width=12, height=11,limitsize=FALSE)

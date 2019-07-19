@@ -62,17 +62,17 @@ ag_change_start_1<-geog_epi_table%>%
   subset(.,!is.na(new_ag_marker))%>%
   ggplot(.,aes(x=as.factor(new_ag_marker),y=largest_geog_start))+
   geom_boxplot(outlier.size=0)+
-  geom_jitter(aes(x=as.factor(new_ag_marker),y=largest_geog_start,colour=subtype),
-              position=position_jitter(width=0.1,height=0.1),
-              alpha=0.6,
-              size=5)+
-
-  scale_color_manual(name = "Subtype",
-                     values=c("B/Yam"="#CC79A7",
-                              "B/Vic"="#009E73",
-                              "H1sea"="#56B4E9",
-                              "H1pdm09"="#999999",
-                              "H3"="#E69F00"))+
+  geom_quasirandom(aes(colour=city),
+                   dodge.width=.7,
+                   cex=5,
+                   alpha=0.6)+
+  
+  scale_color_manual(name = "City",
+                     values=c("ADELAIDE"="#CC79A7",
+                              "BRISBANE"="#009E73",
+                              "MELBOURNE"="#56B4E9",
+                              "PERTH"="#999999",
+                              "SYDNEY"="#E69F00"))+
   stat_compare_means(method = "wilcox.test", label = "p.format",label.x.npc="middle",size=5)+
   scale_x_discrete(labels=c("0"="No Ag \n Change",
                             "1"="Ag \n Change"))+
@@ -86,9 +86,9 @@ ag_change_start_1<-geog_epi_table%>%
                    axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
                    axis.ticks.length = unit(0.4,"cm"),
                    panel.border = element_rect(colour = "black"),
-                   legend.position="none",
                    panel.grid.major = element_blank(), 
-                   panel.grid.minor = element_blank())
+                   panel.grid.minor = element_blank())+
+  facet_grid(~subtype,scales = "free_y", labeller = label_wrap_gen(width=10))
 
 
 # 1) ii) Ag change and temporal synchrony (largest_geog_start) -----------------------------------------------------------------------
@@ -138,17 +138,17 @@ ag_change_start_2<-geog_epi_table%>%
   subset(.,!is.na(new_ag_marker))%>%
   ggplot(.,aes(x=as.factor(new_ag_marker),y=earliest_geog_start))+
   geom_boxplot(outlier.size=0)+
-  geom_jitter(aes(x=as.factor(new_ag_marker),y=earliest_geog_start,colour=subtype),
-              position=position_jitter(width=0.1,height=0.1),
-              alpha=0.6,
-              size=5)+
-
-  scale_color_manual(name = "Subtype",
-                     values=c("B/Yam"="#CC79A7",
-                              "B/Vic"="#009E73",
-                              "H1sea"="#56B4E9",
-                              "H1pdm09"="#999999",
-                              "H3"="#E69F00"))+
+  geom_quasirandom(aes(colour=city),
+                   dodge.width=.7,
+                   cex=5,
+                   alpha=0.6)+
+  
+  scale_color_manual(name = "City",
+                     values=c("ADELAIDE"="#CC79A7",
+                              "BRISBANE"="#009E73",
+                              "MELBOURNE"="#56B4E9",
+                              "PERTH"="#999999",
+                              "SYDNEY"="#E69F00"))+
   stat_compare_means(method = "wilcox.test", label = "p.format",label.x.npc="middle",size=5)+
   scale_x_discrete(labels=c("0"="No Ag \n Change",
                             "1"="Ag \n Change"))+
@@ -162,9 +162,9 @@ ag_change_start_2<-geog_epi_table%>%
                    axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
                    axis.ticks.length = unit(0.4,"cm"),
                    panel.border = element_rect(colour = "black"),
-                   legend.position="none",
                    panel.grid.major = element_blank(), 
-                   panel.grid.minor = element_blank())
+                   panel.grid.minor = element_blank())+
+  facet_grid(~subtype,scales = "free_y", labeller = label_wrap_gen(width=10))
 
 
 present_in_all_2<-plyr::count(geog_epi_table%>%
@@ -213,17 +213,17 @@ ag_change_start_3<-geog_epi_table%>%
   subset(.,!is.na(new_ag_marker))%>%
   ggplot(.,aes(x=as.factor(new_ag_marker),y=poor_timeseries_geog_start))+
   geom_boxplot(outlier.size=0)+
-  geom_jitter(aes(x=as.factor(new_ag_marker),y=poor_timeseries_geog_start,colour=subtype),
-              position=position_jitter(width=0.1,height=0.1),
-              alpha=0.6,
-              size=5)+
-
-  scale_color_manual(name = "Subtype",
-                     values=c("B/Yam"="#CC79A7",
-                              "B/Vic"="#009E73",
-                              "H1sea"="#56B4E9",
-                              "H1pdm09"="#999999",
-                              "H3"="#E69F00"))+
+  geom_quasirandom(aes(colour=city),
+                   dodge.width=.7,
+                   cex=5,
+                   alpha=0.6)+
+  
+  scale_color_manual(name = "City",
+                     values=c("ADELAIDE"="#CC79A7",
+                              "BRISBANE"="#009E73",
+                              "MELBOURNE"="#56B4E9",
+                              "PERTH"="#999999",
+                              "SYDNEY"="#E69F00"))+
   stat_compare_means(method = "wilcox.test", label = "p.format",label.x.npc="middle",size=5)+
   scale_x_discrete(labels=c("0"="No Ag \n Change",
                             "1"="Ag \n Change"))+
@@ -237,9 +237,9 @@ ag_change_start_3<-geog_epi_table%>%
                    axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
                    axis.ticks.length = unit(0.4,"cm"),
                    panel.border = element_rect(colour = "black"),
-                   legend.position="none",
                    panel.grid.major = element_blank(), 
-                   panel.grid.minor = element_blank())
+                   panel.grid.minor = element_blank())+
+  facet_grid(~subtype,scales = "free_y", labeller = label_wrap_gen(width=10))
 
 
 present_in_all_3<-plyr::count(geog_epi_table%>%
@@ -287,17 +287,17 @@ synchrony_plot_overall_3<-synchrony_measure_3%>%
 
 base_dir2<-"C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/figures/reviewer comments/"
 
-ggsave(plot = ag_change_start_1,filename = paste(base_dir2,"figure_S10.pdf",sep=""), 
-       width=13, height=13,limitsize=FALSE)
-ggsave(plot = synchrony_plot_overall_1,filename = paste(base_dir2,"figure_S11.pdf",sep=""), 
+ggsave(plot = ag_change_start_1,filename = paste(base_dir2,"figure_S10.png",sep=""), 
+       width=13, height=8,limitsize=FALSE)
+ggsave(plot = synchrony_plot_overall_1,filename = paste(base_dir2,"figure_S11.png",sep=""), 
        width=12, height=5,limitsize=FALSE)
 
-ggsave(plot = ag_change_start_2,filename = paste(base_dir2,"figure_S12.pdf",sep=""), 
-       width=13, height=13,limitsize=FALSE)
-ggsave(plot = synchrony_plot_overall_2,filename = paste(base_dir2,"figure_S13.pdf",sep=""), 
+ggsave(plot = ag_change_start_2,filename = paste(base_dir2,"figure_S12.png",sep=""), 
+       width=13, height=8,limitsize=FALSE)
+ggsave(plot = synchrony_plot_overall_2,filename = paste(base_dir2,"figure_S13.png",sep=""), 
        width=12, height=5,limitsize=FALSE)
 
-ggsave(plot = ag_change_start_3,filename = paste(base_dir2,"figure_S14.pdf",sep=""), 
-       width=13, height=13,limitsize=FALSE)
-ggsave(plot = synchrony_plot_overall_3,filename = paste(base_dir2,"figure_S15.pdf",sep=""), 
+ggsave(plot = ag_change_start_3,filename = paste(base_dir2,"figure_S14.png",sep=""), 
+       width=13, height=8,limitsize=FALSE)
+ggsave(plot = synchrony_plot_overall_3,filename = paste(base_dir2,"figure_S15.png",sep=""), 
        width=12, height=5,limitsize=FALSE)

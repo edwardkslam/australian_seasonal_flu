@@ -334,9 +334,9 @@ ggsave(plot = ag_change_z_score_plot_3,filename = paste(base_dir,"figure_3_poole
 
 base_dir2<-"C:/Users/el382/Dropbox/PhD/code for manuscript/figures/reviewer comments/"
 
-ggsave(plot = ag_change_start_plot,filename = paste(base_dir2,"figure_S8.pdf",sep=""), 
+ggsave(plot = ag_change_start_plot,filename = paste(base_dir2,"figure_S8.png",sep=""), 
        width=13, height=8,limitsize=FALSE)
 
-ggsave(plot = ag_change_synchrony_plot,filename = paste(base_dir2,"figure_S9.pdf",sep=""), 
+ggsave(plot = ag_change_synchrony_plot,filename = paste(base_dir2,"figure_S9.png",sep=""), 
        width=12, height=5,limitsize=FALSE)
 

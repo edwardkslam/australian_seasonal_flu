@@ -29,13 +29,10 @@ epi_table<-epi_table%>%
                                                 (log_incidence-mean(log_incidence,na.rm=TRUE))/sd(log_incidence,na.rm = TRUE),
                                                 NA))
 
-mean_size_subtype_city<-epi_table%>%
-  dplyr::group_by(city,subtype)%>%
-  dplyr::summarise(mean_epi_size_sc = mean(incidence_per_mil,na.rm=TRUE))
 
-epi_table<-left_join(epi_table,mean_size_subtype_city)
 epi_table<-epi_table%>%
-  dplyr::mutate(scaled_incidence_subtype_city = incidence_per_mil/mean_epi_size_sc)
+  dplyr::group_by(city,subtype)%>%
+  dplyr::mutate(scaled_incidence_subtype_city = log(incidence_per_mil)-mean(log(incidence_per_mil),na.rm=TRUE))
 
 epi_table<-epi_table%>%
   dplyr::group_by(city,subtype)%>%
@@ -162,6 +159,7 @@ epi_table_with_clim_2<-left_join(epi_table_with_clim,cumulative_incidence_by_ag[
 
 epi_table_with_clim_2<-epi_table_with_clim_2%>%
   dplyr::mutate(first_in_season = ifelse(delay==0,1,0))
+epi_table_with_clim_2$first_in_season<-factor(epi_table_with_clim_2$first_in_season)
 
 temp_data<-epi_table_with_clim_2%>%
   subset(.,epi_alarm=="Y" & !is.na(standardised_prior_cumulative))
@@ -170,53 +168,53 @@ temp_data<-temp_data%>%dplyr::mutate(pes = ifelse(first_in_season==1,0,log(prior
                                      spc = ifelse(new_ag_marker==1,0,standardised_prior_cumulative))
 
 full_model<-temp_data%>%
-  lm(log(scaled_incidence_subtype_city) ~ start + as.factor(first_in_season) + pes + 
+  lm(scaled_incidence_subtype_city ~ start + first_in_season + pes + 
          as.factor(new_ag_marker)+spc+ early_ah + early_temp,data=.)
 
-full_model%>%
+summary_fm<-full_model%>%
   summary()
 
 model.1<-temp_data%>%
-  lm(log(scaled_incidence_subtype_city) ~ start + 
+  lm(scaled_incidence_subtype_city ~ start + 
        as.factor(new_ag_marker)+spc+ early_ah + early_temp,data=.)
 
-model.1%>%
+summary_1<-model.1%>%
   summary()
 
 model.2<-temp_data%>%
-  lm(log(scaled_incidence_subtype_city) ~ as.factor(first_in_season) + pes + 
+  lm(scaled_incidence_subtype_city ~ as.factor(first_in_season) + pes + 
        as.factor(new_ag_marker)+spc+ early_ah + early_temp,data=.)
 
-model.2%>%
+summary_2<-model.2%>%
   summary()
 
 model.3<-temp_data%>%
-  lm(log(scaled_incidence_subtype_city) ~ start + as.factor(first_in_season) + pes + 
+  lm(scaled_incidence_subtype_city ~ start + as.factor(first_in_season) + pes + 
        early_ah + early_temp,data=.)
 
-model.3%>%
+summary_3<-model.3%>%
   summary()
 
 model.4<-temp_data%>%
-  lm(log(scaled_incidence_subtype_city) ~ start + as.factor(first_in_season) + pes + 
+  lm(scaled_incidence_subtype_city ~ start + as.factor(first_in_season) + pes + 
        as.factor(new_ag_marker)+spc + early_temp,data=.)
 
-model.4%>%
+summary_4<-model.4%>%
   summary()
 
 model.5<-temp_data%>%
-  lm(log(scaled_incidence_subtype_city) ~ start + as.factor(first_in_season) + pes + 
+  lm(scaled_incidence_subtype_city ~ start + as.factor(first_in_season) + pes + 
        as.factor(new_ag_marker)+spc + early_ah,data=.)
 
-model.5%>%
+summary_5<-model.5%>%
   summary()
 
-
-
-
-
-
-
+coef_fm<-summary_fm$coefficients%>%as.data.frame()%>%dplyr::mutate(predictor = row.names(summary_fm$coefficients%>%as.data.frame()),model = "Full Model")
+coef_1<-summary_1$coefficients%>%as.data.frame()(.)%>%dplyr::mutate(predictor = row.names(summary_1$coefficients%>%as.data.frame()),model = "Model 1")
+coef_2<-summary_2$coefficients%>%as.data.frame()(.)%>%dplyr::mutate(predictor = row.names(summary_2$coefficients%>%as.data.frame()),model = "Model 2")
+coef_3<-summary_3$coefficients%>%as.data.frame()(.)%>%dplyr::mutate(predictor = row.names(summary_3$coefficients%>%as.data.frame()),model = "Model 3")
+coef_4<-summary_4$coefficients%>%as.data.frame()(.)%>%dplyr::mutate(predictor = row.names(summary_4$coefficients%>%as.data.frame()),model = "Model 4")
+coef_5<-summary_5$coefficients%>%as.data.frame()(.)%>%dplyr::mutate(predictor = row.names(summary_5$coefficients%>%as.data.frame()),model = "Model 5")
 
 
 

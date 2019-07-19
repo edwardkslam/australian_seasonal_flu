@@ -13,11 +13,11 @@ library(tidyr)
 
 # Loading data ------------------------------------------------------------
 if(Sys.info()['sysname']=="Windows"){
-  epi_table<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/epi_table.csv")
+  epi_table<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/epi_table.csv")
 }
 
 if(Sys.info()['sysname']=="Darwin"){
-  epi_table<-read.csv("~/Dropbox/PhD/code for manuscript/epi_table.csv")
+  epi_table<-read.csv("~/Dropbox/PhD/code for manuscript/australian_seasonal_flu/epi_table.csv")
 }
 
 cities<-c("ADELAIDE","BRISBANE","MELBOURNE","PERTH","SYDNEY")
@@ -58,15 +58,13 @@ paired_plot<-paired_df %>%subset(.,year!=2009) %>%
         axis.text.y =element_text(size=15),
         axis.ticks.length = unit(0.4,"cm"),
         panel.border = element_rect(colour = "black"),
-        legend.position = "none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())+
-  facet_grid(~subtype)
+        panel.grid.minor = element_blank())
 
 paired_plot$layers[[2]]$aes_params$textsize<-5.5
 
 
 # save plot ---------------------------------------------------------------
-base_dir2<-"C:/Users/el382/Dropbox/PhD/code for manuscript/figures/supp/"
+base_dir2<-"C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/figures/supp/"
 ggsave(plot = paired_plot,filename = paste(base_dir2,"figure_S2.png",sep=""), 
        width=15, height=8,limitsize=FALSE)
