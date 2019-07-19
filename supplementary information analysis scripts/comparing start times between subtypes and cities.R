@@ -10,17 +10,15 @@ library(plyr)
 library(tidyr)
 
 
-# Here we assess compare whether the onset timings between onset timings of epidemics by subytpe between cities
-# Figure S1
+# Here we assess compare whether the onset timings vary between subtypes or between cities
+
+# subtype_start_plot (Figure S1)
+# city_start_plot (Figure S2)
 
 # Loading data ------------------------------------------------------------
-if(Sys.info()['sysname']=="Windows"){
-  epi_table<-read.csv("C:/Users/el382/Dropbox/PhD/code for manuscript/epi_table.csv")
-}
 
-if(Sys.info()['sysname']=="Darwin"){
-  epi_table<-read.csv("~/Dropbox/PhD/code for manuscript/epi_table.csv")
-}
+epi_table<-read.csv("./dat/raw/epi_table.csv")
+
 
 cities<-c("ADELAIDE","BRISBANE","MELBOURNE","PERTH","SYDNEY")
 
@@ -96,11 +94,11 @@ TukeyHSD(anova_model)
 
 
 # save plot ---------------------------------------------------------------
-base_dir2<-"C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/figures/reviewer comments/"
-ggsave(plot = subtype_start_plot,filename = paste(base_dir2,"figure_S1.png",sep=""), 
+
+ggsave(plot = subtype_start_plot,"./figures/supp/figure_S1.png",
        width=15, height=8,limitsize=FALSE)
 
-ggsave(plot = city_start_plot,filename = paste(base_dir2,"figure_S2.png",sep=""), 
+ggsave(plot = city_start_plot,"./figures/supp/figure_S2.png",
        width=15, height=8,limitsize=FALSE)
 
-write.csv(sstable,paste(base_dir2,"anova_table.csv",sep=""))
+write.csv(sstable,"./tables/anova_table.csv",row.names = FALSE)
