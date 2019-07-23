@@ -204,14 +204,27 @@ prob_successful_epi_cumulative_size_same_variant_plot<-cumulative_incidence_by_a
 
 
 # 3) Logistics regression and Odds Ratios: effect of cumulative incidence on p(successful epidemic) ------------------------------------
-subtype_logistics_regression<-cumulative_incidence_by_ag %>%
+subtype_logistic_regression<-cumulative_incidence_by_ag %>%
   subset(.,!(reference_strain%in%dodgy_prev$reference_strain))%>%
   dplyr::group_by(subtype)%>%
-  dplyr::summarise(OR= glm(as.numeric(as.character(epi_alarm2))~scaled_cumulative_incidence_c,family=binomial)%>%coef(.)%>%.[2]%>%exp(.),
-                   SE= glm(as.numeric(as.character(epi_alarm2))~scaled_cumulative_incidence_c,family=binomial)%>%summary(.)%>%coef(.)%>%.[2,2],
+  dplyr::summarise(term = "normalised_cumulative_incidence",
+                   OR= glm(as.numeric(as.character(epi_alarm2))~scaled_cumulative_incidence_c,family=binomial)%>%coef(.)%>%.[2]%>%exp(.),
+                   OR_adjusted_SE = sqrt(OR^2 * diag(vcov(glm(as.numeric(as.character(epi_alarm2))~scaled_cumulative_incidence_c,family=binomial))))%>%.[2],
                    p_value= glm(as.numeric(as.character(epi_alarm2))~scaled_cumulative_incidence_c,family=binomial)%>%summary(.)%>%coef(.)%>%.[2,4])
-subtype_logistics_regression$holm_adjusted_p<-p.adjust(subtype_logistics_regression$p_value,method = "holm")
+subtype_logistic_regression$holm_adjusted_p<-p.adjust(subtype_logistic_regression$p_value,method = "holm")
 
+
+subtype_logistic_regression2<-cumulative_incidence_by_ag %>%
+  subset(.,!(reference_strain%in%dodgy_prev$reference_strain))%>%
+  dplyr::group_by(subtype)%>%
+  dplyr::summarise(term = "(intercept)",
+                   OR= glm(as.numeric(as.character(epi_alarm2))~scaled_cumulative_incidence_c,family=binomial)%>%coef(.)%>%.[1]%>%exp(.),
+                   OR_adjusted_SE = sqrt(OR^2 * diag(vcov(glm(as.numeric(as.character(epi_alarm2))~scaled_cumulative_incidence_c,family=binomial))))%>%.[1],
+                   p_value= glm(as.numeric(as.character(epi_alarm2))~scaled_cumulative_incidence_c,family=binomial)%>%summary(.)%>%coef(.)%>%.[1,4])
+subtype_logistic_regression2$holm_adjusted_p<-p.adjust(subtype_logistic_regression2$p_value,method = "holm")
+
+subtype_logistic_output<-rbind(subtype_logistic_regression,subtype_logistic_regression2)
+subtype_logistic_output<-dplyr::arrange(subtype_logistic_output,subtype,term)
 
 
 # save plots --------------------------------------------------------------
@@ -223,5 +236,5 @@ ggsave(plot = epi_size_cumulative_size_same_variant_plot,"./figures/supp/figure_
 ggsave(plot = prob_successful_epi_cumulative_size_same_variant_plot,"./figures/supp/figure_S21.png",
        width=20, height=8,limitsize=FALSE)
 
-write.csv(subtype_logistics_regression%>%dplyr::mutate_if(is.numeric,signif,digits=3),"./tables/table_S14.csv",row.names = FALSE)
+write.csv(subtype_logistic_output%>%dplyr::mutate_if(is.numeric,signif,digits=3),"./tables/table_S14.csv",row.names = FALSE)
 
