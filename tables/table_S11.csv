@@ -1,9 +1,9 @@
 "subtype","term","OR","OR_adjusted_SE","p_value","holm_adjusted_p"
 "B/Vic","(intercept)",1.39,0.443,0.298,0.595
-"B/Vic","normalised_cumulative_incidence",0.73,0.131,0.0791,0.237
+"B/Vic","Cumulative incidence",0.73,0.131,0.0791,0.237
 "B/Yam","(intercept)",8210,115000,0.521,0.595
-"B/Yam","normalised_cumulative_incidence",1.58e-30,1.54e-28,0.484,0.967
+"B/Yam","Cumulative incidence",1.58e-30,1.54e-28,0.484,0.967
 "H1sea","(intercept)",9,9.49,0.0371,0.111
-"H1sea","normalised_cumulative_incidence",2.6e-13,1.81e-09,0.997,0.997
+"H1sea","Cumulative incidence",2.6e-13,1.81e-09,0.997,0.997
 "H3","(intercept)",10.6,5.96,2.59e-05,0.000103
-"H3","normalised_cumulative_incidence",0.473,0.0876,5.25e-05,0.00021
+"H3","Cumulative incidence",0.473,0.0876,5.25e-05,0.00021

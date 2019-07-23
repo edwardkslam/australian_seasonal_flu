@@ -344,7 +344,7 @@ mean_relative_humidity_calc<-function(mean_ah,mean_temp){
 centered_df<-adply(first_epi,1,climate_centered,.expand=FALSE,.id = NULL)
 
 #mean climatic values for the five fortnights before and after epidemic onset
-mean_stats<-centered_df%>%
+mean_stats_aggregated<-centered_df%>%
   dplyr::group_by(relative_fortnight)%>%
   dplyr::summarise(mean_temp=mean(mean_temp),
                    mean_d.temp=mean(d.temp),
@@ -359,7 +359,7 @@ mean_stats<-centered_df%>%
                    mean_AH_for_that_fortnight_of_year = mean(mean_AH_for_that_fortnight_of_year),
                    mean_temp_for_that_fortnight_of_year = mean(mean_temp_for_that_fortnight_of_year))
 
-mean_stats<-mean_stats%>%
+mean_stats_aggregated<-mean_stats_aggregated%>%
   dplyr::rowwise()%>%
   dplyr::mutate(signif_neg.d.temp = (wt_d.temp < 0.05  & mean_d.temp < 0),
                 signif_neg.d.AH = (wt_d.AH < 0.05  & mean_d.AH < 0),
@@ -370,7 +370,7 @@ mean_stats<-mean_stats%>%
 # Figure 2: plots showing T' and AH' in the 5x 2-week periods before and after epidemic onset-------------
 
 
-T_plot<-mean_stats%>%
+T_plot<-mean_stats_aggregated%>%
   ggplot(data=.,aes(x=relative_fortnight,y=mean_d.temp))+
 
   geom_hline(aes(yintercept = 0),size=0.4,color="black",linetype="solid") +
@@ -408,7 +408,7 @@ T_plot<-mean_stats%>%
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank())
 
-AH_plot<-mean_stats%>%
+AH_plot<-mean_stats_aggregated%>%
   ggplot(data=.,aes(x=relative_fortnight,y=mean_d.AH))+
 
   geom_hline(aes(yintercept = 0),size=0.4,color="black",linetype="solid") +
@@ -446,6 +446,30 @@ AH_plot<-mean_stats%>%
         legend.position="none",
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank())
+
+
+# city by city climate ----------------------------------------------------
+mean_stats_city<-centered_df%>%
+  dplyr::group_by(city,relative_fortnight)%>%
+  dplyr::summarise(mean_temp=mean(mean_temp),
+                   mean_d.temp=mean(d.temp),
+                   sd_d.temp=sd(d.temp),
+                   wt_d.temp=wilcox.test(d.temp,alternative = c("less"))$p.value,
+                   
+                   mean_AH=mean(mean_AH),
+                   mean_d.AH=mean(d.AH),
+                   sd_d.AH=sd(d.AH),
+                   wt_d.AH=wilcox.test(d.AH,alternative = c("less"))$p.value,
+                   
+                   mean_AH_for_that_fortnight_of_year = mean(mean_AH_for_that_fortnight_of_year),
+                   mean_temp_for_that_fortnight_of_year = mean(mean_temp_for_that_fortnight_of_year))
+
+mean_stats_city<-mean_stats_city%>%
+  dplyr::rowwise()%>%
+  dplyr::mutate(signif_neg.d.temp = (wt_d.temp < 0.05  & mean_d.temp < 0),
+                signif_neg.d.AH = (wt_d.AH < 0.05  & mean_d.AH < 0),
+                mean_RH_for_that_fortnight_of_year = mean_relative_humidity_calc(mean_AH_for_that_fortnight_of_year,mean_temp_for_that_fortnight_of_year),
+                mean_d.RH = mean_relative_humidity_calc(mean_AH ,mean_temp) - mean_RH_for_that_fortnight_of_year)
 
 
 

@@ -244,7 +244,7 @@ prob_successful_epi_cumulative_size_same_variant_plot<-cumulative_incidence_by_a
 subtype_logistic_regression<-cumulative_incidence_by_ag %>%
   subset(.,!(reference_strain%in%dodgy_prev$reference_strain))%>%
   dplyr::group_by(subtype)%>%
-  dplyr::summarise(term = "normalised_cumulative_incidence",
+  dplyr::summarise(term = "Cumulative incidence",
                    OR= glm(as.numeric(as.character(epi_alarm2))~scaled_cumulative_incidence_c,family=binomial)%>%coef(.)%>%.[2]%>%exp(.),
                    OR_adjusted_SE = sqrt(OR^2 * diag(vcov(glm(as.numeric(as.character(epi_alarm2))~scaled_cumulative_incidence_c,family=binomial))))%>%.[2],
                    p_value= glm(as.numeric(as.character(epi_alarm2))~scaled_cumulative_incidence_c,family=binomial)%>%summary(.)%>%coef(.)%>%.[2,4])
@@ -317,7 +317,6 @@ aggregated_prob_successful_epi_plot<-cumulative_incidence_by_ag %>%
         axis.text.y =element_text(size=20,margin=margin(t=0,r=7,b=0,l=0)),
         axis.ticks.length = unit(0.4,"cm"),
         panel.border = element_rect(colour = "black"),
-        legend.position = "none",
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())
 
@@ -352,10 +351,10 @@ write.csv(subtype_logistic_output%>%dplyr::mutate_if(is.numeric,signif,digits=3)
 
 # aggregated plots --------------------------------------------------------
 
-ggsave(aggregated_cumulative_size_plot,"./figures/aggregated_possibles/agg_cumulative_size.png",
-       width=20, height=8,limitsize=FALSE)
+ggsave(plot=aggregated_cumulative_size_plot,"./figures/aggregated_possibles/agg_cumulative_size.png",
+       width=8, height=8,limitsize=FALSE)
 
 ggsave(plot = aggregated_prob_successful_epi_plot,"./figures/aggregated_possibles/agg_prob_success.png",
-       width=20, height=8,limitsize=FALSE)
+       width=8, height=8,limitsize=FALSE)
 
 write.csv(aggregated_logistic_output%>%dplyr::mutate_if(is.numeric,signif,digits=3),"./figures/aggregated_possibles/prob_success.csv",row.names = FALSE)

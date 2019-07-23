@@ -207,7 +207,7 @@ prob_successful_epi_cumulative_size_same_variant_plot<-cumulative_incidence_by_a
 subtype_logistic_regression<-cumulative_incidence_by_ag %>%
   subset(.,!(reference_strain%in%dodgy_prev$reference_strain))%>%
   dplyr::group_by(subtype)%>%
-  dplyr::summarise(term = "normalised_cumulative_incidence",
+  dplyr::summarise(term = "Cumulative incidence",
                    OR= glm(as.numeric(as.character(epi_alarm2))~scaled_cumulative_incidence_c,family=binomial)%>%coef(.)%>%.[2]%>%exp(.),
                    OR_adjusted_SE = sqrt(OR^2 * diag(vcov(glm(as.numeric(as.character(epi_alarm2))~scaled_cumulative_incidence_c,family=binomial))))%>%.[2],
                    p_value= glm(as.numeric(as.character(epi_alarm2))~scaled_cumulative_incidence_c,family=binomial)%>%summary(.)%>%coef(.)%>%.[2,4])
