@@ -9,6 +9,20 @@ library(dplyr)
 library(plyr)
 library(tidyr)
 
+#Here we assume and correct for potential mis-identification during antigenic characterisation due to delays in 
+#updating vaccine strain nomenclature.
+
+# The following code will reproduce the multivariate linear regression models in the main text,
+# assessing the joint contributions of climatic and virological factors to epidemic incidence.
+#
+# The output is as follows:
+# 1)  Regression coefficients for full and submodels
+#     output_table (Table S15)
+#
+# 2)  RSE, R-squared, adjusted R-squared for full and submodels
+#     rsquared_table (Table S16)
+
+
 # loading data ------------------------------------------------------------
 raw_table<-read.csv("./dat/raw/raw_data.csv")
 raw_table<-raw_table%>%
@@ -227,21 +241,27 @@ output_table$predictor<-mapvalues(output_table$predictor,
 
 
 rsquared_fm<-data.frame(model = "Full Model",
+                        RSE = summary_fm$sigma,
                         Rsquared = summary_fm$r.squared,
                         adjusted_Rsquared = summary_fm$adj.r.squared)
 rsquared_1<-data.frame(model = "Model 1",
+                       RSE = summary_1$sigma,
                        Rsquared = summary_1$r.squared,
                        adjusted_Rsquared = summary_1$adj.r.squared)
 rsquared_2<-data.frame(model = "Model 2",
+                       RSE = summary_2$sigma,
                        Rsquared = summary_2$r.squared,
                        adjusted_Rsquared = summary_2$adj.r.squared)
 rsquared_3<-data.frame(model = "Model 3",
+                       RSE = summary_3$sigma,
                        Rsquared = summary_3$r.squared,
                        adjusted_Rsquared = summary_3$adj.r.squared)
 rsquared_4<-data.frame(model = "Model 4",
+                       RSE = summary_4$sigma,
                        Rsquared = summary_4$r.squared,
                        adjusted_Rsquared = summary_4$adj.r.squared)
 rsquared_5<-data.frame(model = "Model 5",
+                       RSE = summary_5$sigma,
                        Rsquared = summary_5$r.squared,
                        adjusted_Rsquared = summary_5$adj.r.squared)
 
@@ -250,12 +270,15 @@ rsquared_table<-rbind(rsquared_fm,rsquared_1,rsquared_2,rsquared_3,rsquared_4,rs
 # save tables -------------------------------------------------------------
 
 write.csv(output_table%>%dplyr::mutate_if(is.numeric,signif,digits=3),
-          "./tables/glm_meanClim_coef.csv",row.names = FALSE)
+          "./tables/table_S15.csv",row.names = FALSE)
 
 write.csv(rsquared_table%>%dplyr::mutate_if(is.numeric,signif,digits=3),
-          "./tables/glm_meanClim_rsquared.csv",row.names = FALSE)
+          "./tables/table_S16.csv",row.names = FALSE)
 
 
+stop("main analyses complete")
+
+#continue past if you want to repeat but with mean climatic values from onset to peak
 
 # lm (early climatic) -----------------------------------------------------
 
@@ -319,21 +342,27 @@ output_table$predictor<-mapvalues(output_table$predictor,
 
 
 rsquared_fm<-data.frame(model = "Full Model",
+                        RSE = summary_fm$sigma,
                         Rsquared = summary_fm$r.squared,
                         adjusted_Rsquared = summary_fm$adj.r.squared)
 rsquared_1<-data.frame(model = "Model 1",
+                       RSE = summary_1$sigma,
                        Rsquared = summary_1$r.squared,
                        adjusted_Rsquared = summary_1$adj.r.squared)
 rsquared_2<-data.frame(model = "Model 2",
+                       RSE = summary_2$sigma,
                        Rsquared = summary_2$r.squared,
                        adjusted_Rsquared = summary_2$adj.r.squared)
 rsquared_3<-data.frame(model = "Model 3",
+                       RSE = summary_3$sigma,
                        Rsquared = summary_3$r.squared,
                        adjusted_Rsquared = summary_3$adj.r.squared)
 rsquared_4<-data.frame(model = "Model 4",
+                       RSE = summary_4$sigma,
                        Rsquared = summary_4$r.squared,
                        adjusted_Rsquared = summary_4$adj.r.squared)
 rsquared_5<-data.frame(model = "Model 5",
+                       RSE = summary_5$sigma,
                        Rsquared = summary_5$r.squared,
                        adjusted_Rsquared = summary_5$adj.r.squared)
 

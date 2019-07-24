@@ -7,7 +7,7 @@ library(dplyr)
 library(plyr)
 library(tidyr)
 
-#adas
+
 # The following code will reproduce the climatic factor analyses discussed in the main text:
 # 1)  Comparison of observed climatic fluctuations prior to epidemic onset against typical wintertime
 #     fluctuations using the bootstrap sampling method presented by Shaman (2010)
