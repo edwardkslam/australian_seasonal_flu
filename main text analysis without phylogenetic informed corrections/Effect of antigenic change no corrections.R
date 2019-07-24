@@ -2,6 +2,7 @@ library(lme4)
 library(magrittr)
 library(ggplot2)
 library(ggpubr)
+library(ggbeeswarm)
 library(gridExtra)
 library(scales)
 library(dplyr)
@@ -63,7 +64,7 @@ ag_change_incidence_plot<-epi_table_no_corrections%>%
   scale_x_discrete(labels=c("0"="No Ag \n Change",
                             "1"="Ag \n Change"))+
   #scale_y_continuous(breaks=)+
-  ylab(expression(paste("Lab confirmed incidence (",10^{-6},")"))) +
+  ylab("Lab confirmed incidence") +
   labs(x=NULL)+
   theme_bw()+
   theme(strip.background = element_blank(),
