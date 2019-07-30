@@ -43,16 +43,18 @@ parameter_names = tibble(
     parameter_name = c(
         'effect_antigenic_change',
         'effect_abs_humidity',
+        'effect_is_first_of_season',
         'effect_cumulative_prior_inc',
-        'effect_other_subtype_activity',
+        'effect_prior_season_activity',
         'effect_start_date',
         'effect_temperature'),
 
     display_name = c(
         'antigenic change',
         'absolute humidity',
+        'first epi of season',
         'prior variant cases',
-        'other subtype activity',
+        'prior season cases',
         'start date',
         'temperature')
 )
@@ -60,7 +62,8 @@ parameter_names = tibble(
 tidychains <- fit %>% gather_draws(effect_abs_humidity[subtype_id],
                                    effect_cumulative_prior_inc[subtype_id],
                                    effect_antigenic_change[subtype_id],
-                                   effect_other_subtype_activity[subtype_id],
+                                   effect_prior_season_activity[subtype_id],
+                                   effect_is_first_of_season[subtype_id],
                                    effect_temperature[subtype_id],
                                    effect_start_date[subtype_id])
 

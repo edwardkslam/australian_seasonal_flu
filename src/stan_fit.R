@@ -11,14 +11,16 @@
 suppressPackageStartupMessages(library(rstan))
 suppressPackageStartupMessages(library(parallel))
 suppressPackageStartupMessages(library(readr))
+suppressPackageStartupMessages(library(tidyr))
+suppressPackageStartupMessages(library(magrittr))
 suppressPackageStartupMessages(library(shinystan))
 
 
 ## read command line args
 args <- commandArgs(trailingOnly=TRUE)
-model_src_path <- "multilevel_epi_probability_model.stan"
+#model_src_path <- "multilevel_epi_probability_model.stan"
+model_src_path <- "normed_multilevel_incidence_regression.stan"
 datapath <- "../dat/cleaned/clean_stan_data.csv"
-mcmc_output_path <- '../out/mcmc_chains/stan_fit_output.Rds'
 
 ## set stan options
 n_cores <- parallel::detectCores()
@@ -33,8 +35,13 @@ fixed_seed = 232032
 ## load data
 dat <- read_csv(datapath,
                 col_types = cols())
-##dat <- dat[!is.na(dat$mean_centered_log_epi_size) & dat$subtype=='H3',]
+dat <- dat[!is.na(dat$mean_centered_log_epi_size),]
 dat <- dat[!is.na(dat$new_ag_marker),]
+dat$standardized_log_prior_cumulative <-
+    dat$standardized_log_prior_cumulative %>% replace_na(9999)
+
+dat$standardized_prior_season_activity <-
+    dat$standardized_prior_season_activity %>% replace_na(9999)
 
 ## make data into list
 data_list <- list(
@@ -48,10 +55,11 @@ data_list <- list(
     epi_occurred = dat$epidemic_flag,
     city = dat$city_id,
     antigenic_change = dat$new_ag_marker,
+    cumulative_prior_incidence_std = dat$standardized_log_prior_cumulative,
     abs_humidity = dat$mean_epi_ah,
     temperature = dat$mean_epi_temp,
-    other_subtype_activity = dat$prior_everything_scaled,
-    cumulative_prior_incidence = dat$standardised_prior_cumulative,
+    is_first_of_season = dat$is_first_of_season,
+    prior_season_activity_std = dat$standardized_prior_season_activity,
     start_date = dat$start)
 
 hyperparam_list <- list(
@@ -61,9 +69,10 @@ hyperparam_list <- list(
     beta_average_epi_attack_rate = 10,
     sd_sd_incidences = 1,
     sd_mean_effect_sizes = 1,
-    sd_sd_effect_sizes = 1,
+    sd_sd_effect_sizes = 0.25,
     sd_mean_intercept = 1,
-    sd_sd_intercept = 1)
+    sd_sd_intercept = 0.25,
+    nu = 3)
 
 stan_data <- c(
     data_list,
@@ -81,7 +90,3 @@ fit <- stan(
     chains=nchains, 
     control = list(max_treedepth = max_tree,
                    adapt_delta = adapt_d))
-
-saveRDS(fit, mcmc_output_path)
-
-warnings()
