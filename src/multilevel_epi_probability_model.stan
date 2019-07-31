@@ -15,7 +15,7 @@ data {
 
   // predictors
   vector<lower=0, upper=1>[n_possible_epidemics] antigenic_change;
-  vector<lower=0>[n_possible_epidemics] cumulative_prior_incidence;
+  vector[n_possible_epidemics] cumulative_prior_incidence_std;
 
   // hyperparameters set at runtime
   real<lower=0> sd_mean_effect_sizes;
@@ -23,16 +23,6 @@ data {
   real<lower=0> sd_mean_intercept;
   real<lower=0> sd_sd_intercept;
 }
-
-transformed data {
-
-  // center and scale predictors 
-  vector[n_possible_epidemics] cumulative_prior_incidence_std;
-  
-  cumulative_prior_incidence_std =
-    gelman_standardize(cumulative_prior_incidence);
-}
-
   
 
 parameters{

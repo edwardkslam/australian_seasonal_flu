@@ -26,7 +26,9 @@ needed_packages <- c(
     "rstan",
     "dplyr",
     "readr",
-    "ggplot2")
+    "ggplot2",
+    "tidybayes",
+    "cowplot")
 
 for (package in needed_packages)
     install_if_absent(package)

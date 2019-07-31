@@ -41,28 +41,31 @@ fit <- readRDS(mcmc_fit_path)
 parameter_names = tibble(
 
     parameter_name = c(
-        'mean_effect_antigenic_change',
-        'mean_effect_abs_humidity',
-        'mean_effect_cumulative_prior_inc',
-        'mean_effect_other_subtype_activity',
-        'mean_effect_start_date',
-        'mean_effect_temperature'),
+        'effect_antigenic_change',
+        'effect_abs_humidity',
+        'effect_is_first_of_season',
+        'effect_cumulative_prior_inc',
+        'effect_prior_season_activity',
+        'effect_start_date',
+        'effect_temperature'),
 
     display_name = c(
         'antigenic change',
         'absolute humidity',
+        'first epi. of season',
         'prior variant cases',
-        'other subtype activity',
+        'prior season cases',
         'start date',
         'temperature')
 )
     
-tidychains <- fit %>% gather_draws(mean_effect_abs_humidity,
-                                   mean_effect_cumulative_prior_inc,
-                                   mean_effect_antigenic_change,
-                                   mean_effect_other_subtype_activity,
-                                   mean_effect_temperature,
-                                   mean_effect_start_date)
+tidychains <- fit %>% gather_draws(effect_abs_humidity[subtype_id],
+                                   effect_cumulative_prior_inc[subtype_id],
+                                   effect_antigenic_change[subtype_id],
+                                   effect_prior_season_activity[subtype_id],
+                                   effect_is_first_of_season[subtype_id],
+                                   effect_temperature[subtype_id],
+                                   effect_start_date[subtype_id])
 
 quants <- tidychains %>%
     do(tibble(post_quant = quantile(.$.value, ppoints(100))))

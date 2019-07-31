@@ -26,20 +26,7 @@ for (package in script_packages){
 
 ## function for running data integrity checks before
 ## saving
-check_data_integrity <- function(dat){
-    ag_markers_right <- xor(
-        dat$standardised_prior_cumulative > 0.001 &
-        (is.na(dat$new_ag_marker) | (!dat$new_ag_marker)),
-        dat$standardised_prior_cumulative < 0.001 &
-        dat$new_ag_marker)
-    if(all(ag_markers_right))
-    {
-        cat("passed integrity check for prior activity\n\n")
-    } else {
-        cat("failed integrity check for prior activity\n\n")
-        print(dat[which(!ag_markers_right),])
-    }
-}
+check_data_integrity <- function(dat){}
 
 
 
@@ -75,7 +62,8 @@ ag_years <- epi_dat %>%
     summarise(emerge_year=min(year),
               last_recorded_epi=max(year))
 
-## assume that an ag variant could potentially have caused an epidemic right up to the year 
+## assume that an ag variant could potentially
+## have caused an epidemic right up to the year 
 ## before the emergence of its replacement new variant
 ag_years <- ag_years %>%
   group_by(city, subtype) %>%
@@ -85,8 +73,10 @@ ag_years <- ag_years %>%
                lead(emerge_year - 1, default = 2015),
                lead(emerge_year - 1, default = 2008)))
 
-## the last possible year in which an epidemic could have been caused is whichever occured last:
-## the last recorded epidemic (to account for the case in which old and new variants circulate in same year)
+## the last possible year in which an epidemic
+## could have been caused is whichever occured last:
+## the last recorded epidemic (to account for
+## the case in which old and new variants circulate in same year)
 ## the year prior to emergence of new variant
 ag_years <- ag_years %>%
   rowwise() %>%
@@ -140,11 +130,22 @@ cumulative_incidence_by_ag <- cumulative_incidence_by_ag %>%
 ## and subtype-specific mean epidemic size
 cumulative_incidence_by_ag <- cumulative_incidence_by_ag %>%
     group_by(city, subtype) %>%
-    mutate(mean_epi_size = mean(incidence_per_mil, na.rm=TRUE)) ## want mean size IF an epi happens
+    mutate(mean_epi_size = mean(incidence_per_mil, na.rm=TRUE),
+           mean_log_epi_size =
+               mean(log(incidence_per_mil), na.rm=TRUE))
+## want mean size IF an epi happens
 
-cumulative_incidence_by_ag$standardised_prior_cumulative <-
-    cumulative_incidence_by_ag$cumulative_prior_incidence_same_ag /
-    cumulative_incidence_by_ag$mean_epi_size
+cumulative_incidence_by_ag$mean_centered_log_prior_cumulative <-
+    (log(cumulative_incidence_by_ag$cumulative_prior_incidence_same_ag) -
+     cumulative_incidence_by_ag$mean_log_epi_size) %>%
+    na_if(-Inf)
+
+cumulative_incidence_by_ag$standardized_log_prior_cumulative <-
+    ((cumulative_incidence_by_ag$mean_centered_log_prior_cumulative -
+      mean(cumulative_incidence_by_ag$mean_centered_log_prior_cumulative,
+           na.rm=TRUE)) /
+     (2 * sd(cumulative_incidence_by_ag$mean_centered_log_prior_cumulative,
+             na.rm=TRUE)))
 
 cumulative_incidence_by_ag$standardised_current_season <-
     cumulative_incidence_by_ag$incidence_current_season /
@@ -192,7 +193,22 @@ dat$epidemic_flag <- ifelse(
 ## peak of seasonality
 ## ranges from 0 to 1
 dat$start_date_offset <- abs(dat$start - 13) / 13
-    
+
+dat$is_first_of_season = 1 * (!dat$prior_everything_scaled > 0)
+
+dat$prior_season_activity = ifelse(
+    dat$is_first_of_season,
+    NA,
+    dat$prior_everything_scaled)
+
+dat <- dat %>%
+    mutate(standardized_prior_season_activity =
+               (prior_season_activity -
+                mean(prior_season_activity,
+                     na.rm=TRUE)) /
+               (2 * sd(prior_season_activity,
+                       na.rm=TRUE)))
+
 
 ## output only needed columns and rows
 columns_wanted = c("city_id",
@@ -206,8 +222,12 @@ columns_wanted = c("city_id",
                    "incidence_per_mil",
                    "epidemic_flag",
                    "prior_everything_scaled",
+                   "is_first_of_season",
+                   "prior_season_activity",
+                   "standardized_prior_season_activity",
                    "cumulative_prior_incidence_same_ag",
-                   "standardised_prior_cumulative",
+                   "mean_centered_log_prior_cumulative",
+                   "standardized_log_prior_cumulative",
                    "new_ag_marker",
                    "mean_epi_ah",
                    "mean_epi_temp",
