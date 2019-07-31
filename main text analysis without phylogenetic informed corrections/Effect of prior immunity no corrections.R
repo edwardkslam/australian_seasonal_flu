@@ -20,7 +20,7 @@ library(tidyr)
 #
 # 3)  Binary logistics regression assessing the effect of antigenic variant-specific cumulative incidence 
 #     on the probability of successful epidemic initiation for each subtype 
-#     subtype_logistics_regression (Table S9)
+#     subtype_logistics_regression (Table S12)
 
 # Loading data ------------------------------------------------------------
 epi_table_no_corrections<-read.csv("./dat/raw/epi_table_no_corrections.csv")
@@ -51,24 +51,25 @@ epi_table_no_corrections<-epi_table_no_corrections%>%
 # new_ag_marker = NA means that the variant emerged prior to start of study period, 
 # ie we are unable to calculate the cumulative incidence
 # also, due to the pandemic H1N1 emergence in 2009, epidemic activity could not be reliable quantified for A/H3/Perth/16/2009
+# B/Wisconsin/1/2010-like since it never caused an epidemic at any time.
 # these need to be removed
 dodgy_prev<-epi_table_no_corrections%>%subset(.,is.na(new_ag_marker) | 
-                                 reference_strain=="A/Perth/16/2009-like")
+                                                reference_strain%in%c("A/Perth/16/2009-like","B/Wisconsin/1/2010-like"))
 
 # First find the first and last year in which an ag variant causes an epidemic in each city
 first_emerge_table<-epi_table_no_corrections%>%
-  subset(.,epi_alarm=="Y")%>%
+  #subset(.,epi_alarm=="Y")%>%
   subset(.,!(reference_strain%in%dodgy_prev$reference_strain))%>%
   dplyr::group_by(city,subtype,reference_strain)%>%
-  dplyr::summarise(emerge_year=min(year),
+  dplyr::summarise(first_detected=min(year),
                    last_recorded_epi=max(year))
 
 # assume that an ag variant could potentially have caused an epidemic right up to the year 
 # before the emergence of its replacement new variant
 first_emerge_table<-first_emerge_table%>%
   dplyr::group_by(city,subtype)%>%
-  dplyr::arrange(emerge_year,.by_group=TRUE)%>%
-  dplyr::mutate(last_possible_year=if(subtype!="H1sea"){lead(emerge_year-1,default = 2015)}else{lead(emerge_year-1,default = 2008)})
+  dplyr::arrange(first_detected,.by_group=TRUE)%>%
+  dplyr::mutate(last_possible_year=if(subtype!="H1sea"){lead(first_detected-1,default = 2015)}else{lead(first_detected-1,default = 2008)})
 
 # the last possible year in which an epidemic could have been caused is whichever occured last:
 # the last recorded epidemic (to account for the case in which old and new variants circulate in same year)
@@ -84,7 +85,7 @@ first_emerge_table$last_possible_year[end_rows]<-2008
 # generate the full list of possible years for each variant
 cumulative_incidence_by_ag<-first_emerge_table%>%
   dplyr::group_by(city,subtype,reference_strain)%>%
-  tidyr::expand(.,year=full_seq(c(emerge_year,last_possible_year),1))
+  tidyr::expand(.,year=full_seq(c(first_detected,last_possible_year),1))
 
 cumulative_incidence_by_ag<-cumulative_incidence_by_ag%>%
   dplyr::group_by(city,reference_strain)%>%
@@ -236,5 +237,5 @@ ggsave(plot = epi_size_cumulative_size_same_variant_plot,"./figures/supp/figure_
 ggsave(plot = prob_successful_epi_cumulative_size_same_variant_plot,"./figures/supp/figure_S21.png",
        width=20, height=8,limitsize=FALSE)
 
-write.csv(subtype_logistic_output%>%dplyr::mutate_if(is.numeric,signif,digits=3),"./tables/table_S14.csv",row.names = FALSE)
+write.csv(subtype_logistic_output%>%dplyr::mutate_if(is.numeric,signif,digits=3),"./tables/table_S12.csv",row.names = FALSE)
 

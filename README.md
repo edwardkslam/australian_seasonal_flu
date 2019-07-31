@@ -177,8 +177,8 @@ Here we assess the effect of heterosubtypic competition on the size of subsequen
 #### ``main text analysis scripts/Multivariate linear regression models.R``
 Here we assess the joint contributions of climatic and virological factors to epidemic incidence.
 The output is as follows:
-1) Regression coefficients for full and submodels (Table S15)
-2) RSE, R-squared, adjusted R-squared for full and submodels (Table S16)
+1) Regression coefficients for full and submodels (Table S13)
+2) RSE, R-squared, adjusted R-squared for full and submodels (Table S14)
 
 #### ``main text analysis without phylogenetic informed corrections/Effect of antigenic change no corrections.R``
 Here we assess (whilst making no corrctions for potential mis-identification during antigenic characterisation) the effect of antigenic change on:
@@ -189,7 +189,7 @@ Here we assess (whilst making no corrctions for potential mis-identification dur
 #### ``main text analysis without phylogenetic informed corrections/Effect of prior immunity no corrections.R``
 Here we assess (whilst making no corrctions for potential mis-identification during antigenic characterisation) the effect of accumulated antigenic-variant specific immunity on:
 1) epidemic incidence (Figure S20)
-2) probability of successful epidemic initiation (Figure S21 and Table S14)
+2) probability of successful epidemic initiation (Figure S21 and Table S12)
 
 
 #### ``robustness vs geoghegan timings/Robustness of climatic analyses using Geoghegan et al (2018) timings.R``
