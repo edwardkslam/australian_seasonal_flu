@@ -20,7 +20,7 @@ library(tidyr)
 #
 # 3)  Binary logistics regression assessing the effect of antigenic variant-specific cumulative incidence 
 #     on the probability of successful epidemic initiation for each subtype 
-#     subtype_logistics_regression (Table S9)
+#     subtype_logistics_regression (Table S12)
 
 # Loading data ------------------------------------------------------------
 epi_table_no_corrections<-read.csv("./dat/raw/epi_table_no_corrections.csv")
@@ -237,5 +237,5 @@ ggsave(plot = epi_size_cumulative_size_same_variant_plot,"./figures/supp/figure_
 ggsave(plot = prob_successful_epi_cumulative_size_same_variant_plot,"./figures/supp/figure_S21.png",
        width=20, height=8,limitsize=FALSE)
 
-write.csv(subtype_logistic_output%>%dplyr::mutate_if(is.numeric,signif,digits=3),"./tables/table_S14.csv",row.names = FALSE)
+write.csv(subtype_logistic_output%>%dplyr::mutate_if(is.numeric,signif,digits=3),"./tables/table_S12.csv",row.names = FALSE)
 
