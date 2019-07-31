@@ -34,11 +34,13 @@ save_path <- args[4]
 dat <- read_csv(data_path,
                 col_types = cols())
 
+#######################################
+## plot styling 
+#######################################
 source(plotting_params_path)
-
-fit <- readRDS(mcmc_fit_path)
-
-parameter_names = tibble(
+bin_width <- 0.1
+dot_size <- 1
+multilevel_incidence_parameter_names = tibble(
 
     parameter_name = c(
         'effect_antigenic_change',
@@ -46,8 +48,7 @@ parameter_names = tibble(
         'effect_is_first_of_season',
         'effect_cumulative_prior_inc',
         'effect_prior_season_activity',
-        'effect_start_date',
-        'effect_temperature'),
+        'effect_start_date'),
 
     display_name = c(
         'antigenic change',
@@ -55,16 +56,17 @@ parameter_names = tibble(
         'first epi of season',
         'prior variant cases',
         'prior season cases',
-        'start date',
-        'temperature')
+        'start date')
 )
-    
+
+
+fit <- readRDS(mcmc_fit_path)
+
 tidychains <- fit %>% gather_draws(effect_abs_humidity[subtype_id],
                                    effect_cumulative_prior_inc[subtype_id],
                                    effect_antigenic_change[subtype_id],
                                    effect_prior_season_activity[subtype_id],
                                    effect_is_first_of_season[subtype_id],
-                                   effect_temperature[subtype_id],
                                    effect_start_date[subtype_id])
 
 ## SQL-ishly reintroduce subtype human-readable names
@@ -81,26 +83,26 @@ quants <- quants %>%
     ungroup() %>%
     rename(parameter_name = .variable)
 
-quants$parameter_name <- factor(quants$parameter_name)
-
-quants <- quants %>% left_join(parameter_names,
-                               by = 'parameter_name')
+quants <- quants %>%
+    left_join(multilevel_incidence_parameter_names,
+              by = 'parameter_name')
 
 
 effect_fig <- quants %>%
     ggplot(aes(x = post_quant,
                fill = subtype)) +
     geom_dotplot(
-        alpha=1,
-        binwidth=0.125) +
+        alpha = 1,
+        binwidth = bin_width,
+        dotsize=dot_size,
+        method='histodot') +
     geom_vline(xintercept=0) + 
-    scale_x_continuous(limits=c(-2, 2)) +
+    scale_x_continuous(limits = default_posterior_limits) +
     scale_fill_manual(values = subtype_colors) + 
     facet_grid(rows=vars(subtype), cols=vars(display_name)) +
     xlab("regression coeffecient\n(common effect size scale)") +
     ylab("posterior frequency") +
-    theme_classic() +
-    theme_cowplot() +
+    theme_cowplot(font_size=20) +
     theme(legend.position = "none") + 
     panel_border()
 
@@ -108,6 +110,4 @@ effect_fig <- quants %>%
 save_plot(save_path,
           effect_fig,
           base_height=9,
-          base_aspect_ratio=1.61)
-
-
+          base_aspect_ratio=1.6)

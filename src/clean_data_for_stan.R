@@ -135,23 +135,32 @@ cumulative_incidence_by_ag <- cumulative_incidence_by_ag %>%
                mean(log(incidence_per_mil), na.rm=TRUE))
 ## want mean size IF an epi happens
 
-cumulative_incidence_by_ag$mean_centered_log_prior_cumulative <-
-    (log(cumulative_incidence_by_ag$cumulative_prior_incidence_same_ag) -
-     cumulative_incidence_by_ag$mean_log_epi_size) %>%
+cumulative_incidence_by_ag <- cumulative_incidence_by_ag %>%
+    group_by(city, subtype) %>%
+    mutate(mean_epi_size = mean(incidence_per_mil, na.rm=TRUE),
+           mean_log_epi_size =
+               mean(log(incidence_per_mil), na.rm=TRUE),
+           log_cumulative_incidence =
+               log(cumulative_prior_incidence_same_ag))
+
+cumulative_incidence_by_ag <- cumulative_incidence_by_ag %>%
+    mutate(normed_log_prior_cumulative =
+               log_cumulative_incidence - mean_log_epi_size) %>%
     na_if(-Inf)
 
-cumulative_incidence_by_ag$standardized_log_prior_cumulative <-
-    ((cumulative_incidence_by_ag$mean_centered_log_prior_cumulative -
-      mean(cumulative_incidence_by_ag$mean_centered_log_prior_cumulative,
-           na.rm=TRUE)) /
-     (2 * sd(cumulative_incidence_by_ag$mean_centered_log_prior_cumulative,
-             na.rm=TRUE)))
-
-cumulative_incidence_by_ag$standardised_current_season <-
-    cumulative_incidence_by_ag$incidence_current_season /
-    cumulative_incidence_by_ag$mean_epi_size
 
 dat <- cumulative_incidence_by_ag
+
+dat$standardized_log_prior_cumulative <-
+    (dat$normed_log_prior_cumulative -
+     mean(dat$normed_log_prior_cumulative,
+          na.rm=TRUE)) /
+    (2 * sd(dat$normed_log_prior_cumulative,
+            na.rm=TRUE))
+
+dat$mean_centered_log_epi_size <-
+    log(dat$incidence_per_mil) - dat$mean_log_epi_size
+
 
 dat$city_id <- as.numeric(
     factor(dat$city, 
@@ -161,38 +170,12 @@ dat$subtype_id <- as.numeric(
     factor(dat$subtype, 
            levels=unique(dat$subtype)))
 
-dat <- dat %>% group_by(city, subtype) %>%
-    mutate(
-        mean_inc = mean(incidence_per_mil, na.rm=TRUE)) %>%
-    ungroup()
-
-epi_variation <- epi_dat %>% group_by(subtype, city) %>%
-    summarise(mean_log_inc = mean(log(incidence_per_mil),na.rm=TRUE),
-              sd_log_inc = sd(log(incidence_per_mil),na.rm=TRUE))
-
-epi_variation$cv_log_inc <- epi_variation$sd_log_inc / epi_variation$mean_log_inc
-
-## calculate epi_z_score
-dat <- dat %>% left_join(epi_variation,
-                         by = c('subtype', 'city'))
-dat$epi_z_score <- (log(dat$incidence_per_mil) - dat$mean_log_inc) / dat$sd_log_inc
-
-dat$mean_centered_log_epi_size <-
-    log(dat$incidence_per_mil) - dat$mean_log_inc
-    
 no_epi <- dat$epi_alarm=='N' |
     is.na(dat$epi_alarm)
 dat$epidemic_flag <- ifelse(
     no_epi,
     0,
     1)
-
-## calculate offset from best possible
-## start date (the 13th fortnight
-## of year, i.e. the hypothetical
-## peak of seasonality
-## ranges from 0 to 1
-dat$start_date_offset <- abs(dat$start - 13) / 13
 
 dat$is_first_of_season = 1 * (!dat$prior_everything_scaled > 0)
 
@@ -201,13 +184,12 @@ dat$prior_season_activity = ifelse(
     NA,
     dat$prior_everything_scaled)
 
-dat <- dat %>%
-    mutate(standardized_prior_season_activity =
-               (prior_season_activity -
-                mean(prior_season_activity,
-                     na.rm=TRUE)) /
-               (2 * sd(prior_season_activity,
-                       na.rm=TRUE)))
+dat$standardized_prior_season_activity =
+    ((dat$prior_season_activity -
+      mean(dat$prior_season_activity,
+           na.rm=TRUE)) /
+     (2 * sd(dat$prior_season_activity,
+             na.rm=TRUE)))
 
 
 ## output only needed columns and rows
@@ -217,26 +199,20 @@ columns_wanted = c("city_id",
                    "subtype_id",
                    "year",
                    "start",
-                   "start_date_offset",
                    "end",
                    "incidence_per_mil",
+                   "mean_centered_log_epi_size",
                    "epidemic_flag",
                    "prior_everything_scaled",
                    "is_first_of_season",
                    "prior_season_activity",
                    "standardized_prior_season_activity",
                    "cumulative_prior_incidence_same_ag",
-                   "mean_centered_log_prior_cumulative",
+                   "normed_log_prior_cumulative",
                    "standardized_log_prior_cumulative",
                    "new_ag_marker",
                    "mean_epi_ah",
-                   "mean_epi_temp",
-                   "mean_inc",
-                   "mean_log_inc",
-                   "sd_log_inc",
-                   "cv_log_inc",
-                   "epi_z_score",
-                   "mean_centered_log_epi_size")
+                   "mean_epi_temp")
 ## data integrity checks
 cat("\nChecking data integrity...\n\n")
 check_data_integrity(dat)

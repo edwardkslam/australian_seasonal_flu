@@ -6,9 +6,9 @@ functions {
 
 data {
 
-  ////////////////////////////////
+  /////////////////////////////////
   // general data
-  ////////////////////////////////
+  /////////////////////////////////
   int<lower=0> n_cities;
   int<lower=0> n_subtypes;
   int<lower=0> n_epidemics;
@@ -26,6 +26,7 @@ data {
 
   // climate predictors
   vector<lower=0>[n_epidemics] abs_humidity;
+  vector<lower=0>[n_epidemics] temperature;
 
   // competition among epidemics predictors
   vector<lower=0, upper=1>[n_epidemics] is_first_of_season;
@@ -38,6 +39,7 @@ data {
   // hyperparameters set at runtime
   /////////////////////////////////
   real<lower=0> sd_sd_incidences;
+  real<lower=0> sd_sd_effect_sizes;
   real<lower=0> sd_mean_intercept;
   real<lower=0> sd_sd_intercept;
   real<lower=0> nu;
@@ -47,9 +49,12 @@ transformed data {
 
   // center and scale predictors 
   vector[n_epidemics] abs_humidity_std;
+  vector[n_epidemics] temperature_std;
   vector[n_epidemics] start_date_std;
   
   abs_humidity_std = gelman_standardize(abs_humidity);
+
+  temperature_std = gelman_standardize(temperature);
   
   start_date_std = gelman_standardize(start_date);
   
@@ -68,6 +73,7 @@ parameters{
   vector[n_subtypes] effect_cumulative_prior_inc_errors;
 
   vector[n_subtypes] effect_abs_humidity_errors;
+  vector[n_subtypes] effect_temperature_errors;
 
   vector[n_subtypes] effect_is_first_of_season_errors;
   vector[n_subtypes] effect_prior_season_activity_errors;
@@ -86,6 +92,8 @@ parameters{
 
   real mean_effect_abs_humidity;
   real<lower=0> sd_effect_abs_humidity;
+  real multiplier_effect_temperature;
+  real<lower=0> sd_effect_temperature;
 
   real mean_effect_is_first_of_season;
   real<lower=0> sd_effect_is_first_of_season;
@@ -94,19 +102,19 @@ parameters{
 
   real mean_effect_start_date;
   real<lower=0> sd_effect_start_date;
-
-  real<lower=0> sd_sd_effect_sizes;
 }
 
 transformed parameters{
   vector[n_epidemics] expected_incidences;
 
   vector[n_subtypes] intercept;
+  real mean_effect_temperature;
 
   vector[n_subtypes] effect_antigenic_change;
   vector[n_subtypes] effect_cumulative_prior_inc;
   
   vector[n_subtypes] effect_abs_humidity;
+  vector[n_subtypes] effect_temperature;
 
   vector[n_subtypes] effect_is_first_of_season;
   vector[n_subtypes] effect_prior_season_activity;
@@ -115,6 +123,9 @@ transformed parameters{
 
   intercept = mean_intercept + intercept_errors * sd_intercept;
 
+  mean_effect_temperature = mean_effect_abs_humidity *
+    multiplier_effect_temperature;
+  
   
   effect_antigenic_change = mean_effect_antigenic_change +
     effect_antigenic_change_errors * sd_effect_antigenic_change;
@@ -124,7 +135,11 @@ transformed parameters{
 
 
   effect_abs_humidity = mean_effect_abs_humidity +
-    effect_abs_humidity_errors * sd_effect_abs_humidity;  
+    effect_abs_humidity_errors * sd_effect_abs_humidity;
+  
+  effect_temperature = mean_effect_temperature +
+    effect_temperature_errors * sd_effect_temperature;
+  
   
   effect_is_first_of_season = mean_effect_is_first_of_season +
     effect_is_first_of_season_errors * sd_effect_is_first_of_season;
@@ -132,6 +147,7 @@ transformed parameters{
   effect_prior_season_activity = mean_effect_prior_season_activity +
     effect_prior_season_activity_errors * sd_effect_prior_season_activity;
 
+  
   effect_start_date = mean_effect_start_date +
     effect_start_date_errors * sd_effect_start_date;
 
@@ -150,6 +166,9 @@ transformed parameters{
 
       effect_abs_humidity[subtype[epi_id]] *
       abs_humidity_std[epi_id] +
+
+      effect_temperature[subtype[epi_id]] *
+      temperature_std[epi_id] +
       
       effect_is_first_of_season[subtype[epi_id]] *
       is_first_of_season[epi_id] +
@@ -167,7 +186,7 @@ transformed parameters{
 model {
   
   normed_metric ~ normal(expected_incidences, sd_incidences);
-  
+
   // estimated intercept with non-centered intercept errors
   mean_intercept ~ normal(0, sd_mean_intercept);
   sd_intercept ~ normal(0, sd_sd_intercept);
@@ -178,6 +197,7 @@ model {
   effect_cumulative_prior_inc_errors ~ normal(0, 1);
 
   effect_abs_humidity_errors ~ normal(0, 1);
+  effect_temperature_errors ~ normal(0, 1);
 
   effect_is_first_of_season_errors ~ normal(0, 1);
   effect_prior_season_activity_errors ~ normal(0, 1);
@@ -195,7 +215,10 @@ model {
 
   mean_effect_abs_humidity ~ student_t(nu, 0, 2.5);
   sd_effect_abs_humidity ~ normal(0, sd_sd_effect_sizes);
-    
+  
+  multiplier_effect_temperature ~ normal(1, 0.4);
+  sd_effect_temperature ~ normal(0, sd_sd_effect_sizes);
+  
   mean_effect_cumulative_prior_inc ~ student_t(nu, 0, 2.5);
   sd_effect_cumulative_prior_inc ~ normal(0, sd_sd_effect_sizes);
 
@@ -208,7 +231,6 @@ model {
   mean_effect_start_date ~ student_t(nu, 0, 2.5);
   sd_effect_start_date ~ normal(0, sd_sd_effect_sizes);
 
-  sd_sd_effect_sizes ~ normal(0, 1);
   
 }
 

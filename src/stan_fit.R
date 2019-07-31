@@ -14,6 +14,7 @@ suppressPackageStartupMessages(library(readr))
 suppressPackageStartupMessages(library(tidyr))
 suppressPackageStartupMessages(library(magrittr))
 suppressPackageStartupMessages(library(shinystan))
+suppressPackageStartupMessages(library(ggplot2))
 
 
 ## read command line args
@@ -36,7 +37,9 @@ fixed_seed = 232032
 dat <- read_csv(datapath,
                 col_types = cols())
 dat <- dat[!is.na(dat$mean_centered_log_epi_size),]
-dat <- dat[!is.na(dat$new_ag_marker),]
+## dat <- dat[!is.na(dat$new_ag_marker) & !(dat$subtype %in% c('H1sea', 'B/Vic')) & !dat$new_ag_marker,]
+
+
 dat$standardized_log_prior_cumulative <-
     dat$standardized_log_prior_cumulative %>% replace_na(9999)
 
@@ -68,10 +71,9 @@ hyperparam_list <- list(
     alpha_average_epi_attack_rate = 2,
     beta_average_epi_attack_rate = 10,
     sd_sd_incidences = 1,
-    sd_mean_effect_sizes = 1,
-    sd_sd_effect_sizes = 0.25,
     sd_mean_intercept = 1,
-    sd_sd_intercept = 0.25,
+    sd_sd_intercept = 0.5,
+    sd_sd_errors=0.5,
     nu = 3)
 
 stan_data <- c(

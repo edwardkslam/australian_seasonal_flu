@@ -80,7 +80,7 @@ hyperparam_list <- list(
     sd_mean_effect_sizes = 1,
     sd_sd_effect_sizes = 0.25,
     sd_mean_intercept = 1,
-    sd_sd_intercept = 0.25,
+    sd_sd_intercept = 0.5,
     nu = 3)
 
 stan_data <- c(
