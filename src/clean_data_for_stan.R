@@ -15,8 +15,8 @@ script_packages <- c(
     'readr',      # for read_csv()
     'dplyr',      # for group_by()
     'tidyr',      # for full_seq()
-    'tibble')     # for add_column() 
-    
+    'tibble')     # for add_column()
+
 for (package in script_packages){
     suppressPackageStartupMessages(
         library(package,
@@ -49,21 +49,21 @@ epi_dat$city <- factor(epi_dat$city,
 ## find variants whose cumulative incidence
 ## cannot be evaluated
 no_cumulative_incidence <- epi_dat %>%
-    subset(.,is.na(new_ag_marker) | 
+    subset(.,is.na(new_ag_marker) |
              reference_strain=="A/Perth/16/2009-like")
 
 ## First find the first and last year in
 ## which an antigenic variant causes an epidemic in each city
 
 ag_years <- epi_dat %>%
-    subset(.,epi_alarm == "Y") %>% 
-    subset(.,!(reference_strain %in% no_cumulative_incidence$reference_strain)) %>% 
+    #subset(.,epi_alarm == "Y") %>% 
+    subset(.,!(reference_strain %in% no_cumulative_incidence$reference_strain)) %>%
     group_by(city, subtype, reference_strain) %>%
     summarise(emerge_year=min(year),
               last_recorded_epi=max(year))
 
 ## assume that an ag variant could potentially
-## have caused an epidemic right up to the year 
+## have caused an epidemic right up to the year
 ## before the emergence of its replacement new variant
 ag_years <- ag_years %>%
   group_by(city, subtype) %>%
@@ -83,7 +83,7 @@ ag_years <- ag_years %>%
     mutate(last_possible_year = max(last_possible_year,
                                     last_recorded_epi))
 
-## correct for mislabelling 
+## correct for mislabelling
 end_rows <- which(ag_years$subtype == "H1sea" &
                   ag_years$last_possible_year >= 2009)
 
@@ -154,11 +154,11 @@ cumulative_incidence_by_ag$standardised_current_season <-
 dat <- cumulative_incidence_by_ag
 
 dat$city_id <- as.numeric(
-    factor(dat$city, 
+    factor(dat$city,
            levels=unique(dat$city)))
 
 dat$subtype_id <- as.numeric(
-    factor(dat$subtype, 
+    factor(dat$subtype,
            levels=unique(dat$subtype)))
 
 dat <- dat %>% group_by(city, subtype) %>%
@@ -179,7 +179,7 @@ dat$epi_z_score <- (log(dat$incidence_per_mil) - dat$mean_log_inc) / dat$sd_log_
 
 dat$mean_centered_log_epi_size <-
     log(dat$incidence_per_mil) - dat$mean_log_inc
-    
+
 no_epi <- dat$epi_alarm=='N' |
     is.na(dat$epi_alarm)
 dat$epidemic_flag <- ifelse(
