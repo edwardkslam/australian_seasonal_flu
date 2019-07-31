@@ -1,5 +1,6 @@
 library(lubridate)
 library(lme4)
+library(arm)
 library(magrittr)
 library(ggplot2)
 library(ggpubr)
@@ -101,18 +102,18 @@ dodgy_prev<-epi_table%>%subset(.,is.na(new_ag_marker) |
 
 # First find the first and last year in which an ag variant causes an epidemic in each city
 first_emerge_table<-epi_table%>%
-  subset(.,epi_alarm=="Y")%>%
+  #subset(.,epi_alarm=="Y")%>%
   subset(.,!(reference_strain%in%dodgy_prev$reference_strain))%>%
   dplyr::group_by(city,subtype,reference_strain)%>%
-  dplyr::summarise(emerge_year=min(year),
+  dplyr::summarise(first_detect=min(year),
                    last_recorded_epi=max(year))
 
 # assume that an ag variant could potentially have caused an epidemic right up to the year 
 # before the emergence of its replacement new variant
 first_emerge_table<-first_emerge_table%>%
   dplyr::group_by(city,subtype)%>%
-  dplyr::arrange(emerge_year,.by_group=TRUE)%>%
-  dplyr::mutate(last_possible_year=if(subtype!="H1sea"){lead(emerge_year-1,default = 2015)}else{lead(emerge_year-1,default = 2008)})
+  dplyr::arrange(first_detect,.by_group=TRUE)%>%
+  dplyr::mutate(last_possible_year=if(subtype!="H1sea"){lead(first_detect-1,default = 2015)}else{lead(first_detect-1,default = 2008)})
 
 # the last possible year in which an epidemic could have been caused is whichever occured last:
 # the last recorded epidemic (to account for the case in which old and new variants circulate in same year)
@@ -128,7 +129,7 @@ first_emerge_table$last_possible_year[end_rows]<-2008
 # generate the full list of possible years for each variant
 cumulative_incidence_by_ag<-first_emerge_table%>%
   dplyr::group_by(city,subtype,reference_strain)%>%
-  tidyr::expand(.,year=full_seq(c(emerge_year,last_possible_year),1))
+  tidyr::expand(.,year=full_seq(c(first_detect,last_possible_year),1))
 
 cumulative_incidence_by_ag<-cumulative_incidence_by_ag%>%
   dplyr::group_by(city,reference_strain)%>%
@@ -181,44 +182,44 @@ temp_data<-temp_data%>%dplyr::mutate(pes = ifelse(first_in_season==1,0,log(prior
 
 # lm (mean climatic) ------------------------------------------------------
 
-full_model<-temp_data%>%
-  lm(scaled_incidence_subtype_city ~ start + as.factor(first_in_season) + pes + 
-       as.factor(new_ag_marker)+spc+ mean_epi_ah + mean_epi_temp,data=.)
+full_model<-lm(scaled_incidence_subtype_city ~ start + as.factor(first_in_season) + pes + 
+                 as.factor(new_ag_marker)+spc+ mean_epi_ah + mean_epi_temp,
+               data=temp_data)
 
 summary_fm<-full_model%>%
   summary()
 
-model.1<-temp_data%>%
-  lm(scaled_incidence_subtype_city ~ as.factor(first_in_season) + pes + 
-       as.factor(new_ag_marker)+spc+ mean_epi_ah + mean_epi_temp,data=.)
+model.1<-lm(scaled_incidence_subtype_city ~ as.factor(first_in_season) + pes + 
+            as.factor(new_ag_marker)+spc+ mean_epi_ah + mean_epi_temp,
+            data=temp_data)
 
 summary_1<-model.1%>%
   summary()
 
-model.2<-temp_data%>%
-  lm(scaled_incidence_subtype_city ~ start + 
-       as.factor(new_ag_marker)+spc+ mean_epi_ah + mean_epi_temp,data=.)
+model.2<-lm(scaled_incidence_subtype_city ~ start + 
+            as.factor(new_ag_marker)+spc+ mean_epi_ah + mean_epi_temp,
+            data=temp_data)
 
 summary_2<-model.2%>%
   summary()
 
-model.3<-temp_data%>%
-  lm(scaled_incidence_subtype_city ~ start + as.factor(first_in_season) + pes + 
-       mean_epi_ah + mean_epi_temp,data=.)
+model.3<-lm(scaled_incidence_subtype_city ~ start + as.factor(first_in_season) + pes + 
+            mean_epi_ah + mean_epi_temp,
+            data=temp_data)
 
 summary_3<-model.3%>%
   summary()
 
-model.4<-temp_data%>%
-  lm(scaled_incidence_subtype_city ~ start + as.factor(first_in_season) + pes + 
-       as.factor(new_ag_marker)+spc + mean_epi_temp,data=.)
+model.4<-lm(scaled_incidence_subtype_city ~ start + as.factor(first_in_season) + pes + 
+            as.factor(new_ag_marker)+spc + mean_epi_temp,
+            data=temp_data)
 
 summary_4<-model.4%>%
   summary()
 
-model.5<-temp_data%>%
-  lm(scaled_incidence_subtype_city ~ start + as.factor(first_in_season) + pes + 
-       as.factor(new_ag_marker)+spc + mean_epi_ah,data=.)
+model.5<-lm(scaled_incidence_subtype_city ~ start + as.factor(first_in_season) + pes + 
+            as.factor(new_ag_marker)+spc + mean_epi_ah,
+            data=temp_data)
 
 summary_5<-model.5%>%
   summary()
@@ -238,6 +239,61 @@ output_table$predictor<-factor(output_table$predictor)
 output_table$predictor<-mapvalues(output_table$predictor,
                                   c("as.factor(first_in_season)1","pes","as.factor(new_ag_marker)1","spc"),
                                   c("first_in_season","prior_activity_other_subtypes|first_in_season==F","new_ag_maker","cumulative_activity_same_variant|new_ag_maker==F"))
+
+
+# Gelman standardisation --------------------------------------------------
+# http://www.stat.columbia.edu/~gelman/research/published/standardizing7.pdf
+# standardising numerical predictors by dividing through 2x SD so that 
+# their standardised coefficients are directly comparable with those of categorical ones
+
+gelman_summary_fm<-full_model%>%
+  standardize()%>%
+  summary()
+
+gelman_summary_1<-model.1%>%
+  standardize()%>%
+  summary()
+
+gelman_summary_2<-model.2%>%
+  standardize()%>%
+  summary()
+
+
+gelman_summary_3<-model.3%>%
+  standardize()%>%
+  summary()
+
+gelman_summary_4<-model.4%>%
+  standardize()%>%
+  summary()
+
+gelman_summary_5<-model.5%>%
+  standardize()%>%
+  summary()
+
+gelman_coef_fm<-gelman_summary_fm$coefficients%>%as.data.frame()%>%.[,c("Estimate","Std. Error")]
+gelman_coef_1<-gelman_summary_1$coefficients%>%as.data.frame()%>%.[,c("Estimate","Std. Error")]
+gelman_coef_2<-gelman_summary_2$coefficients%>%as.data.frame()%>%.[,c("Estimate","Std. Error")]
+gelman_coef_3<-gelman_summary_3$coefficients%>%as.data.frame()%>%.[,c("Estimate","Std. Error")]
+gelman_coef_4<-gelman_summary_4$coefficients%>%as.data.frame()%>%.[,c("Estimate","Std. Error")]
+gelman_coef_5<-gelman_summary_5$coefficients%>%as.data.frame()%>%.[,c("Estimate","Std. Error")]
+
+gelman_df<-rbind(gelman_coef_fm,gelman_coef_1,gelman_coef_2,gelman_coef_3,gelman_coef_4,gelman_coef_5)
+rownames(gelman_df)<-NULL
+colnames(gelman_df)<-c("Standardised Coefficient", "Std. Error (Standardised Coefficient)")
+
+
+
+# adding standardised coefficients to output table ------------------------
+
+output_table<-cbind(output_table,gelman_df)
+
+col_order<-c("model","predictor","Estimate","Std. Error","Standardised Coefficient", "Std. Error (Standardised Coefficient)","t value","Pr(>|t|)")
+output_table<-output_table[,col_order]
+
+
+# r square ----------------------------------------------------------------
+
 
 
 rsquared_fm<-data.frame(model = "Full Model",
@@ -270,10 +326,10 @@ rsquared_table<-rbind(rsquared_fm,rsquared_1,rsquared_2,rsquared_3,rsquared_4,rs
 # save tables -------------------------------------------------------------
 
 write.csv(output_table%>%dplyr::mutate_if(is.numeric,signif,digits=3),
-          "./tables/table_S15.csv",row.names = FALSE)
+          "./tables/table_S13.csv",row.names = FALSE)
 
 write.csv(rsquared_table%>%dplyr::mutate_if(is.numeric,signif,digits=3),
-          "./tables/table_S16.csv",row.names = FALSE)
+          "./tables/table_S14.csv",row.names = FALSE)
 
 
 stop("main analyses complete")

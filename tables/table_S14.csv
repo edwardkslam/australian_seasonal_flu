@@ -1,9 +1,7 @@
-"subtype","term","OR","OR_adjusted_SE","p_value","holm_adjusted_p"
-"B/Vic","(intercept)",1,0.296,0.996,0.996
-"B/Vic","Cumulative incidence",0.79,0.136,0.171,0.342
-"B/Yam","(intercept)",0.636,0.196,0.142,0.426
-"B/Yam","Cumulative incidence",2.35e-06,1.49e-05,0.0415,0.166
-"H1sea","(intercept)",2,1.22,0.258,0.515
-"H1sea","Cumulative incidence",1.49e-06,0.00433,0.996,0.996
-"H3","(intercept)",1.97,0.611,0.0284,0.114
-"H3","Cumulative incidence",0.748,0.118,0.0663,0.199
+"model","RSE","Rsquared","adjusted_Rsquared"
+"Full Model",0.683,0.397,0.352
+"Model 1",0.781,0.205,0.155
+"Model 2",0.689,0.374,0.342
+"Model 3",0.68,0.391,0.36
+"Model 4",0.705,0.351,0.31
+"Model 5",0.719,0.325,0.282
