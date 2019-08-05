@@ -39,10 +39,16 @@ cat(paste0("Model read successfully, ",
 for(quantity in c('mean_effect_antigenic_change',
                   'mean_effect_abs_humidity',
                   'mean_effect_cumulative_prior_inc',
-                  'mean_effect_other_subtype_activity',
+                  'mean_effect_prior_season_activity',
                   'mean_effect_start_date',
-                  'mean_effect_temperature',
-                  'sd_incidences')){
+                  'mean_effect_is_first_of_season',
+                  'sd_incidences',
+                  'sd_effect_antigenic_change',
+                  'sd_effect_abs_humidity',
+                  'sd_effect_cumulative_prior_inc',
+                  'sd_effect_prior_season_activity',
+                  'sd_effect_start_date',
+                  'sd_effect_is_first_of_season')){
     print(quantile(chains[[quantity]]))
     list_of_quantities[paste0(quantity, '_q025')] <-
         quantile(chains[[quantity]], 0.025)

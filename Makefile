@@ -147,6 +147,12 @@ $(OUT)/figure_epi_prob.$(FIGEXT): $(SRC)/figure_epi_prob.$(SRCEXT) $(MCMC_CHAINS
 	$(R_COMMAND) $^ $@
 	$(FIG_CLEANUP)
 
+$(OUT)/figure_posterior_sds.$(FIGEXT): $(SRC)/figure_posterior_sds.$(SRCEXT) $(MCMC_CHAINS)/$(NORMED_INCIDENCE_MODEL_NAME)$(CHAINS_SUFFIX) $(CLEAN_STAN_DATA) $(PLOTTING_STYLE)
+	$(MKDIR) $(dir $@)
+	$(R_COMMAND) $^ $@
+	$(FIG_CLEANUP)
+
+
 
 .PHONY: figs
 figs: $(FIG_PATHS)
