@@ -39,33 +39,13 @@ dat <- read_csv(data_path,
 ###################################
 
 source(plotting_params_path)
-pointcolor <- "#56c9ff"
+## includes multilevel_incidence_parameter_names
+## and default_posterior_limits
+
 bin_width <- 0.028
 dot_size <- 1
 fig_n_col <- 3
 sd_posterior_limits <- c(0, 1)
-
-multilevel_incidence_parameter_names = tibble(
-
-    parameter_name = c(
-        'sd_intercept',
-        'sd_effect_antigenic_change',
-        'sd_effect_abs_humidity',
-        'sd_effect_is_first_of_season',
-        'sd_effect_cumulative_prior_inc',
-        'sd_effect_prior_season_activity',
-        'sd_effect_start_date'),
-
-    display_name = c(
-        'intercept',
-        'antigenic change',
-        'absolute humidity',
-        'first epi of season',
-        'prior variant cases',
-        'prior season cases',
-        'start date')
-)
-
 
 fit <- readRDS(mcmc_fit_path)
     
@@ -91,7 +71,7 @@ quants <- quants %>%
 effect_fig <- quants %>%
     ggplot(aes(x = post_quant)) +
     geom_dotplot(
-        fill=pointcolor,
+        fill=posterior_pointcolor,
         alpha=1,
         binwidth=bin_width,
         dotsize=dot_size,

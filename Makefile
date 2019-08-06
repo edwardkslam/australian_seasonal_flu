@@ -125,7 +125,7 @@ PLOTTING_STYLE = $(SRC)/plotting_style.R
 
 FIG_CLEANUP = @$(RM) Rplots.pdf
 
-FIGURES := figure_final_size_difference.$(FIGEXT) figure_susceptibility_distribution.$(FIGEXT) figure_posterior_effects.$(FIGEXT) figure_posterior_by_subtype.$(FIGEXT)
+FIGURES := figure_posterior_effects.$(FIGEXT) figure_posterior_by_subtype.$(FIGEXT) figure_posterior_sds.$(FIGEXT) 
 
 FIG_PATHS := $(addprefix $(OUT)/, $(FIGURES))
 
