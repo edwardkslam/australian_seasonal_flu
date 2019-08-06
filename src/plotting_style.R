@@ -18,7 +18,8 @@ parameter_basenames <- c(
     'effect_is_first_of_season',
     'effect_cumulative_prior_inc',
     'effect_prior_season_activity',
-    'effect_start_date')
+    'effect_start_date',
+    'intercept')
 
 parameter_display_names <- c(
     'antigenic change',
@@ -26,7 +27,8 @@ parameter_display_names <- c(
     'first epi of season',
     'prior variant cases',
     'prior season cases',
-    'start date')
+    'start date',
+    'intercept')
 
 
 multilevel_incidence_parameter_names <- tibble(
