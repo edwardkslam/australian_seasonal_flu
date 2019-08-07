@@ -73,8 +73,9 @@ ag_change_incidence_plot<-epi_table_no_corrections%>%
         axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
         axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
         axis.ticks.length = unit(0.4,"cm"),
+        legend.title=element_text(size=20), 
+        legend.text=element_text(size=17),
         panel.border = element_rect(colour = "black"),
-        legend.position="none",
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())+
   facet_grid(~subtype,scales = "free_y", labeller = label_wrap_gen(width=10))
@@ -115,8 +116,8 @@ ag_change_start_plot<-epi_table_no_corrections%>%
                    axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
                    axis.ticks.length = unit(0.4,"cm"),
                    panel.border = element_rect(colour = "black"),
-                   legend.position="none",
-                   panel.grid.major = element_blank(), 
+                   legend.title=element_text(size=20), 
+                   legend.text=element_text(size=17),                   panel.grid.major = element_blank(), 
                    panel.grid.minor = element_blank())+
   facet_grid(~subtype,scales = "free_y", labeller = label_wrap_gen(width=10))
 
