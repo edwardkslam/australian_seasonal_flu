@@ -15,7 +15,9 @@ library(tidyr)
 #       - final_results (Table S2)
 # 2)  Comparison of observed climatic fluctuations prior to epidemic onset against historical averages
 #     typical for that time of the year
-#       - The output is two plots which are combined to form the figures in the manuscript: T_plot and AH-plot (Figure 2)
+#       - The output is two plots which are combined to form the figures in the manuscript: T_plot and AH-plot 
+#         (aggregated across all cities Figure 2; by city Figure S2)
+
 
 # Loading data ------------------------------------------------------------
 
@@ -471,9 +473,91 @@ mean_stats_city<-mean_stats_city%>%
                 mean_RH_for_that_fortnight_of_year = mean_relative_humidity_calc(mean_AH_for_that_fortnight_of_year,mean_temp_for_that_fortnight_of_year),
                 mean_d.RH = mean_relative_humidity_calc(mean_AH ,mean_temp) - mean_RH_for_that_fortnight_of_year)
 
+AT_plot2<-mean_stats_city%>%
+  ggplot(data=.,aes(x=relative_fortnight,y=mean_d.temp))+
+  
+  geom_hline(aes(yintercept = 0),size=0.4,color="black",linetype="solid") + 
+  geom_vline(aes(xintercept = 0),size=0.4,color="black",linetype="solid") +
+  geom_errorbar(aes(x=relative_fortnight,
+                    ymin=mean_d.temp-sd_d.temp, 
+                    ymax=mean_d.temp+sd_d.temp),
+                size = 0.01)+
+  geom_line()+
+  geom_point(data=centered_df,
+             aes(x=relative_fortnight,
+                 y=d.temp),
+             position = position_jitter(w = 0.1, h = 0),
+             size=3,
+             alpha = 0.2)+
+  geom_point(aes(colour=signif_neg.d.temp),
+             size=4)+
+  scale_color_manual(name="Statistically significant decrease temp (<0.05)",
+                     values=c("TRUE"="#D55E00",
+                              "FALSE"="#56B4E9")) +
+  
+  scale_y_continuous(breaks=seq(-3.5,5,0.5), limits = c(-3.5,5))+
+  scale_x_continuous(breaks = seq(-5,5,1), limits = c(-5.5,5.5))+
+  
+  theme_bw()+
+  xlab("Two week intervals relative to onset")+
+  ylab(expression(paste("Anomalous Temperature ( ",degree,"C)")))+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size=20),
+        axis.title=element_text(size=20),
+        axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
+        axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
+        axis.ticks.length = unit(0.4,"cm"),
+        panel.border = element_rect(colour = "black"),
+        legend.position="none",
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())
+
+AH_plot2<-mean_stats_city%>%
+  ggplot(data=.,aes(x=relative_fortnight,y=mean_d.AH))+
+  
+  geom_hline(aes(yintercept = 0),size=0.4,color="black",linetype="solid") + 
+  geom_vline(aes(xintercept = 0),size=0.4,color="black",linetype="solid") +
+  geom_errorbar(aes(x=relative_fortnight,
+                    ymin=mean_d.AH-sd_d.AH, 
+                    ymax=mean_d.AH+sd_d.AH),
+                size = 0.01)+
+  geom_line()+
+  geom_point(data=centered_df,
+             aes(x=relative_fortnight,
+                 y=d.AH),
+             position = position_jitter(w = 0.1, h = 0),
+             size=3,
+             alpha = 0.2)+
+  geom_point(aes(colour=signif_neg.d.AH),
+             size=4)+
+  scale_color_manual(name="Statistically significant decrease temp (<0.05)",
+                     values=c("TRUE"="#D55E00",
+                              "FALSE"="#56B4E9")) +
+  
+  scale_y_continuous(breaks=seq(-3.5,3.5,0.5), limits = c(-3.5,3.5))+
+  scale_x_continuous(breaks = seq(-5,5,1), limits = c(-5.5,5.5))+
+  
+  theme_bw()+
+  xlab("Two week intervals relative to onset")+
+  ylab(expression(paste("Anomalous Absolute Humidity "," (g/",m^{3},")",sep="")))+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size=20),
+        axis.title=element_text(size=20),
+        axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
+        axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
+        axis.ticks.length = unit(0.4,"cm"),
+        panel.border = element_rect(colour = "black"),
+        legend.position="none",
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())
+
 
 
 # save plot ---------------------------------------------------------------
 fig2<-grid.arrange(T_plot,AH_plot,ncol=1)
 ggsave(plot = fig2,"./figures/main/figure_2.png",
+       width=12, height=11,limitsize=FALSE)
+
+fig_S2<-grid.arrange(AT_plot2,AH_plot2,ncol=1)
+ggsave(plot = fig_S2,"./figures/supp//figure_S2.png",
        width=12, height=11,limitsize=FALSE)

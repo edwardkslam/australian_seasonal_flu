@@ -8,7 +8,7 @@ library(scales)
 library(dplyr)
 library(plyr)
 library(tidyr)
-
+library(beeswarm)
 
 # Here we assess compare whether the onset timings vary between subtypes or between cities
 
@@ -94,11 +94,11 @@ TukeyHSD(aov(lm_model))
 
 
 # save plot ---------------------------------------------------------------
+fig_s1<-grid.arrange(subtype_start_plot,city_start_plot,ncol=1)
 
-ggsave(plot = subtype_start_plot,"./figures/supp/figure_S1.png",
-       width=15, height=8,limitsize=FALSE)
+ggsave(plot = fig_s1,"./figures/supp/figure_S1.png",
+       width=15, height=16,limitsize=FALSE)
 
-ggsave(plot = city_start_plot,"./figures/supp/figure_S2.png",
-       width=15, height=8,limitsize=FALSE)
+
 
 write.csv(sstable,"./tables/anova_table.csv",row.names = FALSE)

@@ -156,7 +156,7 @@ Additional columns were appended to ``epi_table.csv``:
 #### ``main text analysis scripts/Climatic factors and epidemic onset.R``
 This set of analyses considers whether or not the onset of epidemics are preceded with fluctuations in climatic factors that are:
 1) anomalous when compared with against "typical wintertime" fluctuations using the bootstrap sampling method presented by Shaman (2010). (Tables S1 & S2).
-2) anomalous when compared against historical averages that typical for that time of the year. The output is two figures: T_plot and AH-plot (Figure 2).
+2) anomalous when compared against historical averages that typical for that time of the year. The output is two figures: T_plot and AH-plot (aggregated across all cities Figure 2; by city Figure S2).
 
 #### ``main text analysis scripts/Effect of antigenic change.R``
 Here we assess the effect of antigenic change on:

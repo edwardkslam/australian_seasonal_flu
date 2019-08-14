@@ -24,6 +24,11 @@ library(tidyr)
 #     log_delayed_delay_vs_relative_size_plot (Figure 5)
 
 
+# load data ---------------------------------------------------------------
+epi_table<-read.csv("./dat/raw/epi_table.csv")
+epi_table<-epi_table%>%
+  dplyr::mutate(log_incidence = log(incidence_per_mil))
+
 # 1)  Relationship between Prior Activity and Relative Size of an Epidemic --------
 log_prior_activity_vs_relative_size_plot<-epi_table %>%
   subset(.,epi_alarm=="Y")%>%
@@ -104,6 +109,5 @@ fig5<-grid.arrange(arrangeGrob(log_prior_activity_vs_relative_size_plot+ theme(l
                                log_delayed_delay_vs_relative_size_plot + theme(legend.position="none"),nrow=1),
                    mylegend, ncol=2,widths=c(10,1))
 
-base_dir<-"C:/Users/el382/Dropbox/PhD/code for manuscript/australian_seasonal_flu/figures/main/"
-ggsave(plot = fig5,filename = paste(base_dir,"figure_5.png",sep=""), 
+ggsave(plot = fig5,filename = "./figures/main/figure_5.png", 
        width=20, height=8,limitsize=FALSE)
