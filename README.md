@@ -21,8 +21,9 @@ If you use the code or data provided here, please make sure to do so in light of
 Although influenza viruses circulate globally, prevention and treatment necessarily occur at the level of regions, cities, or small communities. At these scales, seasonal influenza virus epidemics vary substantially in timing, duration, and size, and the underlying causes of this variation are poorly understood. Here, based on the analysis of a 15 year city-level data set consisting of 18,250 laboratory confirmed and antigenically characterised influenza virus infections from Australia, we measure the variability in influenza epidemics and compare epidemiological patterns with previously hypothesized environmental and virological drivers of influenza virus epidemics. We find that the timing of local epidemics in Australia is not associated with anomalous fluctuations in temperature and humidity. We also find that virus antigenic change does not have an observable effect either on the magnitude or timing of local epidemics. Variation in epidemic size appears instead to be driven principally by heterosubtypic competition: epidemics that start earlier in the year tend to be larger than those that start later, and epidemics of a particular virus type or subtype are smaller and less likely to occur at all if viruses of another type or subtype have already circulated. Using a mathematical model of epidemic dynamics, we show that the epidemiological impact of population immunity and antigenic change are unlikely to be the constraints on epidemic size. These findings suggest that influenza virus epidemiology in Australia is influenced more by stochastic processes than by easily quantifiable environmental or virological variables and that new understandings of influenza virus epidemiology are required before epidemic forecasting is feasible. 
 
 ## Directories
-- ``src``: all Python code for theoretical models
-- ``out``: output figures from theoretical models (as ``.png`` files)
+- ``src``: all Python code for the Bayesian multi-level regression model 
+- ``dat``: cleanend and raw data files for running the Bayesian multi-level regression model
+- ``out``: output figures from the Bayesian multi-level regression model (as ``.png`` files)
 - ``main text analysis scripts``: scripts for reproducing empirical analyses from the main text of the paper
 - `main text analysis without phylogenetic informed corrections`: scripts for checking sensitivity to phylogenetic corrections of inferred antigenic phenotype
 - ``robustness vs geoghegan timings``: scripts for checking sensitivity of epidemic start time analysis by comparing to start times calculated from a previously published ([Geoghegan et al 2018](https://doi.org/10.1371/journal.ppat.1006780)) dataset.
@@ -221,6 +222,7 @@ We incorporate alternative estimates for the onset timing of Influenza A epidemi
     i) Figure S12 ; ii) Figure S13
 3) For seasons between 2007 and 2015 in which the number of cases for the dominant influenza A subtype were small or it was difficult to discern the period of epidemic from background activity, we assumed that our timing estimate was incorrect and replaced it with estimates from Geoghegan et al. (2018).
     i) Figure S14 ; ii) Figure S15
+    
+## Reproducing the Bayesian multi-level regression model 
+The Bayesian multi-level regression model and output figures can be reproduced using the data and code from the ``dat`` and ``src`` directories respectively.
 
-## Reproducing theoretical analysis
-All theoretical figures can be reproduced on a system with a GNU-style ``make`` program installed by typing ``make figs`` at the command line from the top-level project directory. Figure production itself is done within the scripts ``src/figure_susceptibility_distribution.py`` (Fig 6) and ``src/figure_final_size_difference.py`` (Fig S22).
