@@ -510,7 +510,8 @@ AT_plot2<-mean_stats_city%>%
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())
+        panel.grid.minor = element_blank())+
+  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
 
 AH_plot2<-mean_stats_city%>%
   ggplot(data=.,aes(x=relative_fortnight,y=mean_d.AH))+
@@ -549,7 +550,8 @@ AH_plot2<-mean_stats_city%>%
         panel.border = element_rect(colour = "black"),
         legend.position="none",
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())
+        panel.grid.minor = element_blank())+
+  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
 
 
 
