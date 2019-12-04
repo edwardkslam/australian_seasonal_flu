@@ -51,12 +51,17 @@ find_preonset_sample<-function(x, n_fortnight = 2){
     dplyr::summarise(start = first(x$start),
                      mean_AH = mean(mean_AH,na.rm=TRUE),
                      mean_temp = mean(mean_temp,na.rm = TRUE),
+                     mean_RH = mean(mean_RH,na.rm = TRUE),
+                     mean_rainfall=mean(mean_rainfall,na.rm = TRUE),
                      sample_mean_d.AH=mean(d.AH,na.rm=TRUE),
                      #sample_mean_d.SH=mean(d.SH,na.rm=TRUE),
                      sample_mean_d.temp=mean(d.temp,na.rm=TRUE),
+                     sample_mean_d.RH=mean(d.RH,na.rm = TRUE),
+                     sample_mean_d.rainfall=mean(d.rainfall,na.rm = TRUE),
                      mean_AH_for_that_fortnight_of_year = mean(mean_AH_for_that_fortnight_of_year,na.rm=TRUE),
                      mean_RH_for_that_fortnight_of_year = mean(mean_RH_for_that_fortnight_of_year,na.rm=TRUE),
-                     mean_temp_for_that_fortnight_of_year = mean(mean_temp_for_that_fortnight_of_year,na.rm=TRUE))
+                     mean_temp_for_that_fortnight_of_year = mean(mean_temp_for_that_fortnight_of_year,na.rm=TRUE),
+                     mean_rainfall_for_that_fortnight_of_year = mean(mean_rainfall_for_that_fortnight_of_year,na.rm=TRUE))
   return(data.frame(temp))
 }
 
@@ -115,21 +120,32 @@ for(i in 1: length(cities)){
     #mean by every 15 rows to produce the 100kx 15
     dplyr::group_by(G=trunc(samples_per_bootstrap_sample:(n()+samples_per_bootstrap_sample-1)/samples_per_bootstrap_sample))%>%
     dplyr::summarise(bootstrap_sample_mean_d.AH = mean(sample_mean_d.AH,na.rm=TRUE),
-                     bootstrap_sample_mean_d.temp = mean(sample_mean_d.temp,na.rm=TRUE))
+                     bootstrap_sample_mean_d.temp = mean(sample_mean_d.temp,na.rm=TRUE),
+                     bootstrap_sample_mean_d.RH = mean(sample_mean_d.RH,na.rm=TRUE),
+                     bootstrap_sample_mean_d.rainfall = mean(sample_mean_d.rainfall,na.rm=TRUE))
 
   bootstrap_sample_list_1ftn[[i]]<-temp
 
   empirical_values_1ftn<-preonset_sample_1ftn%>%subset(.,city==cities[i])%>%
     dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
-                     empirical_mean_d.temp = mean(sample_mean_d.temp))
+                     empirical_mean_d.temp = mean(sample_mean_d.temp),
+                     empirical_mean_d.RH = mean(sample_mean_d.RH),
+                     empirical_mean_d.rainfall = mean(sample_mean_d.rainfall))
 
 
   bootstrap_results_1ftn[[i]]<-data.frame(city = cities[i],
-                                                mean_emperical_sample_mean_d.AH = empirical_values_1ftn$empirical_mean_d.AH,
-                                                d.AH_pvalue = sum(empirical_values_1ftn$empirical_mean_d.AH>=temp$bootstrap_sample_mean_d.AH)/bootstrap_n,
+                                          
+                                          mean_emperical_sample_mean_d.AH = empirical_values_1ftn$empirical_mean_d.AH,
+                                          d.AH_pvalue = sum(empirical_values_1ftn$empirical_mean_d.AH>=temp$bootstrap_sample_mean_d.AH)/bootstrap_n,
 
-                                                mean_emperical_sample_mean_d.temp = empirical_values_1ftn$empirical_mean_d.temp,
-                                                d.temp_pvalue = sum(empirical_values_1ftn$empirical_mean_d.temp>=temp$bootstrap_sample_mean_d.temp)/bootstrap_n
+                                          mean_emperical_sample_mean_d.temp = empirical_values_1ftn$empirical_mean_d.temp,
+                                          d.temp_pvalue = sum(empirical_values_1ftn$empirical_mean_d.temp>=temp$bootstrap_sample_mean_d.temp)/bootstrap_n,
+                                          
+                                          mean_emperical_sample_mean_d.RH = empirical_values_1ftn$empirical_mean_d.RH,
+                                          d.RH_pvalue = sum(empirical_values_1ftn$empirical_mean_d.RH>=temp$bootstrap_sample_mean_d.RH)/bootstrap_n,
+                                          
+                                          mean_emperical_sample_mean_d.rainfall = empirical_values_1ftn$empirical_mean_d.rainfall,
+                                          d.rainfall_pvalue = sum(empirical_values_1ftn$empirical_mean_d.rainfall>=temp$bootstrap_sample_mean_d.rainfall)/bootstrap_n
   )
 
   # mean of 4-week block samples
@@ -142,21 +158,32 @@ for(i in 1: length(cities)){
     #mean by every 15 rows to produce the 100kx 15
     dplyr::group_by(G=trunc(samples_per_bootstrap_sample:(n()+samples_per_bootstrap_sample-1)/samples_per_bootstrap_sample))%>%
     dplyr::summarise(bootstrap_sample_mean_d.AH = mean(sample_mean_d.AH,na.rm=TRUE),
-                     bootstrap_sample_mean_d.temp = mean(sample_mean_d.temp,na.rm=TRUE))
+                     bootstrap_sample_mean_d.temp = mean(sample_mean_d.temp,na.rm=TRUE),
+                     bootstrap_sample_mean_d.RH = mean(sample_mean_d.RH,na.rm=TRUE),
+                     bootstrap_sample_mean_d.rainfall = mean(sample_mean_d.rainfall,na.rm=TRUE))
 
   bootstrap_sample_list_2ftn[[i]]<-temp
 
   empirical_values_2ftn<-preonset_sample_2ftn%>%subset(.,city==cities[i])%>%
     dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
-                     empirical_mean_d.temp = mean(sample_mean_d.temp))
+                     empirical_mean_d.temp = mean(sample_mean_d.temp),
+                     empirical_mean_d.RH = mean(sample_mean_d.RH),
+                     empirical_mean_d.rainfall = mean(sample_mean_d.rainfall))
 
 
   bootstrap_results_2ftn[[i]]<-data.frame(city = cities[i],
-                                                mean_emperical_sample_mean_d.AH = empirical_values_2ftn$empirical_mean_d.AH,
-                                                d.AH_pvalue = sum(empirical_values_2ftn$empirical_mean_d.AH>=temp$bootstrap_sample_mean_d.AH)/bootstrap_n,
-
-                                                mean_emperical_sample_mean_d.temp = empirical_values_2ftn$empirical_mean_d.temp,
-                                                d.temp_pvalue = sum(empirical_values_2ftn$empirical_mean_d.temp>=temp$bootstrap_sample_mean_d.temp)/bootstrap_n
+                                          
+                                          mean_emperical_sample_mean_d.AH = empirical_values_2ftn$empirical_mean_d.AH,
+                                          d.AH_pvalue = sum(empirical_values_2ftn$empirical_mean_d.AH>=temp$bootstrap_sample_mean_d.AH)/bootstrap_n,
+                                          
+                                          mean_emperical_sample_mean_d.temp = empirical_values_2ftn$empirical_mean_d.temp,
+                                          d.temp_pvalue = sum(empirical_values_2ftn$empirical_mean_d.temp>=temp$bootstrap_sample_mean_d.temp)/bootstrap_n,
+                                          
+                                          mean_emperical_sample_mean_d.RH = empirical_values_2ftn$empirical_mean_d.RH,
+                                          d.RH_pvalue = sum(empirical_values_2ftn$empirical_mean_d.RH>=temp$bootstrap_sample_mean_d.RH)/bootstrap_n,
+                                          
+                                          mean_emperical_sample_mean_d.rainfall = empirical_values_2ftn$empirical_mean_d.rainfall,
+                                          d.rainfall_pvalue = sum(empirical_values_2ftn$empirical_mean_d.rainfall>=temp$bootstrap_sample_mean_d.rainfall)/bootstrap_n
   )
 
   # mean of 6-week block samples
@@ -169,20 +196,31 @@ for(i in 1: length(cities)){
     #mean by every 15 rows to produce the 100kx 15
     dplyr::group_by(G=trunc(samples_per_bootstrap_sample:(n()+samples_per_bootstrap_sample-1)/samples_per_bootstrap_sample))%>%
     dplyr::summarise(bootstrap_sample_mean_d.AH = mean(sample_mean_d.AH,na.rm=TRUE),
-                     bootstrap_sample_mean_d.temp = mean(sample_mean_d.temp,na.rm=TRUE))
+                     bootstrap_sample_mean_d.temp = mean(sample_mean_d.temp,na.rm=TRUE),
+                     bootstrap_sample_mean_d.RH = mean(sample_mean_d.RH,na.rm=TRUE),
+                     bootstrap_sample_mean_d.rainfall = mean(sample_mean_d.rainfall,na.rm=TRUE))
 
   bootstrap_sample_list_3ftn[[i]]<-temp
 
   empirical_values_3ftn<-preonset_sample_3ftn%>%subset(.,city==cities[i])%>%
     dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
-                     empirical_mean_d.temp = mean(sample_mean_d.temp))
+                     empirical_mean_d.temp = mean(sample_mean_d.temp),
+                     empirical_mean_d.RH = mean(sample_mean_d.RH),
+                     empirical_mean_d.rainfall = mean(sample_mean_d.rainfall))
 
   bootstrap_results_3ftn[[i]]<-data.frame(city = cities[i],
-                                                mean_emperical_sample_mean_d.AH = empirical_values_3ftn$empirical_mean_d.AH,
-                                                d.AH_pvalue = sum(empirical_values_3ftn$empirical_mean_d.AH>=temp$bootstrap_sample_mean_d.AH)/bootstrap_n,
-
-                                                mean_emperical_sample_mean_d.temp = empirical_values_3ftn$empirical_mean_d.temp,
-                                                d.temp_pvalue = sum(empirical_values_3ftn$empirical_mean_d.temp>=temp$bootstrap_sample_mean_d.temp)/bootstrap_n
+                                          
+                                          mean_emperical_sample_mean_d.AH = empirical_values_3ftn$empirical_mean_d.AH,
+                                          d.AH_pvalue = sum(empirical_values_3ftn$empirical_mean_d.AH>=temp$bootstrap_sample_mean_d.AH)/bootstrap_n,
+                                          
+                                          mean_emperical_sample_mean_d.temp = empirical_values_3ftn$empirical_mean_d.temp,
+                                          d.temp_pvalue = sum(empirical_values_3ftn$empirical_mean_d.temp>=temp$bootstrap_sample_mean_d.temp)/bootstrap_n,
+                                          
+                                          mean_emperical_sample_mean_d.RH = empirical_values_3ftn$empirical_mean_d.RH,
+                                          d.RH_pvalue = sum(empirical_values_3ftn$empirical_mean_d.RH>=temp$bootstrap_sample_mean_d.RH)/bootstrap_n,
+                                          
+                                          mean_emperical_sample_mean_d.rainfall = empirical_values_3ftn$empirical_mean_d.rainfall,
+                                          d.rainfall_pvalue = sum(empirical_values_3ftn$empirical_mean_d.rainfall>=temp$bootstrap_sample_mean_d.rainfall)/bootstrap_n
   )
 
 }
@@ -204,7 +242,9 @@ print(final_results)
 
 final_results<-final_results%>%mutate(.,
                                       ManuscriptTable_Temp = paste(signif(mean_emperical_sample_mean_d.temp,3),"  (",signif(d.temp_pvalue,3),")",sep=""),
-                                      ManuscriptTable_AH = paste(signif(mean_emperical_sample_mean_d.AH,3),"  (",signif(d.AH_pvalue,3),")",sep=""))
+                                      ManuscriptTable_AH = paste(signif(mean_emperical_sample_mean_d.AH,3),"  (",signif(d.AH_pvalue,3),")",sep=""),
+                                      ManuscriptTable_RH = paste(signif(mean_emperical_sample_mean_d.RH,3),"  (",signif(d.RH_pvalue,3),")",sep=""),
+                                      ManuscriptTable_Rainfall = paste(signif(mean_emperical_sample_mean_d.rainfall,3),"  (",signif(d.rainfall_pvalue,3),")",sep=""))
 
 
 # bootstrap pooling across all cities -------------------------------------
@@ -225,43 +265,70 @@ pooled_bootstrap_sample_3ftn<-ldply(pooled_bootstrap_sample_3ftn)
 
 empirical_sample_pooled_1ftn<-preonset_sample_1ftn%>%
   dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
-                   empirical_mean_d.temp = mean(sample_mean_d.temp))
+                   empirical_mean_d.temp = mean(sample_mean_d.temp),
+                   empirical_mean_d.RH = mean(sample_mean_d.RH),
+                   empirical_mean_d.rainfall = mean(sample_mean_d.rainfall))
 
 empirical_sample_pooled_2ftn<-preonset_sample_2ftn%>%
   dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
-                   empirical_mean_d.temp = mean(sample_mean_d.temp))
+                   empirical_mean_d.temp = mean(sample_mean_d.temp),
+                   empirical_mean_d.RH = mean(sample_mean_d.RH),
+                   empirical_mean_d.rainfall = mean(sample_mean_d.rainfall))
 
 empirical_sample_pooled_3ftn<-preonset_sample_3ftn%>%
   dplyr::summarise(empirical_mean_d.AH = mean(sample_mean_d.AH),
-                   empirical_mean_d.temp = mean(sample_mean_d.temp))
+                   empirical_mean_d.temp = mean(sample_mean_d.temp),
+                   empirical_mean_d.RH = mean(sample_mean_d.RH),
+                   empirical_mean_d.rainfall = mean(sample_mean_d.rainfall))
 
 pooled_results_1ftn<-data.frame(num_preceding_fortnight = 1,
                                 mean_emperical_sample_mean_d.AH = empirical_sample_pooled_1ftn$empirical_mean_d.AH,
                                 d.AH_pvalue = sum(empirical_sample_pooled_1ftn$empirical_mean_d.AH>=pooled_bootstrap_sample_1ftn$bootstrap_sample_mean_d.AH)/bootstrap_n,
 
                                 mean_emperical_sample_mean_d.temp = empirical_sample_pooled_1ftn$empirical_mean_d.temp,
-                                d.temp_pvalue = sum(empirical_sample_pooled_1ftn$empirical_mean_d.temp>=pooled_bootstrap_sample_1ftn$bootstrap_sample_mean_d.temp)/bootstrap_n)
+                                d.temp_pvalue = sum(empirical_sample_pooled_1ftn$empirical_mean_d.temp>=pooled_bootstrap_sample_1ftn$bootstrap_sample_mean_d.temp)/bootstrap_n,
+                                
+                                mean_emperical_sample_mean_d.RH = empirical_sample_pooled_1ftn$empirical_mean_d.RH,
+                                d.RH_pvalue = sum(empirical_sample_pooled_1ftn$empirical_mean_d.RH>=pooled_bootstrap_sample_1ftn$bootstrap_sample_mean_d.RH)/bootstrap_n,
+                                
+                                mean_emperical_sample_mean_d.rainfall = empirical_sample_pooled_1ftn$empirical_mean_d.rainfall,
+                                d.rainfall_pvalue = sum(empirical_sample_pooled_1ftn$empirical_mean_d.rainfall>=pooled_bootstrap_sample_1ftn$bootstrap_sample_mean_d.rainfall)/bootstrap_n
+                                )
 
 pooled_results_2ftn<-data.frame(num_preceding_fortnight = 2,
                                 mean_emperical_sample_mean_d.AH = empirical_sample_pooled_2ftn$empirical_mean_d.AH,
                                 d.AH_pvalue = sum(empirical_sample_pooled_2ftn$empirical_mean_d.AH>=pooled_bootstrap_sample_2ftn$bootstrap_sample_mean_d.AH)/bootstrap_n,
-
+                                
                                 mean_emperical_sample_mean_d.temp = empirical_sample_pooled_2ftn$empirical_mean_d.temp,
-                                d.temp_pvalue = sum(empirical_sample_pooled_2ftn$empirical_mean_d.temp>=pooled_bootstrap_sample_2ftn$bootstrap_sample_mean_d.temp)/bootstrap_n)
-
+                                d.temp_pvalue = sum(empirical_sample_pooled_2ftn$empirical_mean_d.temp>=pooled_bootstrap_sample_2ftn$bootstrap_sample_mean_d.temp)/bootstrap_n,
+                                
+                                mean_emperical_sample_mean_d.RH = empirical_sample_pooled_2ftn$empirical_mean_d.RH,
+                                d.RH_pvalue = sum(empirical_sample_pooled_2ftn$empirical_mean_d.RH>=pooled_bootstrap_sample_2ftn$bootstrap_sample_mean_d.RH)/bootstrap_n,
+                                
+                                mean_emperical_sample_mean_d.rainfall = empirical_sample_pooled_2ftn$empirical_mean_d.rainfall,
+                                d.rainfall_pvalue = sum(empirical_sample_pooled_2ftn$empirical_mean_d.rainfall>=pooled_bootstrap_sample_2ftn$bootstrap_sample_mean_d.rainfall)/bootstrap_n
+                                )
 
 pooled_results_3ftn<-data.frame(num_preceding_fortnight = 3,
                                 mean_emperical_sample_mean_d.AH = empirical_sample_pooled_3ftn$empirical_mean_d.AH,
                                 d.AH_pvalue = sum(empirical_sample_pooled_3ftn$empirical_mean_d.AH>=pooled_bootstrap_sample_3ftn$bootstrap_sample_mean_d.AH)/bootstrap_n,
-
+                                
                                 mean_emperical_sample_mean_d.temp = empirical_sample_pooled_3ftn$empirical_mean_d.temp,
-                                d.temp_pvalue = sum(empirical_sample_pooled_3ftn$empirical_mean_d.temp>=pooled_bootstrap_sample_3ftn$bootstrap_sample_mean_d.temp)/bootstrap_n)
-
+                                d.temp_pvalue = sum(empirical_sample_pooled_3ftn$empirical_mean_d.temp>=pooled_bootstrap_sample_3ftn$bootstrap_sample_mean_d.temp)/bootstrap_n,
+                                
+                                mean_emperical_sample_mean_d.RH = empirical_sample_pooled_3ftn$empirical_mean_d.RH,
+                                d.RH_pvalue = sum(empirical_sample_pooled_3ftn$empirical_mean_d.RH>=pooled_bootstrap_sample_3ftn$bootstrap_sample_mean_d.RH)/bootstrap_n,
+                                
+                                mean_emperical_sample_mean_d.rainfall = empirical_sample_pooled_3ftn$empirical_mean_d.rainfall,
+                                d.rainfall_pvalue = sum(empirical_sample_pooled_3ftn$empirical_mean_d.rainfall>=pooled_bootstrap_sample_3ftn$bootstrap_sample_mean_d.rainfall)/bootstrap_n
+                                )
 
 final_results_pooled<-rbind(pooled_results_1ftn,pooled_results_2ftn,pooled_results_3ftn)
 final_results_pooled<-final_results_pooled%>%mutate(.,
-                       ManuscriptTable_Temp = paste(signif(mean_emperical_sample_mean_d.temp,3),"  (",signif(d.temp_pvalue,3),")",sep=""),
-                       ManuscriptTable_AH = paste(signif(mean_emperical_sample_mean_d.AH,3),"  (",signif(d.AH_pvalue,3),")",sep=""))
+                                                    ManuscriptTable_Temp = paste(signif(mean_emperical_sample_mean_d.temp,3),"  (",signif(d.temp_pvalue,3),")",sep=""),
+                                                    ManuscriptTable_AH = paste(signif(mean_emperical_sample_mean_d.AH,3),"  (",signif(d.AH_pvalue,3),")",sep=""),
+                                                    ManuscriptTable_RH = paste(signif(mean_emperical_sample_mean_d.RH,3),"  (",signif(d.RH_pvalue,3),")",sep=""),
+                                                    ManuscriptTable_Rainfall = paste(signif(mean_emperical_sample_mean_d.rainfall,3),"  (",signif(d.rainfall_pvalue,3),")",sep=""))
 
 
 print(final_results_pooled)
@@ -269,8 +336,8 @@ print(final_results_pooled)
 
 
 # saving bootstrap result tables ------------------------------------------
-write.csv(final_results_pooled,"./tables/table_S1.csv",row.names = FALSE)
-write.csv(final_results,"./tables/table_S2.csv",row.names = FALSE)
+write.csv(final_results_pooled,"./nat comms reviewers comments/raw data rainfall RH/table_S1.csv",row.names = FALSE)
+write.csv(final_results,"./nat comms reviewers comments/raw data rainfall RH/table_S2.csv",row.names = FALSE)
 
 
 
@@ -357,16 +424,30 @@ mean_stats_aggregated<-centered_df%>%
                    mean_d.AH=mean(d.AH),
                    sd_d.AH=sd(d.AH),
                    wt_d.AH=wilcox.test(d.AH,alternative = c("less"))$p.value,
+                   
+                   mean_RH=mean(mean_RH),
+                   mean_d.RH=mean(d.RH),
+                   sd_d.RH=sd(d.RH),
+                   wt_d.RH=wilcox.test(d.RH,alternative = c("less"))$p.value,
+                   
+                   mean_rainfall=mean(mean_rainfall),
+                   mean_d.rainfall=mean(d.rainfall),
+                   sd_d.rainfall=sd(d.rainfall),
+                   wt_d.rainfall=wilcox.test(d.rainfall,alternative = c("greater"))$p.value,
 
                    mean_AH_for_that_fortnight_of_year = mean(mean_AH_for_that_fortnight_of_year),
-                   mean_temp_for_that_fortnight_of_year = mean(mean_temp_for_that_fortnight_of_year))
+                   mean_temp_for_that_fortnight_of_year = mean(mean_temp_for_that_fortnight_of_year),
+                   mean_RH_for_that_fortnight_of_year = mean(mean_RH_for_that_fortnight_of_year),
+                   mean_rainfall_for_that_fortnight_of_year = mean(mean_rainfall_for_that_fortnight_of_year))
 
 mean_stats_aggregated<-mean_stats_aggregated%>%
   dplyr::rowwise()%>%
   dplyr::mutate(signif_neg.d.temp = (wt_d.temp < 0.05  & mean_d.temp < 0),
                 signif_neg.d.AH = (wt_d.AH < 0.05  & mean_d.AH < 0),
-                mean_RH_for_that_fortnight_of_year = mean_relative_humidity_calc(mean_AH_for_that_fortnight_of_year,mean_temp_for_that_fortnight_of_year),
-                mean_d.RH = mean_relative_humidity_calc(mean_AH ,mean_temp) - mean_RH_for_that_fortnight_of_year)
+                signif_neg.d.RH = (wt_d.RH < 0.05  & mean_d.RH < 0),
+                signif_pos.d.rainfall = (wt_d.rainfall < 0.05  & mean_d.rainfall > 0),
+                RH_equiv_AH_that_fortnight_of_year = mean_relative_humidity_calc(mean_AH_for_that_fortnight_of_year,mean_temp_for_that_fortnight_of_year),
+                mean_d.RH_equiv_AH = mean_relative_humidity_calc(mean_AH ,mean_temp) - mean_RH_for_that_fortnight_of_year)
 
 
 # Figure 2: plots showing T' and AH' in the 5x 2-week periods before and after epidemic onset-------------
@@ -428,7 +509,7 @@ AH_plot<-mean_stats_aggregated%>%
              alpha = 0.2)+
   geom_point(aes(colour=signif_neg.d.AH),
              size=4)+
-  scale_color_manual(name="Statistically significant decrease temp (<0.05)",
+  scale_color_manual(name="Statistically significant decrease AH (<0.05)",
                      values=c("TRUE"="#D55E00",
                               "FALSE"="#56B4E9")) +
 
@@ -450,6 +531,87 @@ AH_plot<-mean_stats_aggregated%>%
         panel.grid.minor = element_blank())
 
 
+RH_plot<-mean_stats_aggregated%>%
+  ggplot(data=.,aes(x=relative_fortnight,y=mean_d.RH))+
+  
+  geom_hline(aes(yintercept = 0),size=0.4,color="black",linetype="solid") +
+  geom_vline(aes(xintercept = 0),size=0.4,color="black",linetype="solid") +
+  geom_errorbar(aes(x=relative_fortnight,
+                    ymin=mean_d.RH-sd_d.RH,
+                    ymax=mean_d.RH+sd_d.RH),
+                size = 0.01)+
+  geom_line()+
+  geom_point(data=centered_df,
+             aes(x=relative_fortnight,
+                 y=d.RH),
+             position = position_jitter(w = 0.1, h = 0),
+             size=3,
+             alpha = 0.2)+
+  geom_point(aes(colour=signif_neg.d.RH),
+             size=4)+
+  scale_color_manual(name="Statistically significant decrease RH (<0.05)",
+                     values=c("TRUE"="#D55E00",
+                              "FALSE"="#56B4E9")) +
+  
+  scale_y_continuous(breaks=seq(-20,15,5), limits = c(-22,17))+
+  scale_x_continuous(breaks = seq(-5,5,1), limits = c(-5.5,5.5))+
+  
+  theme_bw()+
+  xlab("Two week intervals relative to onset")+
+  ylab(expression(paste("Anomalous Relative Humidity (%)",sep="")))+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size=20),
+        axis.title=element_text(size=20),
+        axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
+        axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
+        axis.ticks.length = unit(0.4,"cm"),
+        panel.border = element_rect(colour = "black"),
+        legend.position="none",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())
+
+
+rainfall_plot<-mean_stats_aggregated%>%
+  ggplot(data=.,aes(x=relative_fortnight,y=mean_d.rainfall))+
+  
+  geom_hline(aes(yintercept = 0),size=0.4,color="black",linetype="solid") +
+  geom_vline(aes(xintercept = 0),size=0.4,color="black",linetype="solid") +
+  geom_errorbar(aes(x=relative_fortnight,
+                    ymin=mean_d.rainfall-sd_d.rainfall,
+                    ymax=mean_d.rainfall+sd_d.rainfall),
+                size = 0.01)+
+  geom_line()+
+  geom_point(data=centered_df,
+             aes(x=relative_fortnight,
+                 y=d.rainfall),
+             position = position_jitter(w = 0.1, h = 0),
+             size=3,
+             alpha = 0.2)+
+  geom_point(aes(colour=signif_pos.d.rainfall),
+             size=4)+
+  scale_color_manual(name="Statistically significant increase rainfall (<0.05)",
+                     values=c("TRUE"="#D55E00",
+                              "FALSE"="#56B4E9")) +
+  
+  scale_y_continuous(breaks=seq(-5,20,5), limits = c(-6,22))+
+  scale_x_continuous(breaks = seq(-5,5,1), limits = c(-5.5,5.5))+
+  
+  theme_bw()+
+  xlab("Two week intervals relative to onset")+
+  ylab(expression(paste("Anomalous Rainfall (mm)",sep="")))+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size=20),
+        axis.title=element_text(size=20),
+        axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
+        axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
+        axis.ticks.length = unit(0.4,"cm"),
+        panel.border = element_rect(colour = "black"),
+        legend.position="none",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())
+
+
+
 # city by city climate ----------------------------------------------------
 mean_stats_city<-centered_df%>%
   dplyr::group_by(city,relative_fortnight)%>%
@@ -463,15 +625,29 @@ mean_stats_city<-centered_df%>%
                    sd_d.AH=sd(d.AH),
                    wt_d.AH=wilcox.test(d.AH,alternative = c("less"))$p.value,
                    
+                   mean_RH=mean(mean_RH),
+                   mean_d.RH=mean(d.RH),
+                   sd_d.RH=sd(d.RH),
+                   wt_d.RH=wilcox.test(d.RH,alternative = c("less"))$p.value,
+                   
+                   mean_rainfall=mean(mean_rainfall),
+                   mean_d.rainfall=mean(d.rainfall),
+                   sd_d.rainfall=sd(d.rainfall),
+                   wt_d.rainfall=wilcox.test(d.rainfall,alternative = c("greater"))$p.value,
+                   
                    mean_AH_for_that_fortnight_of_year = mean(mean_AH_for_that_fortnight_of_year),
-                   mean_temp_for_that_fortnight_of_year = mean(mean_temp_for_that_fortnight_of_year))
+                   mean_temp_for_that_fortnight_of_year = mean(mean_temp_for_that_fortnight_of_year),
+                   mean_RH_for_that_fortnight_of_year = mean(mean_RH_for_that_fortnight_of_year),
+                   mean_rainfall_for_that_fortnight_of_year = mean(mean_rainfall_for_that_fortnight_of_year))
 
 mean_stats_city<-mean_stats_city%>%
   dplyr::rowwise()%>%
   dplyr::mutate(signif_neg.d.temp = (wt_d.temp < 0.05  & mean_d.temp < 0),
                 signif_neg.d.AH = (wt_d.AH < 0.05  & mean_d.AH < 0),
-                mean_RH_for_that_fortnight_of_year = mean_relative_humidity_calc(mean_AH_for_that_fortnight_of_year,mean_temp_for_that_fortnight_of_year),
-                mean_d.RH = mean_relative_humidity_calc(mean_AH ,mean_temp) - mean_RH_for_that_fortnight_of_year)
+                signif_neg.d.RH = (wt_d.RH < 0.05  & mean_d.RH < 0),
+                signif_pos.d.rainfall = (wt_d.rainfall < 0.05  & mean_d.rainfall > 0),
+                RH_equiv_AH_that_fortnight_of_year = mean_relative_humidity_calc(mean_AH_for_that_fortnight_of_year,mean_temp_for_that_fortnight_of_year),
+                mean_d.RH_equiv_AH = mean_relative_humidity_calc(mean_AH ,mean_temp) - mean_RH_for_that_fortnight_of_year)
 
 AT_plot2<-mean_stats_city%>%
   ggplot(data=.,aes(x=relative_fortnight,y=mean_d.temp))+
@@ -531,7 +707,7 @@ AH_plot2<-mean_stats_city%>%
              alpha = 0.2)+
   geom_point(aes(colour=signif_neg.d.AH),
              size=4)+
-  scale_color_manual(name="Statistically significant decrease temp (<0.05)",
+  scale_color_manual(name="Statistically significant decrease AH (<0.05)",
                      values=c("TRUE"="#D55E00",
                               "FALSE"="#56B4E9")) +
   
@@ -554,12 +730,99 @@ AH_plot2<-mean_stats_city%>%
   facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
 
 
+RH_plot2<-mean_stats_city%>%
+  ggplot(data=.,aes(x=relative_fortnight,y=mean_d.RH))+
+  
+  geom_hline(aes(yintercept = 0),size=0.4,color="black",linetype="solid") + 
+  geom_vline(aes(xintercept = 0),size=0.4,color="black",linetype="solid") +
+  geom_errorbar(aes(x=relative_fortnight,
+                    ymin=mean_d.RH-sd_d.RH, 
+                    ymax=mean_d.RH+sd_d.RH),
+                size = 0.01)+
+  geom_line()+
+  geom_point(data=centered_df,
+             aes(x=relative_fortnight,
+                 y=d.RH),
+             position = position_jitter(w = 0.1, h = 0),
+             size=3,
+             alpha = 0.2)+
+  geom_point(aes(colour=signif_neg.d.RH),
+             size=4)+
+  scale_color_manual(name="Statistically significant decrease RH (<0.05)",
+                     values=c("TRUE"="#D55E00",
+                              "FALSE"="#56B4E9")) +
+  
+  scale_y_continuous(breaks=seq(-20,15,5), limits = c(-22,17))+
+  scale_x_continuous(breaks = seq(-5,5,1), limits = c(-5.5,5.5))+
+  
+  theme_bw()+
+  xlab("Two week intervals relative to onset")+
+  ylab(expression(paste("Anomalous Relative Humidity (%)",sep="")))+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size=20),
+        axis.title=element_text(size=20),
+        axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
+        axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
+        axis.ticks.length = unit(0.4,"cm"),
+        panel.border = element_rect(colour = "black"),
+        legend.position="none",
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())+
+  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
+
+rainfall_plot2<-mean_stats_city%>%
+  ggplot(data=.,aes(x=relative_fortnight,y=mean_d.rainfall))+
+  
+  geom_hline(aes(yintercept = 0),size=0.4,color="black",linetype="solid") + 
+  geom_vline(aes(xintercept = 0),size=0.4,color="black",linetype="solid") +
+  geom_errorbar(aes(x=relative_fortnight,
+                    ymin=mean_d.rainfall-sd_d.rainfall, 
+                    ymax=mean_d.rainfall+sd_d.rainfall),
+                size = 0.01)+
+  geom_line()+
+  geom_point(data=centered_df,
+             aes(x=relative_fortnight,
+                 y=d.rainfall),
+             position = position_jitter(w = 0.1, h = 0),
+             size=3,
+             alpha = 0.2)+
+  geom_point(aes(colour=signif_pos.d.rainfall),
+             size=4)+
+  scale_color_manual(name="Statistically significant increase rainfall (<0.05)",
+                     values=c("TRUE"="#D55E00",
+                              "FALSE"="#56B4E9")) +
+  
+  scale_y_continuous(breaks=seq(-5,20), limits = c(-7,22))+
+  scale_x_continuous(breaks = seq(-5,5,1), limits = c(-5.5,5.5))+
+  
+  theme_bw()+
+  xlab("Two week intervals relative to onset")+
+  ylab(expression(paste("Anomalous Rainfall ","(mm)",sep="")))+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size=20),
+        axis.title=element_text(size=20),
+        axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
+        axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
+        axis.ticks.length = unit(0.4,"cm"),
+        panel.border = element_rect(colour = "black"),
+        legend.position="none",
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())+
+  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
 
 # save plot ---------------------------------------------------------------
-fig2<-grid.arrange(T_plot,AH_plot,ncol=1)
-ggsave(plot = fig2,"./figures/main/figure_2.png",
+# fig2<-grid.arrange(T_plot,AH_plot,ncol=1)
+# ggsave(plot = fig2,"./figures/main/figure_2.png",
+#        width=12, height=11,limitsize=FALSE)
+# 
+# fig_S2<-grid.arrange(AT_plot2,AH_plot2,ncol=1)
+# ggsave(plot = fig_S2,"./figures/supp//figure_S2.png",
+#        width=12, height=11,limitsize=FALSE)
+
+fig2x<-grid.arrange(RH_plot,rainfall_plot,ncol=1)
+ggsave(plot = fig2x,"./nat comms reviewers comments/raw data rainfall RH/figure_2x.png",
        width=12, height=11,limitsize=FALSE)
 
-fig_S2<-grid.arrange(AT_plot2,AH_plot2,ncol=1)
-ggsave(plot = fig_S2,"./figures/supp//figure_S2.png",
+fig_S2x<-grid.arrange(RH_plot2,rainfall_plot2,ncol=1)
+ggsave(plot = fig_S2x,"./nat comms reviewers comments/raw data rainfall RH/figure_S2x.png",
        width=12, height=11,limitsize=FALSE)
