@@ -232,7 +232,7 @@ ts_plotter<-function(c,y,ag_variant,base = "fortnight",window=3,a=0.12){
   if(base=="fortnight"){
     temp_ts<-temp_ts%>%.$fortnights_since_start_of_year%>%tabulate(.,26)
     temp_ts<-data.frame(fortnight=c(1:26),count=temp_ts)
-    forward_temp_sts<-sts(sleek(temp_ts$count),frequency = 52)
+    forward_temp_sts<-sts(sleek(temp_ts$count),frequency = 26)
     
     temp_alarm<-algo.bayes(forward_temp_sts%>%sts2disProg(),control = list(range=c(window+1:26),b=0,w=window,alpha=a))
     alarm_ts<-data.frame(fortnight= c(1:26),count=c(rep(0,window),temp_alarm$upperbound)[1:26])
@@ -243,6 +243,26 @@ ts_plotter<-function(c,y,ag_variant,base = "fortnight",window=3,a=0.12){
       
       geom_line(data=alarm_ts,aes(x=fortnight,y=count),colour="red")+
       scale_x_continuous(breaks = seq(1,26,1), limits = c(0.8,26.2))+
+      ggtitle(paste(c,y,ag_variant,sep=" "))+
+      theme(strip.background = element_blank())
+    
+    show(temp_plot)
+  }
+  
+  if(base=="weekly"){
+    temp_ts<-temp_ts%>%.$weeks_since_start_of_year%>%tabulate(.,52)
+    temp_ts<-data.frame(fortnight=c(1:52),count=temp_ts)
+    forward_temp_sts<-sts(sleek(temp_ts$count),frequency = 52)
+    
+    temp_alarm<-algo.bayes(forward_temp_sts%>%sts2disProg(),control = list(range=c(window+1:52),b=0,w=window,alpha=a))
+    alarm_ts<-data.frame(fortnight= c(1:52),count=c(rep(0,window),temp_alarm$upperbound)[1:52])
+    
+    temp_plot<-ggplot(data=temp_ts,aes(x=fortnight,y=count))+
+      geom_point()+
+      geom_line(data=temp_ts,aes(x=fortnight,y=sleek(count)))+
+      
+      geom_line(data=alarm_ts,aes(x=fortnight,y=count),colour="red")+
+      scale_x_continuous(breaks = seq(1,52,1), limits = c(0.8,52.2))+
       ggtitle(paste(c,y,ag_variant,sep=" "))+
       theme(strip.background = element_blank())
     
@@ -329,7 +349,7 @@ unique_list<-raw_table%>%dplyr::group_by(city,year,subtype,assumed_antigenic_var
 colnames(unique_list)<-c("city","year","subtype","reference_strain","yc","raw_year_fraction")
 unique_list$subtype<-factor(unique_list$subtype,levels=c("B/Vic","B/Yam","H1sea","H1pdm09","H3"))
 
-unique_list012<-do.call("rbind",apply(unique_list,1,function(x){return(epi_finder(c = x['city'],y=x['year'],s=x['subtype'],ag_variant = x['reference_strain']))}))
+unique_list012<-do.call("rbind",apply(unique_list,1,function(x){return(epi_finder(c = x['city'],y=x['year'],s=x['subtype'],ag_variant = x['reference_strain'],base="weekly",window1 = 6,window2=6))}))
 unique_list012$subtype<-factor(unique_list012$subtype,levels=c("B/Vic","B/Yam","H1sea","H1pdm09","H3"))
 
 # manual corrections ------------------------------------------------------
@@ -338,13 +358,6 @@ unique_list012$orig_end<-unique_list012$end
 unique_list012$manual_mod<-0
 
 
-manual_corrections<-data.frame(city=c("BRISBANE"),
-                               year=c(2011),
-                               reference_strain=c("A/California/7/2009-like"),
-                               start=c(11),
-                               end=c(NA))
-
-unique_list012<-manual_corrector(unique_list012,manual_corrections)
 
 unique_list012<-unique_list012%>%dplyr::group_by(city,year,epi_alarm)%>%
   dplyr::mutate(epi_fractional_counts = epi_counts/sum(epi_counts) )
@@ -424,11 +437,47 @@ epi_table<-unique_list012%>%select(.,city,strain_year,year,subtype,reference_str
                                   first_n_biggest,relative_to_first_n_biggest,
                                   delay,prior_everything_scaled,mean_epi_size)
 
-write.csv(epi_table,file = "./dat/raw/epi_table.csv",row.names=FALSE)
+write.csv(epi_table,file = "./dat/raw/epi_table_weekly.csv",row.names=FALSE)
 
 
 stop()
 
+
+# comparing weekly and fortnightly ----------------------------------------
+
+week_temp<-data.frame(city=unique_list012$city,
+                      year=unique_list012$year,
+                      subtype=unique_list012$subtype,
+                      reference_strain=unique_list012$reference_strain,
+                      year_counts=unique_list012$year_counts,
+                      raw_year_fraction=unique_list012$raw_year_fraction,
+                      week_start=unique_list012$start,
+                      week_end=unique_list012$end,
+                      week_epi_alarm=unique_list012$epi_alarm,
+                      week_epi_counts=unique_list012$epi_counts)
+
+
+week_temp<-left_join(week_temp,epi_table%>%select(.,city,year,subtype,reference_strain,start,end,epi_alarm,epi_counts))
+
+
+close_enough<-week_temp%>%subset((epi_alarm=="Y" & week_epi_alarm =="Y" & (abs(ceiling(week_start/2)-start)<=1))|
+                                   (epi_alarm=="N" & week_epi_alarm =="N"))
+
+diff_table<-week_temp%>%subset(((epi_alarm=="Y" & week_epi_alarm =="Y" & (abs(ceiling(week_start/2)-start)>1) )|
+                                  (epi_alarm=="N" & week_epi_alarm =="Y")|
+                                  (epi_alarm=="Y" & week_epi_alarm =="N")))%>%
+  dplyr::mutate(diff= ceiling(week_start/2)-start)
+
+
+for(i in 1:nrow(diff_table)){
+  print(paste(i,"/",nrow(diff_table)),sep="")
+  print(diff_table[i,])
+  ts_plotter(c=diff_table$city[i],y=diff_table$year[i],ag_variant = diff_table$reference_strain[i],base="weekly")
+  readline(prompt="Press [enter] to continue")
+}
+
+
+ADELAIDE 2012      H3 A/Victoria/361/2011-like 
 
 # sensitivity testing alpha 0.05 (strict) -----------------------------------------------------
 
