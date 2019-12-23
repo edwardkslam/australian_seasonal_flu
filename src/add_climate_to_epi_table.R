@@ -24,6 +24,9 @@ mean_climate_over_epi <- function(epidemic,
     if(variable == "temp"){
       return(data.frame(mean_epi_temp=NA))
     }
+    if(variable == "rainfall"){
+      return(data.frame(mean_epi_rainfall=NA))
+    }
   }
   
   fortnights <- seq(epidemic$start, epidemic$end, 1)
@@ -37,6 +40,9 @@ mean_climate_over_epi <- function(epidemic,
   }
   if(variable == "temp"){
     return(data.frame(mean_epi_temp=mean(temp_clim$mean_temp)))
+  }
+  if(variable == "rainfall"){
+    return(data.frame(mean_epi_rainfall=mean(temp_clim$mean_rainfall)))
   }
 }
 
@@ -85,6 +91,11 @@ epi_table_with_clim <- epi_table_with_clim %>%
     adply(1, mean_climate_over_epi,
           climate_data = climate_data,
           variable = "temp")
+
+epi_table_with_clim <- epi_table_with_clim %>%
+  adply(1, mean_climate_over_epi,
+        climate_data = climate_data,
+        variable = "rainfall")
 
 write.csv(epi_table_with_clim,
           file = output_path,

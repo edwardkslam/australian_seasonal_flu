@@ -61,6 +61,7 @@ data_list <- list(
     cumulative_prior_incidence_std = dat$standardized_log_prior_cumulative,
     abs_humidity = dat$mean_epi_ah,
     temperature = dat$mean_epi_temp,
+    rainfall = dat$mean_epi_rainfall,
     is_first_of_season = dat$is_first_of_season,
     prior_season_activity_std = dat$standardized_prior_season_activity,
     start_date = dat$start)
