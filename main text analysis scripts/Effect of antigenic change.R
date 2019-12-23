@@ -28,6 +28,9 @@ epi_table<-read.csv("./dat/raw/epi_table.csv")
 epi_table<-epi_table%>%
   dplyr::mutate(log_incidence = log(incidence_per_mil))
 
+# -------------------------------------------------------------------------
+
+
 epi_table<-epi_table%>%
   subset(year!=2009)%>%
   dplyr::group_by(city)%>%
@@ -174,15 +177,15 @@ ag_change_synchrony_plot<-synchrony_table%>%
 
 
 # save plots --------------------------------------------------------------
-
-ggsave(plot = ag_change_incidence_plot,"./figures/main/figure_3.png",
-       width=13, height=8,limitsize=FALSE)
-
-ggsave(plot = ag_change_start_plot,"./figures/supp/figure_S8.png",
-       width=13, height=8,limitsize=FALSE)
-
-ggsave(plot = ag_change_synchrony_plot,"./figures/supp/figure_S9.png",
-       width=12, height=5,limitsize=FALSE)
+# 
+# ggsave(plot = ag_change_incidence_plot,"./figures/main/figure_3.png",
+#        width=13, height=8,limitsize=FALSE)
+# 
+# ggsave(plot = ag_change_start_plot,"./figures/supp/figure_S8.png",
+#        width=13, height=8,limitsize=FALSE)
+# 
+# ggsave(plot = ag_change_synchrony_plot,"./figures/supp/figure_S9.png",
+#        width=12, height=5,limitsize=FALSE)
 
 
 
