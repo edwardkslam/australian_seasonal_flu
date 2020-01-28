@@ -1,8 +1,7 @@
 #####################################
 # name: Makefile
-# date: 2019-06-21
-# version: 0.1.0
-# author: Dylan Morris <dhmorris@princeton.edu>
+# author: Dylan Morris
+# <dhmorris@princeton.edu>
 #
 # Makefile to generate analyses
 # for Lam et al 2019 study of
@@ -27,9 +26,9 @@ RM := rm -rf
 R_OPTIONS = --vanilla
 R_COMMAND := Rscript $(R_OPTIONS)
 
-#################################
+#####################################
 # directory structure
-##################################
+#####################################
 SRC := src
 DAT := dat
 OUT := out
@@ -42,6 +41,13 @@ PLOT_PATH = $(OUT)/figures
 FIGEXT := png
 SRCEXT := R
 CHAINS_SUFFIX = _chains.Rds
+
+#####################################
+## all targets
+#####################################
+
+all: depend chains summary_stats figs
+
 
 #####################################
 # Installation / dependencies
@@ -111,7 +117,7 @@ $(CLEAN_EPI_DATA): $(EPI_CLEANING_SCRIPT) $(RAW_EPI_DATA) $(RAW_CLIMATE_DATA)
 # rules for Stan models
 ##########################
 
-# generic recipe for model chains output
+## generic recipe for model chains output
 $(MCMC_CHAINS)/%$(CHAINS_SUFFIX): $(SRC)/%.stan $(MODEL_FITTING_SCRIPT) $(MODEL_DATA)
 	$(MKDIR) $(MCMC_CHAINS)
 	$(R_COMMAND) $(MODEL_FITTING_SCRIPT) $< $(MODEL_DATA) $@
@@ -165,6 +171,10 @@ $(OUT)/chain_diagnostics.csv: $(SRC)/chain_diagnostics.R $(CHAINS) $(CLEAN_STAN_
 $(OUT)/reported_quantities.csv: $(SRC)/extract_reported_quantities.R $(CHAINS) $(CLEAN_STAN_DATA)
 	$(MKDIR) $(dir $@)
 	$(R_COMMAND) $^ $@
+
+.PHONY: summary_stats
+
+summary_stats: $(OUT)/chain_diagnostics.csv $(OUT)/reported_quantities.csv
 
 #################################
 # cleanup

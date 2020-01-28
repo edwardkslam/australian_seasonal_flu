@@ -1,3 +1,2 @@
 "","models","rhat_max_parm","rhat_max_val","neff_min_parm","neff_min_val"
-"1","out/mcmc_chains/normed_multilevel_incidence_regression_chains.Rds","lp__",1.00625447193098,"lp__",0.222877627754178
-"2","out/mcmc_chains/multilevel_epi_probability_model_chains.Rds","mean_intercept",1.00271710060975,"lp__",0.280899677890955
+"1","out/mcmc_chains/normed_multilevel_incidence_regression_chains.Rds","sd_effect_abs_humidity",1.00461648398161,"sd_effect_is_first_of_season",0.169361310316297
