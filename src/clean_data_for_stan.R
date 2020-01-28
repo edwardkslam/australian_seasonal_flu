@@ -211,7 +211,8 @@ columns_wanted = c("city_id",
                    "standardized_log_prior_cumulative",
                    "new_ag_marker",
                    "mean_epi_ah",
-                   "mean_epi_temp")
+                   "mean_epi_temp",
+                   "mean_epi_rainfall")
 ## data integrity checks
 cat("\nChecking data integrity...\n\n")
 check_data_integrity(dat)

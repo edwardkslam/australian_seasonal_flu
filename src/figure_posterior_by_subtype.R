@@ -40,29 +40,11 @@ dat <- read_csv(data_path,
 source(plotting_params_path)
 bin_width <- 0.1
 dot_size <- 1
-multilevel_incidence_parameter_names = tibble(
-
-    parameter_name = c(
-        'effect_antigenic_change',
-        'effect_abs_humidity',
-        'effect_is_first_of_season',
-        'effect_cumulative_prior_inc',
-        'effect_prior_season_activity',
-        'effect_start_date'),
-
-    display_name = c(
-        'antigenic change',
-        'absolute humidity',
-        'first epi of season',
-        'prior variant cases',
-        'prior season cases',
-        'start date')
-)
-
 
 fit <- readRDS(mcmc_fit_path)
 
 tidychains <- fit %>% gather_draws(effect_abs_humidity[subtype_id],
+                                   effect_rainfall[subtype_id],
                                    effect_cumulative_prior_inc[subtype_id],
                                    effect_antigenic_change[subtype_id],
                                    effect_prior_season_activity[subtype_id],
@@ -110,4 +92,4 @@ effect_fig <- quants %>%
 save_plot(save_path,
           effect_fig,
           base_height=9,
-          base_aspect_ratio=1.6)
+          base_aspect_ratio=1.85)

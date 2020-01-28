@@ -26,6 +26,7 @@ data {
 
   // climate predictors
   vector<lower=0>[n_epidemics] abs_humidity;
+  vector<lower=0>[n_epidemics] rainfall;
 
   // competition among epidemics predictors
   vector<lower=0, upper=1>[n_epidemics] is_first_of_season;
@@ -47,9 +48,12 @@ transformed data {
 
   // center and scale predictors 
   vector[n_epidemics] abs_humidity_std;
+  vector[n_epidemics] rainfall_std;
   vector[n_epidemics] start_date_std;
   
   abs_humidity_std = gelman_standardize(abs_humidity);
+  
+  rainfall_std = gelman_standardize(rainfall);
   
   start_date_std = gelman_standardize(start_date);
   
@@ -74,6 +78,8 @@ parameters{
 
   vector[n_subtypes] effect_start_date_errors;
 
+  vector[n_subtypes] effect_rainfall_errors;
+
 
   real mean_intercept;
   real<lower=0> sd_intercept;
@@ -95,6 +101,9 @@ parameters{
   real mean_effect_start_date;
   real<lower=0> sd_effect_start_date;
 
+  real mean_effect_rainfall;
+  real<lower=0> sd_effect_rainfall;
+
   real<lower=0> sd_sd_effect_sizes;
 }
 
@@ -112,6 +121,8 @@ transformed parameters{
   vector[n_subtypes] effect_prior_season_activity;
 
   vector[n_subtypes] effect_start_date;
+
+  vector[n_subtypes] effect_rainfall;
 
   intercept = mean_intercept + intercept_errors * sd_intercept;
 
@@ -135,6 +146,8 @@ transformed parameters{
   effect_start_date = mean_effect_start_date +
     effect_start_date_errors * sd_effect_start_date;
 
+  effect_rainfall = mean_effect_rainfall +
+    effect_rainfall_errors * sd_effect_rainfall;
   
   // calculate expected values of normed incidence
   for(epi_id in 1:n_epidemics){
@@ -159,7 +172,10 @@ transformed parameters{
       prior_season_activity_std[epi_id] +
 
       effect_start_date[subtype[epi_id]] *
-      start_date_std[epi_id];
+      start_date_std[epi_id] +
+
+      effect_rainfall[subtype[epi_id]] *
+      rainfall_std[epi_id];
 
   }
 }
@@ -183,6 +199,8 @@ model {
   effect_prior_season_activity_errors ~ normal(0, 1);
 
   effect_start_date_errors ~ normal(0, 1);
+  
+  effect_rainfall_errors ~ normal(0, 1);
 
   // Gaussian global errors
   sd_incidences ~ normal(0, sd_sd_incidences);
@@ -208,6 +226,9 @@ model {
   mean_effect_start_date ~ student_t(nu, 0, 2.5);
   sd_effect_start_date ~ normal(0, sd_sd_effect_sizes);
 
+  mean_effect_rainfall ~ student_t(nu, 0, 2.5);
+  sd_effect_rainfall ~ normal(0, sd_sd_effect_sizes);
+  
   sd_sd_effect_sizes ~ normal(0, 1);
   
 }

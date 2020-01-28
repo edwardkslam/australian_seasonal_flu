@@ -2,8 +2,6 @@
 
 #####################################
 ## name: chain_diagnostics.R
-## date: 2019-03-19
-## version 0.0.1
 ## author: Dylan Morris <dhmorris@princeton.edu>
 ##
 ## read in mcmc chains

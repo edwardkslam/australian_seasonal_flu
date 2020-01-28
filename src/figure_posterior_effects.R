@@ -50,6 +50,7 @@ fig_n_col <- 3
 fit <- readRDS(mcmc_fit_path)
     
 tidychains <- fit %>% gather_draws(mean_effect_abs_humidity,
+                                   mean_effect_rainfall,
                                    mean_effect_antigenic_change,
                                    mean_effect_cumulative_prior_inc,
                                    mean_effect_prior_season_activity,
@@ -86,6 +87,6 @@ effect_fig <- quants %>%
 save_plot(save_path,
           effect_fig,
           base_height=9,
-          base_aspect_ratio=2)
+          base_aspect_ratio=1.5)
 
 

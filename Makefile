@@ -79,7 +79,7 @@ MODEL_FITTING_SCRIPT = $(SRC)/fit_stan_model.R
 NORMED_INCIDENCE_MODEL_NAME = normed_multilevel_incidence_regression
 EPIDEMIC_PROBABILITY_MODEL_NAME = multilevel_epi_probability_model
 MODEL_DATA = $(CLEAN_STAN_DATA)
-MODELS = $(NORMED_INCIDENCE_MODEL_NAME) $(EPIDEMIC_PROBABILITY_MODEL_NAME)
+MODELS = $(NORMED_INCIDENCE_MODEL_NAME)
 CHAINS = $(addsuffix $(CHAINS_SUFFIX), \
    $(addprefix $(MCMC_CHAINS)/, $(MODELS)))
 
@@ -112,7 +112,7 @@ $(CLEAN_EPI_DATA): $(EPI_CLEANING_SCRIPT) $(RAW_EPI_DATA) $(RAW_CLIMATE_DATA)
 ##########################
 
 # generic recipe for model chains output
-$(MCMC_CHAINS)/%$(CHAINS_SUFFIX): $(SRC)/%.stan $(MODEL_FITTING_SCRIPT) $(STAN_DATA)
+$(MCMC_CHAINS)/%$(CHAINS_SUFFIX): $(SRC)/%.stan $(MODEL_FITTING_SCRIPT) $(MODEL_DATA)
 	$(MKDIR) $(MCMC_CHAINS)
 	$(R_COMMAND) $(MODEL_FITTING_SCRIPT) $< $(MODEL_DATA) $@
 
@@ -142,10 +142,6 @@ $(OUT)/figure_posterior_by_subtype.$(FIGEXT): $(SRC)/figure_posterior_by_subtype
 	$(R_COMMAND) $^ $@
 	$(FIG_CLEANUP)
 
-$(OUT)/figure_epi_prob.$(FIGEXT): $(SRC)/figure_epi_prob.$(SRCEXT) $(MCMC_CHAINS)/$(EPIDEMIC_PROBABILITY_MODEL_NAME)$(CHAINS_SUFFIX) $(CLEAN_STAN_DATA) $(PLOTTING_STYLE)
-	$(MKDIR) $(dir $@)
-	$(R_COMMAND) $^ $@
-	$(FIG_CLEANUP)
 
 $(OUT)/figure_posterior_sds.$(FIGEXT): $(SRC)/figure_posterior_sds.$(SRCEXT) $(MCMC_CHAINS)/$(NORMED_INCIDENCE_MODEL_NAME)$(CHAINS_SUFFIX) $(CLEAN_STAN_DATA) $(PLOTTING_STYLE)
 	$(MKDIR) $(dir $@)

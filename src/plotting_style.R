@@ -15,6 +15,7 @@ default_posterior_limits <- c(-1.5, 1.5)
 parameter_basenames <- c(
     'effect_antigenic_change',
     'effect_abs_humidity',
+    'effect_rainfall',
     'effect_is_first_of_season',
     'effect_cumulative_prior_inc',
     'effect_prior_season_activity',
@@ -24,6 +25,7 @@ parameter_basenames <- c(
 parameter_display_names <- c(
     'antigenic change',
     'absolute humidity',
+    'rainfall',
     'first epi of season',
     'prior variant cases',
     'prior season cases',

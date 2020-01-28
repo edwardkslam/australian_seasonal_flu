@@ -2,7 +2,6 @@
 
 #####################################
 ## name: figure_attack_rate.R
-## version 0.0.1
 ## author: Dylan Morris <dhmorris@princeton.edu>
 ##
 ## visualize posteriors for difference between

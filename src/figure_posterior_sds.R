@@ -52,6 +52,7 @@ fit <- readRDS(mcmc_fit_path)
 tidychains <- fit %>% gather_draws(
                           sd_intercept,
                           sd_effect_abs_humidity,
+                          sd_effect_rainfall,
                           sd_effect_antigenic_change,
                           sd_effect_cumulative_prior_inc,
                           sd_effect_prior_season_activity,
