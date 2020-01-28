@@ -22,7 +22,7 @@ Although influenza viruses circulate globally, prevention and treatment necessar
 
 ## Directories
 - ``src``: all Python code for the Bayesian multi-level regression model
-- ``dat``: cleanend and raw data files for running the Bayesian multi-level regression model
+- ``dat``: cleaned and raw data files for running the Bayesian multi-level regression model
 - ``out``: output figures from the Bayesian multi-level regression model (as ``.png`` files)
 - ``main text analysis scripts``: scripts for reproducing empirical analyses from the main text of the paper
 - `main text analysis without phylogenetic informed corrections`: scripts for checking sensitivity to phylogenetic corrections of inferred antigenic phenotype
