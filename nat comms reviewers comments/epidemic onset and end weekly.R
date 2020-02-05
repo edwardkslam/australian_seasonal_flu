@@ -437,7 +437,7 @@ epi_table<-unique_list012%>%select(.,city,strain_year,year,subtype,reference_str
                                   first_n_biggest,relative_to_first_n_biggest,
                                   delay,prior_everything_scaled,mean_epi_size)
 
-write.csv(epi_table,file = "./dat/raw/epi_table_weekly.csv",row.names=FALSE)
+#write.csv(epi_table,file = "./dat/raw/epi_table_weekly.csv",row.names=FALSE)
 
 
 stop()
@@ -456,6 +456,10 @@ week_temp<-data.frame(city=unique_list012$city,
                       week_epi_alarm=unique_list012$epi_alarm,
                       week_epi_counts=unique_list012$epi_counts)
 
+
+epi_table<-read.csv("./dat/raw/epi_table.csv")
+cities<-c("ADELAIDE","BRISBANE","MELBOURNE","PERTH","SYDNEY")
+epi_table$city<-factor(epi_table$city,levels = cities)
 
 week_temp<-left_join(week_temp,epi_table%>%select(.,city,year,subtype,reference_strain,start,end,epi_alarm,epi_counts))
 
@@ -586,7 +590,7 @@ epi_table005<-unique_list005%>%select(.,city,strain_year,year,subtype,reference_
                                         first_n_biggest,relative_to_first_n_biggest,
                                         delay,prior_everything_scaled,mean_epi_size)
 
-write.csv(epi_table005,file = "./dat/raw/sensitivity testing/epi_table005.csv",row.names=FALSE)
+#write.csv(epi_table005,file = "./dat/raw/sensitivity testing/epi_table005.csv",row.names=FALSE)
 
 
 stop()
@@ -691,4 +695,4 @@ epi_table02<-unique_list02%>%select(.,city,strain_year,year,subtype,reference_st
                                         first_n_biggest,relative_to_first_n_biggest,
                                         delay,prior_everything_scaled,mean_epi_size)
 
-write.csv(epi_table02,file = "./dat/raw/sensitivity testing/epi_table02.csv",row.names=FALSE)
+#write.csv(epi_table02,file = "./dat/raw/sensitivity testing/epi_table02.csv",row.names=FALSE)

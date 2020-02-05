@@ -67,7 +67,9 @@ mean_climate_over_epi<-function(x,y="ah"){
   temp_clim<-subset(mean_fortnightly_climate_30years,city ==as.character(x$city))
   temp_clim<-temp_clim%>%subset(.,year==x$year & fortnights_since_start_of_year%in% fortnights)
   temp_clim<-temp_clim%>%dplyr::summarise(mean_epi_ah = mean(mean_AH),
-                                   mean_epi_temp = mean(mean_temp))
+                                          mean_epi_temp = mean(mean_temp),
+                                          mean_epi_rainfall=mean(mean_rainfall),
+                                          mean_epi_RH=mean(mean_RH))
   return(data.frame(x,temp_clim))
 }
 
@@ -88,7 +90,9 @@ early_climate<-function(x,y="ah"){
   temp_clim<-subset(mean_fortnightly_climate_30years,city ==as.character(x$city))
   temp_clim<-temp_clim%>%subset(.,year==x$year & fortnights_since_start_of_year%in% fortnights)
   temp_clim<-temp_clim%>%dplyr::summarise(early_ah = mean(mean_AH),
-                                          early_temp = mean(mean_temp))
+                                          early_temp = mean(mean_temp),
+                                          early_rainfall=mean(mean_rainfall),
+                                          early_RH=mean(mean_RH))
 
 }
 
@@ -183,46 +187,55 @@ temp_data<-temp_data%>%dplyr::mutate(pes = ifelse(first_in_season==1,0,log(prior
 # lm (mean climatic) ------------------------------------------------------
 
 full_model<-lm(scaled_incidence_subtype_city ~ start + as.factor(first_in_season) + pes + 
-                 as.factor(new_ag_marker)+spc+ mean_epi_ah + mean_epi_temp,
+                 as.factor(new_ag_marker)+spc+ mean_epi_ah + mean_epi_temp + mean_epi_rainfall,
                data=temp_data)
 
 summary_fm<-full_model%>%
   summary()
 
 model.1<-lm(scaled_incidence_subtype_city ~ as.factor(first_in_season) + pes + 
-            as.factor(new_ag_marker)+spc+ mean_epi_ah + mean_epi_temp,
+            as.factor(new_ag_marker)+spc+ mean_epi_ah + mean_epi_temp + mean_epi_rainfall ,
             data=temp_data)
 
 summary_1<-model.1%>%
   summary()
 
 model.2<-lm(scaled_incidence_subtype_city ~ start + 
-            as.factor(new_ag_marker)+spc+ mean_epi_ah + mean_epi_temp,
+            as.factor(new_ag_marker)+spc+ mean_epi_ah + mean_epi_temp + mean_epi_rainfall,
             data=temp_data)
 
 summary_2<-model.2%>%
   summary()
 
 model.3<-lm(scaled_incidence_subtype_city ~ start + as.factor(first_in_season) + pes + 
-            mean_epi_ah + mean_epi_temp,
+            mean_epi_ah + mean_epi_temp + mean_epi_rainfall,
             data=temp_data)
 
 summary_3<-model.3%>%
   summary()
 
 model.4<-lm(scaled_incidence_subtype_city ~ start + as.factor(first_in_season) + pes + 
-            as.factor(new_ag_marker)+spc + mean_epi_temp,
+            as.factor(new_ag_marker)+spc + mean_epi_temp + mean_epi_rainfall,
             data=temp_data)
 
 summary_4<-model.4%>%
   summary()
 
 model.5<-lm(scaled_incidence_subtype_city ~ start + as.factor(first_in_season) + pes + 
-            as.factor(new_ag_marker)+spc + mean_epi_ah,
+            as.factor(new_ag_marker)+spc + mean_epi_ah + mean_epi_rainfall ,
             data=temp_data)
 
 summary_5<-model.5%>%
   summary()
+
+model.6<-lm(scaled_incidence_subtype_city ~ start + as.factor(first_in_season) + pes + 
+                 as.factor(new_ag_marker)+spc+ mean_epi_ah + mean_epi_temp,
+               data=temp_data)
+
+summary_6<-model.6%>%
+  summary()
+
+
 
 coef_fm<-summary_fm$coefficients%>%as.data.frame()%>%dplyr::mutate(predictor = row.names(summary_fm$coefficients%>%as.data.frame()),model = "Full Model")
 coef_1<-summary_1$coefficients%>%as.data.frame()%>%dplyr::mutate(predictor = row.names(summary_1$coefficients%>%as.data.frame()),model = "Model 1")
@@ -230,8 +243,9 @@ coef_2<-summary_2$coefficients%>%as.data.frame()%>%dplyr::mutate(predictor = row
 coef_3<-summary_3$coefficients%>%as.data.frame()%>%dplyr::mutate(predictor = row.names(summary_3$coefficients%>%as.data.frame()),model = "Model 3")
 coef_4<-summary_4$coefficients%>%as.data.frame()%>%dplyr::mutate(predictor = row.names(summary_4$coefficients%>%as.data.frame()),model = "Model 4")
 coef_5<-summary_5$coefficients%>%as.data.frame()%>%dplyr::mutate(predictor = row.names(summary_5$coefficients%>%as.data.frame()),model = "Model 5")
+coef_6<-summary_6$coefficients%>%as.data.frame()%>%dplyr::mutate(predictor = row.names(summary_6$coefficients%>%as.data.frame()),model = "Model 6")
 
-output_table<-rbind(coef_fm,coef_1,coef_2,coef_3,coef_4,coef_5)
+output_table<-rbind(coef_fm,coef_1,coef_2,coef_3,coef_4,coef_5,coef_6)
 col_order<-c("model","predictor","Estimate","Std. Error","t value","Pr(>|t|)")
 output_table<-output_table[,col_order]
 output_table$predictor<-factor(output_table$predictor)
@@ -271,14 +285,20 @@ gelman_summary_5<-model.5%>%
   standardize()%>%
   summary()
 
+gelman_summary_6<-model.6%>%
+  standardize()%>%
+  summary()
+
+
 gelman_coef_fm<-gelman_summary_fm$coefficients%>%as.data.frame()%>%.[,c("Estimate","Std. Error")]
 gelman_coef_1<-gelman_summary_1$coefficients%>%as.data.frame()%>%.[,c("Estimate","Std. Error")]
 gelman_coef_2<-gelman_summary_2$coefficients%>%as.data.frame()%>%.[,c("Estimate","Std. Error")]
 gelman_coef_3<-gelman_summary_3$coefficients%>%as.data.frame()%>%.[,c("Estimate","Std. Error")]
 gelman_coef_4<-gelman_summary_4$coefficients%>%as.data.frame()%>%.[,c("Estimate","Std. Error")]
 gelman_coef_5<-gelman_summary_5$coefficients%>%as.data.frame()%>%.[,c("Estimate","Std. Error")]
+gelman_coef_6<-gelman_summary_6$coefficients%>%as.data.frame()%>%.[,c("Estimate","Std. Error")]
 
-gelman_df<-rbind(gelman_coef_fm,gelman_coef_1,gelman_coef_2,gelman_coef_3,gelman_coef_4,gelman_coef_5)
+gelman_df<-rbind(gelman_coef_fm,gelman_coef_1,gelman_coef_2,gelman_coef_3,gelman_coef_4,gelman_coef_5,gelman_coef_6)
 rownames(gelman_df)<-NULL
 colnames(gelman_df)<-c("Standardised Coefficient", "Std. Error (Standardised Coefficient)")
 
@@ -321,7 +341,12 @@ rsquared_5<-data.frame(model = "Model 5",
                        Rsquared = summary_5$r.squared,
                        adjusted_Rsquared = summary_5$adj.r.squared)
 
-rsquared_table<-rbind(rsquared_fm,rsquared_1,rsquared_2,rsquared_3,rsquared_4,rsquared_5)
+rsquared_6<-data.frame(model = "Model 6",
+                       RSE = summary_6$sigma,
+                       Rsquared = summary_6$r.squared,
+                       adjusted_Rsquared = summary_6$adj.r.squared)
+
+rsquared_table<-rbind(rsquared_fm,rsquared_1,rsquared_2,rsquared_3,rsquared_4,rsquared_5,rsquared_6)
 
 # save tables -------------------------------------------------------------
 
@@ -340,44 +365,51 @@ stop("main analyses complete")
 
 full_model<-temp_data%>%
   lm(scaled_incidence_subtype_city ~ start + as.factor(first_in_season) + pes + 
-         as.factor(new_ag_marker)+spc+ early_ah + early_temp,data=.)
+         as.factor(new_ag_marker)+spc+ early_ah + early_temp + early_rainfall,data=.)
 
 summary_fm<-full_model%>%
   summary()
 
 model.1<-temp_data%>%
   lm(scaled_incidence_subtype_city ~ as.factor(first_in_season) + pes + 
-       as.factor(new_ag_marker)+spc+ early_ah + early_temp,data=.)
+       as.factor(new_ag_marker)+spc+ early_ah + early_temp + early_rainfall,data=.)
 
 summary_1<-model.1%>%
   summary()
 
 model.2<-temp_data%>%
   lm(scaled_incidence_subtype_city ~ start + 
-       as.factor(new_ag_marker)+spc+ early_ah + early_temp,data=.)
+       as.factor(new_ag_marker)+spc+ early_ah + early_temp + early_rainfall,data=.)
 
 summary_2<-model.2%>%
   summary()
 
 model.3<-temp_data%>%
   lm(scaled_incidence_subtype_city ~ start + as.factor(first_in_season) + pes + 
-       early_ah + early_temp,data=.)
+       early_ah + early_temp + early_rainfall,data=.)
 
 summary_3<-model.3%>%
   summary()
 
 model.4<-temp_data%>%
   lm(scaled_incidence_subtype_city ~ start + as.factor(first_in_season) + pes + 
-       as.factor(new_ag_marker)+spc + early_temp,data=.)
+       as.factor(new_ag_marker)+spc + early_temp + early_rainfall,data=.)
 
 summary_4<-model.4%>%
   summary()
 
 model.5<-temp_data%>%
   lm(scaled_incidence_subtype_city ~ start + as.factor(first_in_season) + pes + 
-       as.factor(new_ag_marker)+spc + early_ah,data=.)
+       as.factor(new_ag_marker)+spc + early_ah + early_rainfall,data=.)
 
 summary_5<-model.5%>%
+  summary()
+
+model.6<-temp_data%>%
+  lm(scaled_incidence_subtype_city ~ start + as.factor(first_in_season) + pes + 
+       as.factor(new_ag_marker)+spc + early_ah ,data=.)
+
+summary_6<-model.6%>%
   summary()
 
 coef_fm<-summary_fm$coefficients%>%as.data.frame()%>%dplyr::mutate(predictor = row.names(summary_fm$coefficients%>%as.data.frame()),model = "Full Model")
@@ -386,8 +418,9 @@ coef_2<-summary_2$coefficients%>%as.data.frame()%>%dplyr::mutate(predictor = row
 coef_3<-summary_3$coefficients%>%as.data.frame()%>%dplyr::mutate(predictor = row.names(summary_3$coefficients%>%as.data.frame()),model = "Model 3")
 coef_4<-summary_4$coefficients%>%as.data.frame()%>%dplyr::mutate(predictor = row.names(summary_4$coefficients%>%as.data.frame()),model = "Model 4")
 coef_5<-summary_5$coefficients%>%as.data.frame()%>%dplyr::mutate(predictor = row.names(summary_5$coefficients%>%as.data.frame()),model = "Model 5")
+coef_6<-summary_6$coefficients%>%as.data.frame()%>%dplyr::mutate(predictor = row.names(summary_6$coefficients%>%as.data.frame()),model = "Model 6")
 
-output_table<-rbind(coef_fm,coef_1,coef_2,coef_3,coef_4,coef_5)
+output_table<-rbind(coef_fm,coef_1,coef_2,coef_3,coef_4,coef_5,coef_6)
 col_order<-c("model","predictor","Estimate","Std. Error","t value","Pr(>|t|)")
 output_table<-output_table[,col_order]
 output_table$predictor<-factor(output_table$predictor)
@@ -421,8 +454,12 @@ rsquared_5<-data.frame(model = "Model 5",
                        RSE = summary_5$sigma,
                        Rsquared = summary_5$r.squared,
                        adjusted_Rsquared = summary_5$adj.r.squared)
+rsquared_6<-data.frame(model = "Model 6",
+                       RSE = summary_6$sigma,
+                       Rsquared = summary_6$r.squared,
+                       adjusted_Rsquared = summary_6$adj.r.squared)
 
-rsquared_table<-rbind(rsquared_fm,rsquared_1,rsquared_2,rsquared_3,rsquared_4,rsquared_5)
+rsquared_table<-rbind(rsquared_fm,rsquared_1,rsquared_2,rsquared_3,rsquared_4,rsquared_5,rsquared_6)
 
 
 # save tables -------------------------------------------------------------
