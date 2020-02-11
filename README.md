@@ -27,6 +27,8 @@ Although influenza viruses circulate globally, prevention and treatment necessar
 - ``main text analysis scripts``: scripts for reproducing empirical analyses from the main text of the paper
 - `main text analysis without phylogenetic informed corrections`: scripts for checking sensitivity to phylogenetic corrections of inferred antigenic phenotype
 - ``robustness vs geoghegan timings``: scripts for checking sensitivity of epidemic start time analysis by comparing to start times calculated from a previously published ([Geoghegan et al 2018](https://doi.org/10.1371/journal.ppat.1006780)) dataset.
+- ``epidemic onset detection algorithm and sensitivity``: epidemic onset detection algorithm and sensitivity analyses for detection of epidemic onset timings
+-``additional analyses``: additional analyses mentioned in text but not presented in main or supplementary figures/tables
 
 ## Data
 ### ``raw_data.csv``
@@ -162,8 +164,8 @@ This set of analyses considers whether or not the onset of epidemics are precede
 #### ``main text analysis scripts/Effect of antigenic change.R``
 Here we assess the effect of antigenic change on:
 1) the size of epidemics (Figure 3)
-2) the onset timing of epidemics (Figure S8)
-3) the temporal synchrony of epidemics across all five cities (Figure S9)
+2) the onset timing of epidemics (Figure S6)
+3) the temporal synchrony of epidemics across all five cities (Figure S7)
 
 #### ``main text analysis scripts/Effect of prior immunity.R``
 Here we assess the effect of accumulated antigenic-variant specific immunity on:
@@ -175,22 +177,16 @@ Here we assess the effect of heterosubtypic competition on the size of subsequen
 1)  the relationship between prior epidemic activity by other subtypes within the same season and city and the relative size of an epidemic (Figure 5).
 2)  the relationship between delay in onset timing and relative size of an epidemic (Figure 5).
 
-#### ``main text analysis scripts/Multivariate linear regression models.R``
-Here we assess the joint contributions of climatic and virological factors to epidemic incidence.
-The output is as follows:
-1) Regression coefficients for full and submodels (Table S13)
-2) RSE, R-squared, adjusted R-squared for full and submodels (Table S14)
-
 #### ``main text analysis without phylogenetic informed corrections/Effect of antigenic change no corrections.R``
 Here we assess (whilst making no corrctions for potential mis-identification during antigenic characterisation) the effect of antigenic change on:
-1) the size of epidemics (Figure S17)
-2) the onset timing of epidemics (Figure S18)
-3) the temporal synchrony of epidemics across all five cities (Figure S19)
+1) the size of epidemics (Figure S9)
+2) the onset timing of epidemics (Figure S10)
+3) the temporal synchrony of epidemics across all five cities (Figure S11)
 
 #### ``main text analysis without phylogenetic informed corrections/Effect of prior immunity no corrections.R``
 Here we assess (whilst making no corrctions for potential mis-identification during antigenic characterisation) the effect of accumulated antigenic-variant specific immunity on:
-1) epidemic incidence (Figure S20)
-2) probability of successful epidemic initiation (Figure S21 and Table S12)
+1) epidemic incidence (Figure S12)
+2) probability of successful epidemic initiation (Figure S13 and Table S6)
 
 
 #### ``robustness vs geoghegan timings/Robustness of climatic analyses using Geoghegan et al (2018) timings.R``
@@ -198,17 +194,14 @@ Here we assess the robustness towards potential inaccuracies in our epidemic ons
 i)  anomalous when compared with against "typical wintertime" fluctuations using the bootstrap sampling method presented by Shaman (2010). \
 ii) anomalous when compared against historical averages that typical for that time of the year.
 
-We incorporate alternative estimates for the onset timing of Influenza A epidemic activity from Geoghegan et al. (2018), based on the following series of assumptions: \
-1) For each of the seasons between 2007 and 2015, we assumed that our timing estimate for the DOMINANT influenza A subtype was incorrect and replaced it with estimates from Geoghegan et al. (2018). \
-    i) Table S3; ii) Table S4; iii) Figure S4
-2) For each of the seasons between 2007 and 2015, we assumed that our timing estimate for the EARLIEST influenza A subtype was incorrect and replaced it with estimates from Geoghegan et al. (2018). \
-    i) Table S5; ii) Table S6; iii) Figure S5
-3) For seasons between 2007 and 2015 in which the number of cases for the dominant influenza A subtype were small or it was difficult to discern the period of epidemic from background activity, we assumed that our timing estimate was incorrect and replaced it with estimates from Geoghegan et al. (2018). \
-    i) Table S7; ii) Table S8; iii) Figure S6
+We considered whether or not, more generally, Influenza A epidemic activity was preceded by anomalous fluctuations. \
+1) Utilising only the timing estimates by Geoghegan et al. (2018), we assessed if more generally, the onset of influenza A epidemic activity in the seasons from 2007 to 2015 was preceded by periods of anomalous climatic conditions. \
+    i) Table S3; ii) Table S14; iii) Figure S4; iv) Figure S5
 
-We also considered whether or not, more generally, Influenza A epidemic activity was preceded by anomalous fluctuations. \
-4) Utilising only the timing estimates by Geoghegan et al. (2018), we assessed if more generally, the onset of influenza A epidemic activity in the seasons from 2007 to 2015 was preceded by periods of anomalous climatic conditions. \
-    i) Table S9; ii) Table S10; iii) Figure S7
+We also incorporate alternative estimates for the onset timing of Influenza A epidemic activity from Geoghegan et al. (2018), based on the following series of assumptions: \
+1) For each of the seasons between 2007 and 2015, we assumed that our timing estimate for the DOMINANT influenza A subtype was incorrect and replaced it with estimates from Geoghegan et al. (2018). \
+2) For each of the seasons between 2007 and 2015, we assumed that our timing estimate for the EARLIEST influenza A subtype was incorrect and replaced it with estimates from Geoghegan et al. (2018). \
+3) For seasons between 2007 and 2015 in which the number of cases for the dominant influenza A subtype were small or it was difficult to discern the period of epidemic from background activity, we assumed that our timing estimate was incorrect and replaced it with estimates from Geoghegan et al. (2018). \
 
 #### ``robustness vs geoghegan timings/Robustness of ag change analyses using Geoghegan et al (2018) timings.R``
 Here we assess the robustness towards potential inaccuracies in our epidemic onset timing estimates, of our analyses on the effect of antigenic change on: \
@@ -217,11 +210,20 @@ ii) the the temporal synchrony of epidemics across all five cities
 
 We incorporate alternative estimates for the onset timing of Influenza A epidemic activity from Geoghegan et al. (2018), based on the following series of assumptions:
 1) For each of the seasons between 2007 and 2015, we assumed that our timing estimate for the DOMINANT influenza A subtype was incorrect and replaced it with estimates from Geoghegan et al. (2018). \
-    i) Figure S10 ; ii) Figure S11
 2) For each of the seasons between 2007 and 2015, we assumed that our timing estimate for the EARLIEST influenza A subtype was incorrect and replaced it with estimates from Geoghegan et al. (2018). \
-    i) Figure S12 ; ii) Figure S13
 3) For seasons between 2007 and 2015 in which the number of cases for the dominant influenza A subtype were small or it was difficult to discern the period of epidemic from background activity, we assumed that our timing estimate was incorrect and replaced it with estimates from Geoghegan et al. (2018).
-    i) Figure S14 ; ii) Figure S15
+
+#### ``additional analyses/Multivariate linear regression models.R``
+Here we assess the joint contributions of climatic and virological factors to epidemic incidence.
+The output is as follows:
+1) Regression coefficients for full and submodels
+2) RSE, R-squared, adjusted R-squared for full and submodels
+
+#### ``additional analyses/pre vs post pandemic.R``
+Here we consider potential differences in surveillance intensity between pre- and post H1N1 pandemic eras and assess whether this affects or analyses on the effect of antigenic change on the size of epidemics.  This is now included, in response to reviewer comments.
+
+#### ``additional analyses/RH rainfall and epidemic onset.R``
+Here we repeated climatic analyses, using alternative climatic predictors: relative humidity and rainfall.  This is now included, in response to reviewer comments.
 
 ## Reproducing the Bayesian multi-level regression model
-The Bayesian multi-level regression model and output figures (Figures 6, S22 and S23) can be reproduced using the data and code from the ``dat`` and ``src`` directories respectively.
+The Bayesian multi-level regression model and output figures (Figures 6, S16 and S17) can be reproduced using the data and code from the ``dat`` and ``src`` directories respectively.

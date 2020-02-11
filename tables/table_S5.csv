@@ -1,4 +1,9 @@
-"num_preceding_fortnight","mean_emperical_sample_mean_d.AH","d.AH_pvalue","mean_emperical_sample_mean_d.temp","d.temp_pvalue","ManuscriptTable_Temp","ManuscriptTable_AH"
-1,-0.249559522780942,0.139189,-0.0818012376058828,0.393512,"-0.0818  (0.394)","-0.25  (0.139)"
-2,-0.114719864114551,0.255827,0.00491302829070591,0.522582,"0.00491  (0.523)","-0.115  (0.256)"
-3,-0.0351446042634261,0.402405,0.0359582990836325,0.58932,"0.036  (0.589)","-0.0351  (0.402)"
+"subtype","term","OR","OR_adjusted_SE","p_value","holm_adjusted_p"
+"B/Vic","(intercept)",0.946,0.276,0.848,1
+"B/Vic","Cumulative incidence",0.913,0.134,0.534,1
+"B/Yam","(intercept)",1.25,0.433,0.514,1
+"B/Yam","Cumulative incidence",0.000213,0.00083,0.0303,0.0909
+"H1sea","(intercept)",3,2,0.0994,0.298
+"H1sea","Cumulative incidence",2.41e-06,0.00661,0.996,1
+"H3","(intercept)",3.1,1.08,0.00111,0.00444
+"H3","Cumulative incidence",0.705,0.0913,0.00692,0.0277

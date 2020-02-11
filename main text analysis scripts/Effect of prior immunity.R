@@ -17,11 +17,11 @@ library(readr)
 #
 # 2)  The relationship between the probability of successful epidemic initiation 
 #     and amount of antigenic variant-specific cumulative incidence for each subtype 
-#     prob_successful_epi_cumulative_size_same_variant_plot (Figure S16)
+#     prob_successful_epi_cumulative_size_same_variant_plot (Figure S8)
 #
 # 3)  Binary logistic regression assessing the effect of antigenic variant-specific cumulative incidence 
 #     on the probability of successful epidemic initiation for each subtype 
-#     subtype_logistics_regression (Table S11)
+#     subtype_logistics_regression (Table S5)
 
 # Loading data ------------------------------------------------------------
 
@@ -343,10 +343,10 @@ aggregated_logistic_output$term<-row.names(aggregated_logistic_output)
 ggsave(plot = epi_size_cumulative_size_same_variant_plot,"./figures/main/figure_4.png",
        width=20, height=8,limitsize=FALSE)
 
-ggsave(plot = prob_successful_epi_cumulative_size_same_variant_plot,"./figures/supp/figure_S16.png",
+ggsave(plot = prob_successful_epi_cumulative_size_same_variant_plot,"./figures/supp/figure_S8.png",
        width=20, height=8,limitsize=FALSE)
 
-write.csv(subtype_logistic_output%>%dplyr::mutate_if(is.numeric,signif,digits=3),"./tables/table_S11.csv",row.names = FALSE)
+write.csv(subtype_logistic_output%>%dplyr::mutate_if(is.numeric,signif,digits=3),"./tables/table_S5.csv",row.names = FALSE)
 
 
 

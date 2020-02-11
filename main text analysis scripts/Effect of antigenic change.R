@@ -177,15 +177,15 @@ ag_change_synchrony_plot<-synchrony_table%>%
 
 
 # save plots --------------------------------------------------------------
-# 
-# ggsave(plot = ag_change_incidence_plot,"./figures/main/figure_3.png",
-#        width=13, height=8,limitsize=FALSE)
-# 
-# ggsave(plot = ag_change_start_plot,"./figures/supp/figure_S8.png",
-#        width=13, height=8,limitsize=FALSE)
-# 
-# ggsave(plot = ag_change_synchrony_plot,"./figures/supp/figure_S9.png",
-#        width=12, height=5,limitsize=FALSE)
+
+ggsave(plot = ag_change_incidence_plot,"./figures/main/figure_3.png",
+       width=13, height=8,limitsize=FALSE)
+
+ggsave(plot = ag_change_start_plot,"./figures/supp/figure_S6.png",
+       width=13, height=8,limitsize=FALSE)
+
+ggsave(plot = ag_change_synchrony_plot,"./figures/supp/figure_S7.png",
+       width=12, height=5,limitsize=FALSE)
 
 
 

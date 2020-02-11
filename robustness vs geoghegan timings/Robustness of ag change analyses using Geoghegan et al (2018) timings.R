@@ -19,22 +19,22 @@ library(tidyr)
 #       was incorrect and replaced it with estimates from Geoghegan et al. (2018).
 #       The timing value used for this set of analyses is stored in geog_epi_table$largest_geog_start
 #       Outputs
-#       i) ag_change_start_1 (Figure S10)
-#       ii) synchrony_plot_overall_1 (Figure S11)
+#       i) ag_change_start_1
+#       ii) synchrony_plot_overall_1 
 
 #   2)  For each of the seasons between 2007 and 2015, we assumed that our timing estimate for the EARLIEST influenza A subtype 
 #       was incorrect and replaced it with estimates from Geoghegan et al. (2018).
 #       The timing value used for this set of analyses is stored in geog_epi_table$earliest_geog_start
 #       Outputs
-#       i) ag_change_start_1 (Figure S12)
-#       ii) synchrony_plot_overall_1 (Figure S13)
+#       i) ag_change_start_1
+#       ii) synchrony_plot_overall_1
 
 #   3)  For seasons between 2007 and 2015 in which the number of cases for the dominant influenza A subtype were small or 
 #       it was difficult to discern the period of epidemic from background activity, 
 #       we assumed that our timing estimate was incorrect and replaced it with estimates from Geoghegan et al. (2018).
 #       Outputs
-#       i) ag_change_start_1 (Figure S14)
-#       ii) synchrony_plot_overall_1 (Figure S15)
+#       i) ag_change_start_1
+#       ii) synchrony_plot_overall_1 
 
 
 # loading in data ---------------------------------------------------------
@@ -276,23 +276,3 @@ synchrony_plot_overall_3<-synchrony_measure_3%>%
         panel.grid.minor = element_blank())
 
 
-
-# save plots --------------------------------------------------------------
-
-ggsave(plot = ag_change_start_1,"./figures/supp/figure_S10.png", 
-       width=13, height=8,limitsize=FALSE)
-
-ggsave(plot = synchrony_plot_overall_1,"./figures/supp/figure_S11.png", 
-       width=12, height=5,limitsize=FALSE)
-
-ggsave(plot = ag_change_start_2,"./figures/supp/figure_S12.png", 
-       width=13, height=8,limitsize=FALSE)
-
-ggsave(plot = synchrony_plot_overall_2,"./figures/supp/figure_S13.png", 
-       width=12, height=5,limitsize=FALSE)
-
-ggsave(plot = ag_change_start_3,"./figures/supp/figure_S14.png", 
-       width=13, height=8,limitsize=FALSE)
-
-ggsave(plot = synchrony_plot_overall_3,"./figures/supp/figure_S15.png", 
-       width=12, height=5,limitsize=FALSE)

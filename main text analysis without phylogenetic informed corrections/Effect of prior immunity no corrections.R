@@ -12,15 +12,15 @@ library(tidyr)
 
 # The following code will reproduce the prior immunity analyses discussed in the main text:
 # 1)  The relationship between epidemic incidence and the amount of antigenic variant-specific cumulative incidence 
-#     epi_size_cumulative_size_same_variant_plot (Figure S20)
+#     epi_size_cumulative_size_same_variant_plot (Figure S12)
 #
 # 2)  The relationship between the probability of successful epidemic initiation 
 #     and amount of antigenic variant-specific cumulative incidence for each subtype 
-#     prob_successful_epi_cumulative_size_same_variant_plot (Figure S21)
+#     prob_successful_epi_cumulative_size_same_variant_plot (Figure S13)
 #
 # 3)  Binary logistics regression assessing the effect of antigenic variant-specific cumulative incidence 
 #     on the probability of successful epidemic initiation for each subtype 
-#     subtype_logistics_regression (Table S12)
+#     subtype_logistics_regression (Table S6)
 
 # Loading data ------------------------------------------------------------
 epi_table_no_corrections<-read.csv("./dat/raw/epi_table_no_corrections.csv")
@@ -230,12 +230,12 @@ subtype_logistic_output<-dplyr::arrange(subtype_logistic_output,subtype,term)
 
 # save plots --------------------------------------------------------------
 
-ggsave(plot = epi_size_cumulative_size_same_variant_plot,"./figures/supp/figure_S20.png",
+ggsave(plot = epi_size_cumulative_size_same_variant_plot,"./figures/supp/figure_S12.png",
        width=20, height=8,limitsize=FALSE)
 
 
-ggsave(plot = prob_successful_epi_cumulative_size_same_variant_plot,"./figures/supp/figure_S21.png",
+ggsave(plot = prob_successful_epi_cumulative_size_same_variant_plot,"./figures/supp/figure_S13.png",
        width=20, height=8,limitsize=FALSE)
 
-write.csv(subtype_logistic_output%>%dplyr::mutate_if(is.numeric,signif,digits=3),"./tables/table_S12.csv",row.names = FALSE)
+write.csv(subtype_logistic_output%>%dplyr::mutate_if(is.numeric,signif,digits=3),"./tables/table_S6.csv",row.names = FALSE)
 

@@ -127,7 +127,9 @@ mean_epi_ah_plot<-epi_table_with_clim%>%
                               "MELBOURNE"="#56B4E9",
                               "PERTH"="#999999",
                               "SYDNEY"="#E69F00"))+
-  scale_y_continuous(breaks=seq(-2,2,1),limits = c(-2,2))+
+  
+  scale_x_continuous(breaks=seq(6,16,2),limits = c(5,16))+
+  scale_y_continuous(breaks=seq(-4,2,1),limits = c(-4,2))+
   xlab(expression(paste("Mean Absolute Humidity over Epidemic Period "," (g/",m^{3},")",sep="")))+
   ylab("Lab confirmed incidence") +
   theme_bw()+
@@ -147,7 +149,7 @@ mean_epi_ah_plot<-epi_table_with_clim%>%
 # mean temp over epidemic period -------------------------------------------------
 
 mean_epi_temp_plot<-epi_table_with_clim%>%
-  subset(.,year!=2009)%>%
+  subset(.,year!=2009  & epi_alarm=="Y")%>%
   ggplot(.,aes(x=mean_epi_temp,y= scaled_incidence_subtype_city))+
   geom_jitter(aes(group = subtype, color=city),
               position=position_jitter(width=0.1,height=0.05),alpha=0.6,size=3.5)+
@@ -158,7 +160,8 @@ mean_epi_temp_plot<-epi_table_with_clim%>%
                               "MELBOURNE"="#56B4E9",
                               "PERTH"="#999999",
                               "SYDNEY"="#E69F00"))+
-  scale_y_continuous(breaks=seq(-2,2,1),limits = c(-2,2))+
+  scale_x_continuous(breaks=seq(8,24,4),limits = c(8,24))+
+  scale_y_continuous(breaks=seq(-4,2,1),limits = c(-4,2))+
   xlab(expression(paste("Mean Temperature over Epidemic Period (",degree,"C)",sep="")))+
   ylab("Lab confirmed incidence") +
   theme_bw()+
@@ -188,7 +191,9 @@ early_epi_ah_plot<-epi_table_with_clim%>%
                               "MELBOURNE"="#56B4E9",
                               "PERTH"="#999999",
                               "SYDNEY"="#E69F00"))+
-  scale_y_continuous(breaks=seq(-2,2,1),limits = c(-2,2))+
+  
+  scale_x_continuous(breaks=seq(6,16,2),limits = c(5,16))+
+  scale_y_continuous(breaks=seq(-4,2,1),limits = c(-4,2))+
   xlab(expression(paste("Mean Absolute Humidity over Early Epidemic "," (g/",m^{3},")",sep="")))+
   ylab("Lab confirmed incidence") +
   theme_bw()+
@@ -207,7 +212,7 @@ early_epi_ah_plot<-epi_table_with_clim%>%
 # early temp over epidemic period -------------------------------------------------
 
 early_epi_temp_plot<-epi_table_with_clim%>%
-  subset(.,year!=2009)%>%
+  subset(.,year!=2009 & epi_alarm=="Y")%>%
   ggplot(.,aes(x=early_temp,y= scaled_incidence_subtype_city))+
   geom_jitter(aes(group = subtype, color=city),
               position=position_jitter(width=0.1,height=0.05),alpha=0.6,size=3.5)+
@@ -218,7 +223,9 @@ early_epi_temp_plot<-epi_table_with_clim%>%
                               "MELBOURNE"="#56B4E9",
                               "PERTH"="#999999",
                               "SYDNEY"="#E69F00"))+
-  scale_y_continuous(breaks=seq(-2,2,1),limits = c(-2,2))+
+  
+  scale_x_continuous(breaks=seq(8,24,4),limits = c(8,24))+
+  scale_y_continuous(breaks=seq(-4,2,1),limits = c(-4,2))+
   xlab(expression(paste("Mean Temperature over Early Epidemic (",degree,"C)",sep="")))+
   ylab("Lab confirmed incidence") +
   theme_bw()+

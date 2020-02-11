@@ -22,28 +22,28 @@ library(tidyr)
 #       was incorrect and replaced it with estimates from Geoghegan et al. (2018).
 #       The timing value used for this set of analyses is stored in geog_epi_table$largest_geog_start
 #       Outputs
-#         i) largest_geog_results_pooled (Table S3)
-#         ii) largest_geog_results(Table S4)
-#         iii) stacked_climate_plots1 (Figure S4)
+#         i) largest_geog_results_pooled 
+#         ii) largest_geog_results
+#         iii) stacked_climate_plots1
 #   2)  For each of the seasons between 2007 and 2015, we assumed that our timing estimate for the EARLIEST influenza A subtype 
 #       was incorrect and replaced it with estimates from Geoghegan et al. (2018).
 #       The timing value used for this set of analyses is stored in geog_epi_table$earliest_geog_start
 #       Outputs
-#         i) earliest_geog_results_pooled (Table S5)
-#         ii) earliest_geog_results (Table S6)
-#         ii) stacked_climate_plots2 (Figure S5)
+#         i) earliest_geog_results_pooled 
+#         ii) earliest_geog_results 
+#         iii) stacked_climate_plots2 
 #   3)  For seasons between 2007 and 2015 in which the number of cases for the dominant influenza A subtype were small or 
 #       it was difficult to discern the period of epidemic from background activity, 
 #       we assumed that our timing estimate was incorrect and replaced it with estimates from Geoghegan et al. (2018).
 #       Outputs
-#         i) poor_geog_results_pooled (Table S7)
-#         ii) poor_geog_results (Table S8)
-#         ii) stacked_climate_plots3 (Figure S6)
+#         i) poor_geog_results_pooled
+#         ii) poor_geog_results 
+#         iii) stacked_climate_plots3
 #   4)  Utilising only the timing estimates by Geoghegan et al. (2018), we assessed if more generally, the onset of influenza A epidemic activity 
 #       in the seasons from 2007 to 2015 was preceded by periods of anomalous climatic conditions.
-#         i) just_geog_results_pooled (Table S9)
-#         ii) just_geog_results (Table S10)
-#         ii) stacked_climate_plots3 (Figure S7)
+#         i) just_geog_results_pooled (Table S3)
+#         ii) just_geog_results (Table S4)
+#         iii) stacked_climate_plots3 (Figure S4)
 
 # loading in data ---------------------------------------------------------
 
@@ -878,17 +878,8 @@ print(just_geog_geog_results_pooled)
 
 # saving bootstrap result tables ------------------------------------------
 
-write.csv(largest_geog_results_pooled,"./tables/table_S3.csv",row.names = FALSE)
-write.csv(largest_geog_results,"./tables/table_S4.csv",row.names = FALSE)
-
-write.csv(earliest_geog_results_pooled,"./tables/table_S5.csv",row.names = FALSE)
-write.csv(earliest_geog_results,"./tables/table_S6.csv",row.names = FALSE)
-
-write.csv(poor_geog_results_pooled,"./tables/table_S7.csv",row.names = FALSE)
-write.csv(poor_geog_results,"./tables/table_S8.csv",row.names = FALSE)
-
-write.csv(just_geog_geog_results_pooled,"./tables/table_S9.csv",row.names = FALSE)
-write.csv(just_geog_results,"./tables/table_S10.csv",row.names = FALSE)
+write.csv(just_geog_geog_results_pooled,"./tables/table_S3.csv",row.names = FALSE)
+write.csv(just_geog_results,"./tables/table_S4.csv",row.names = FALSE)
 
 
 
@@ -1065,7 +1056,6 @@ AH_plot1<-mean_stats1%>%
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())
 
-fig_S4<-grid.arrange(AT_plot1,AH_plot1,ncol=1)
 
 
 # 2) ii) earliest use Geoghegan ; compare against "historic climatic values of that particular time of year" -----------------------------------------------------------------
@@ -1170,8 +1160,6 @@ AH_plot2<-mean_stats2%>%
         legend.position="none",
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())
-
-fig_S5<-grid.arrange(AT_plot2,AH_plot2,ncol=1)
 
 
 
@@ -1279,7 +1267,6 @@ AH_plot3<-mean_stats3%>%
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())
 
-fig_S6<-grid.arrange(AT_plot3,AH_plot3,ncol=1)
 
 
 # 4) ii) Just Geoghegan ; compare against "historic climatic values of that particular time of year"  -------------------------------------------------
@@ -1385,8 +1372,113 @@ AH_plot4<-mean_stats4%>%
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())
 
-fig_S7<-grid.arrange(AT_plot4,AH_plot4,ncol=1)
+fig_S4<-grid.arrange(AT_plot4,AH_plot4,ncol=1)
 
+
+
+mean_stats4a<-centered_df4%>%
+  dplyr::group_by(relative_fortnight,city)%>%
+  dplyr::summarise(mean_temp=mean(mean_temp),
+                   mean_d.temp=mean(d.temp),
+                   sd_d.temp=sd(d.temp),
+                   wt_d.temp=wilcox.test(d.temp,alternative = c("less"))$p.value,
+                   
+                   mean_AH=mean(mean_AH),
+                   mean_d.AH=mean(d.AH),
+                   sd_d.AH=sd(d.AH),
+                   wt_d.AH=wilcox.test(d.AH,alternative = c("less"))$p.value,
+                   
+                   mean_AH_for_that_fortnight_of_year = mean(mean_AH_for_that_fortnight_of_year),
+                   mean_temp_for_that_fortnight_of_year = mean(mean_temp_for_that_fortnight_of_year))
+
+mean_stats4a<-mean_stats4a%>%
+  dplyr::rowwise()%>%
+  dplyr::mutate(signif_neg.d.temp = (wt_d.temp < 0.05  & mean_d.temp < 0),
+                signif_neg.d.AH = (wt_d.AH < 0.05  & mean_d.AH < 0),
+                mean_RH_for_that_fortnight_of_year = mean_relative_humidity_calc(mean_AH_for_that_fortnight_of_year,mean_temp_for_that_fortnight_of_year),
+                mean_d.RH = mean_relative_humidity_calc(mean_AH ,mean_temp) - mean_RH_for_that_fortnight_of_year)
+
+AT_plot4a<-mean_stats4a%>%
+  ggplot(data=.,aes(x=relative_fortnight,y=mean_d.temp))+
+  
+  geom_hline(aes(yintercept = 0),size=0.4,color="black",linetype="solid") + 
+  geom_vline(aes(xintercept = 0),size=0.4,color="black",linetype="solid") +
+  geom_errorbar(aes(x=relative_fortnight,
+                    ymin=mean_d.temp-sd_d.temp, 
+                    ymax=mean_d.temp+sd_d.temp),
+                size = 0.01)+
+  geom_line()+
+  geom_point(data=centered_df4,
+             aes(x=relative_fortnight,
+                 y=d.temp),
+             position = position_jitter(w = 0.1, h = 0),
+             size=3,
+             alpha = 0.2)+
+  geom_point(aes(colour=signif_neg.d.temp),
+             size=4)+
+  scale_color_manual(name="Statistically significant decrease temp (<0.05)",
+                     values=c("TRUE"="#D55E00",
+                              "FALSE"="#56B4E9")) +
+  
+  scale_y_continuous(breaks=seq(-3.5,5,0.5), limits = c(-3.5,5))+
+  scale_x_continuous(breaks = seq(-5,5,1), limits = c(-5.5,5.5))+
+  
+  theme_bw()+
+  xlab("Two week intervals relative to onset")+
+  ylab(expression(paste("Anomalous Temperature ( ",degree,"C)")))+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size=20),
+        axis.title=element_text(size=20),
+        axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
+        axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
+        axis.ticks.length = unit(0.4,"cm"),
+        panel.border = element_rect(colour = "black"),
+        legend.position="none",
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())+
+  facet_grid(~city)
+
+AH_plot4a<-mean_stats4a%>%
+  ggplot(data=.,aes(x=relative_fortnight,y=mean_d.AH))+
+  
+  geom_hline(aes(yintercept = 0),size=0.4,color="black",linetype="solid") + 
+  geom_vline(aes(xintercept = 0),size=0.4,color="black",linetype="solid") +
+  geom_errorbar(aes(x=relative_fortnight,
+                    ymin=mean_d.AH-sd_d.AH, 
+                    ymax=mean_d.AH+sd_d.AH),
+                size = 0.01)+
+  geom_line()+
+  geom_point(data=centered_df4,
+             aes(x=relative_fortnight,
+                 y=d.AH),
+             position = position_jitter(w = 0.1, h = 0),
+             size=3,
+             alpha = 0.2)+
+  geom_point(aes(colour=signif_neg.d.AH),
+             size=4)+
+  scale_color_manual(name="Statistically significant decrease temp (<0.05)",
+                     values=c("TRUE"="#D55E00",
+                              "FALSE"="#56B4E9")) +
+  
+  scale_y_continuous(breaks=seq(-3.5,3.5,0.5), limits = c(-3.5,3.5))+
+  scale_x_continuous(breaks = seq(-5,5,1), limits = c(-5.5,5.5))+
+  
+  theme_bw()+
+  xlab("Two week intervals relative to onset")+
+  ylab(expression(paste("Anomalous Absolute Humidity "," (g/",m^{3},")",sep="")))+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(size=20),
+        axis.title=element_text(size=20),
+        axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
+        axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
+        axis.ticks.length = unit(0.4,"cm"),
+        panel.border = element_rect(colour = "black"),
+        legend.position="none",
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())+
+  facet_grid(~city)
+
+fig_S5<-grid.arrange(AT_plot4a,AH_plot4a,ncol=1)
 
 # save plots --------------------------------------------------------------
 
@@ -1394,10 +1486,6 @@ base_dir2<-"C:/Users/el382/Dropbox/PhD/code for manuscript/figures/reviewer comm
 
 ggsave(plot = fig_S4,filename = "./figures/supp/figure_S4.png", 
        width=12, height=11,limitsize=FALSE)
+
 ggsave(plot = fig_S5,filename = "./figures/supp/figure_S5.png", 
        width=12, height=11,limitsize=FALSE)
-ggsave(plot = fig_S6,filename = "./figures/supp/figure_S6.png", 
-       width=12, height=11,limitsize=FALSE)
-ggsave(plot = fig_S7,filename = "./figures/supp/figure_S7.png", 
-       width=12, height=11,limitsize=FALSE)
-

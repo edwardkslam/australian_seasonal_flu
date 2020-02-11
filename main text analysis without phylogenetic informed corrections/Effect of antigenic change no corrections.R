@@ -14,13 +14,13 @@ library(tidyr)
 
 # The following code will reproduce the analyses assessing the effect of antigneic change discussed in the main text:
 # 1)  Comparing epidemic sizes between seasons with and without antigenic change 
-#     ag_change_incidence_plot (Figure S17)
+#     ag_change_incidence_plot (Figure S9)
 #
 # 2)  Comparing epidemic onset timing between seasons with and without antigenic change
-#     ag_change_start_plot (Figure S18)
+#     ag_change_start_plot (Figure S10)
 #
 # 3)  Comparing temporal synchrony of epidemics across cities between seasons with and without antigenic change 
-#     ag_change_synchrony_plot (Figure S19)
+#     ag_change_synchrony_plot (Figure S11)
 
 
 # Loading in data ---------------------------------------------------------
@@ -175,12 +175,12 @@ ag_change_synchrony_plot<-synchrony_table%>%
 # save plots --------------------------------------------------------------
 
 
-ggsave(plot = ag_change_incidence_plot,"./figures/supp/figure_S17.png",
+ggsave(plot = ag_change_incidence_plot,"./figures/supp/figure_S9.png",
        width=13, height=8,limitsize=FALSE)
 
-ggsave(plot = ag_change_start_plot,"./figures/supp/figure_S18.png",
+ggsave(plot = ag_change_start_plot,"./figures/supp/figure_S10.png",
        width=13, height=8,limitsize=FALSE)
 
-ggsave(plot = ag_change_synchrony_plot,"./figures/supp/figure_S19.png",
+ggsave(plot = ag_change_synchrony_plot,"./figures/supp/figure_S11.png",
        width=12, height=5,limitsize=FALSE)
 

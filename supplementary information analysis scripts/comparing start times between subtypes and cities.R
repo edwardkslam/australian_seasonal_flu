@@ -8,7 +8,7 @@ library(scales)
 library(dplyr)
 library(plyr)
 library(tidyr)
-library(beeswarm)
+library(ggbeeswarm)
 
 # Here we assess compare whether the onset timings vary between subtypes or between cities
 
