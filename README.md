@@ -213,6 +213,16 @@ We incorporate alternative estimates for the onset timing of Influenza A epidemi
 2) For each of the seasons between 2007 and 2015, we assumed that our timing estimate for the EARLIEST influenza A subtype was incorrect and replaced it with estimates from Geoghegan et al. (2018). \
 3) For seasons between 2007 and 2015 in which the number of cases for the dominant influenza A subtype were small or it was difficult to discern the period of epidemic from background activity, we assumed that our timing estimate was incorrect and replaced it with estimates from Geoghegan et al. (2018).
 
+#### ``epidemic onset detection algorithm and sensitivity/epidemic onset and end.R``
+The epidemic detection algorithm (time series data aggregated by two-week periods) and sensitivity analyses
+
+#### ``epidemic onset detection algorithm and sensitivity/epidemic onset and end weekly.R``
+Robustness of results towards aggregating time series data weekly or by two-week periods
+
+#### ``epidemic onset detection algorithm and sensitivity/weekly climatic factors.R``
+Here we repeated climatic analyses, using data aggregated weekly (rather than by two-week period in main text).
+
+
 #### ``additional analyses/Multivariate linear regression models.R``
 Here we assess the joint contributions of climatic and virological factors to epidemic incidence.
 The output is as follows:
