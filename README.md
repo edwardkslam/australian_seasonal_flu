@@ -28,7 +28,7 @@ Although influenza viruses circulate globally, prevention and treatment necessar
 - `main text analysis without phylogenetic informed corrections`: scripts for checking sensitivity to phylogenetic corrections of inferred antigenic phenotype
 - ``robustness vs geoghegan timings``: scripts for checking sensitivity of epidemic start time analysis by comparing to start times calculated from a previously published ([Geoghegan et al 2018](https://doi.org/10.1371/journal.ppat.1006780)) dataset.
 - ``epidemic onset detection algorithm and sensitivity``: epidemic onset detection algorithm and sensitivity analyses for detection of epidemic onset timings
--``additional analyses``: additional analyses mentioned in text but not presented in main or supplementary figures/tables
+-``additional analyses``: additional analyses mentioned in text but not presented in main or supplementary figures/tables. Multivariate linear regression models (not presented in text) are also included, as frequentist analogues to the multilevel modelling. 
 
 ## Data
 ### ``raw_data.csv``
