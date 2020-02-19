@@ -12,15 +12,12 @@ library(tidyr)
 #Here we assume and correct for potential mis-identification during antigenic characterisation due to delays in 
 #updating vaccine strain nomenclature.
 
-# The following code will reproduce the analyses assessing the effect of antigneic change discussed in the main text:
-# 1)  Comparing epidemic sizes between seasons with and without antigenic change 
-#     ag_change_incidence_plot (Figure 3)
-#
-# 2)  Comparing epidemic onset timing between seasons with and without antigenic change
-#     ag_change_start_plot (Figure S8)
-#
-# 3)  Comparing temporal synchrony of epidemics across cities between seasons with and without antigenic change 
-#     ag_change_synchrony_plot (Figure S9)
+
+# The following code will reproduce the analyses assessing the effect of antigenic change in
+# the pre- and post-pandemic eras, to account for potential differences in surveillance intensities.
+
+# split_era_ag_change contains Figure S18.
+
 
 
 # Loading in data ---------------------------------------------------------
@@ -41,7 +38,8 @@ pre_2009<-epi_table%>%
   dplyr::mutate(z_score_incidence_city = ifelse(epi_alarm=="Y",
                                                 (log_incidence-mean(log_incidence,na.rm=TRUE))/sd(log_incidence,na.rm = TRUE),
                                                 NA),
-                scaled_incidence_city = log_incidence-mean(log_incidence,na.rm=TRUE))
+                scaled_incidence_city = log_incidence-mean(log_incidence,na.rm=TRUE),
+                era="pre-pandemic")
 
 
 
@@ -86,7 +84,8 @@ post_2009<-epi_table%>%
   dplyr::mutate(z_score_incidence_city = ifelse(epi_alarm=="Y",
                                                 (log_incidence-mean(log_incidence,na.rm=TRUE))/sd(log_incidence,na.rm = TRUE),
                                                 NA),
-                scaled_incidence_city = log_incidence-mean(log_incidence,na.rm=TRUE))
+                scaled_incidence_city = log_incidence-mean(log_incidence,na.rm=TRUE),
+                era="post-pandemic")
 
 
 post_2009_ag<-post_2009%>%
@@ -124,8 +123,10 @@ post_2009_ag<-post_2009%>%
   facet_grid(~subtype,scales = "free_y", labeller = label_wrap_gen(width=10))
 
 
+stacked_plot_df<-rbind(pre_2009,post_2009)
+stacked_plot_df$era<-factor(stacked_plot_df$era,levels=c("pre-pandemic","post-pandemic"))
 
-rbind(pre_2009,post_2009)%>%
+split_era_ag_change<-stacked_plot_df%>%
   subset(.,epi_alarm=="Y")%>%
   subset(.,year!=2009)%>%
   subset(.,subtype!="H1pdm09")%>%
@@ -157,5 +158,10 @@ rbind(pre_2009,post_2009)%>%
         panel.border = element_rect(colour = "black"),
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())+
-  facet_grid(~subtype,scales = "free_y", labeller = label_wrap_gen(width=10))
+  facet_grid(era~subtype,scales = "free_y", labeller = label_wrap_gen(width=10))
 
+
+# save plot ---------------------------------------------------------------
+
+ggsave(plot = split_era_ag_change,"./figures/supp/figure_S18.png",
+       width=13, height=10,limitsize=FALSE)
