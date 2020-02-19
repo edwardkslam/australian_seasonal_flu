@@ -26,9 +26,10 @@ Although influenza viruses circulate globally, prevention and treatment necessar
 - ``out``: output figures from the Bayesian multi-level regression model (as ``.png`` files)
 - ``main text analysis scripts``: scripts for reproducing empirical analyses from the main text of the paper
 - `main text analysis without phylogenetic informed corrections`: scripts for checking sensitivity to phylogenetic corrections of inferred antigenic phenotype
+- ``supplementary information analysis scripts``: scripts for reproducing analyses from the supplementary information section of the paper.
 - ``robustness vs geoghegan timings``: scripts for checking sensitivity of epidemic start time analysis by comparing to start times calculated from a previously published ([Geoghegan et al 2018](https://doi.org/10.1371/journal.ppat.1006780)) dataset.
 - ``epidemic onset detection algorithm and sensitivity``: epidemic onset detection algorithm and sensitivity analyses for detection of epidemic onset timings
--``additional analyses``: additional analyses mentioned in text but not presented in main or supplementary figures/tables. Multivariate linear regression models (not presented in text) are also included, as frequentist analogues to the multilevel modelling. 
+-``additional analyses``: additional analyses mentioned in text but not presented in main or supplementary figures/tables. Multivariate linear regression models (not presented in text) are also included, as frequentist analogues to the multilevel modelling.
 
 ## Data
 ### ``raw_data.csv``
@@ -188,6 +189,14 @@ Here we assess (whilst making no corrctions for potential mis-identification dur
 1) epidemic incidence (Figure S12)
 2) probability of successful epidemic initiation (Figure S13 and Table S6)
 
+#### ``supplementary information analysis scripts/comparing start times between subtypes and cities.R``
+Here we compare the onset timing of epidemics between subtype and between cities (Figure S1).
+
+#### ``supplementary information analysis scripts/mean climate over epidemic.R``
+Here we assess the relationship between epidemic incidence and the mean temperature and absolute humidity values over the entire epidemic period and the early part of the epidemic (defined as period from the onset to the peak of an epidemic).  (Figure S3)
+
+#### ``supplementary information analysis scripts/pre vs post pandemic.R``
+Here we consider potential differences in surveillance intensity between pre- and post H1N1 pandemic eras and assess whether this affects or analyses on the effect of antigenic change on the size of epidemics (Figure S18).  This is now included, in response to reviewer comments.
 
 #### ``robustness vs geoghegan timings/Robustness of climatic analyses using Geoghegan et al (2018) timings.R``
 Here we assess the robustness towards potential inaccuracies in our epidemic onset timing estimates, of our analyses on climatic fluctuations preceding epidemic onset. We considered whether or not these preceding climatic fluctuations were: \
@@ -228,9 +237,6 @@ Here we assess the joint contributions of climatic and virological factors to ep
 The output is as follows:
 1) Regression coefficients for full and submodels
 2) RSE, R-squared, adjusted R-squared for full and submodels
-
-#### ``additional analyses/pre vs post pandemic.R``
-Here we consider potential differences in surveillance intensity between pre- and post H1N1 pandemic eras and assess whether this affects or analyses on the effect of antigenic change on the size of epidemics.  This is now included, in response to reviewer comments.
 
 #### ``additional analyses/RH rainfall and epidemic onset.R``
 Here we repeated climatic analyses, using alternative climatic predictors: relative humidity and rainfall.  This is now included, in response to reviewer comments.
