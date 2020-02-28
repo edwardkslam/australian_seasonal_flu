@@ -678,7 +678,7 @@ fig_S16<-sensitivity_df%>%
   theme_bw()+
   theme(strip.background = element_blank(),
         strip.text = element_text(size=25),
-        axis.title=element_text(size=18),
+        axis.title=element_text(size=30),
         axis.text.x =element_text(size=16,margin=margin(t=7,r=0,b=0,l=0)),
         axis.text.y =element_text(size=16,margin=margin(t=0,r=7,b=0,l=0)),
         axis.ticks.length = unit(0.4,"cm"),
