@@ -1324,12 +1324,13 @@ AT_plot4<-mean_stats4%>%
   ylab(expression(paste("Anomalous Temperature ( ",degree,"C)")))+
   theme(strip.background = element_blank(),
         strip.text = element_text(size=20),
-        axis.title=element_text(size=20),
+        axis.title=element_text(size=18),
         axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
         axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
         axis.ticks.length = unit(0.4,"cm"),
         panel.border = element_rect(colour = "black"),
         legend.position="none",
+        plot.margin=margin(1.5,0,0,0,"cm"),
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())
 
@@ -1360,19 +1361,23 @@ AH_plot4<-mean_stats4%>%
   
   theme_bw()+
   xlab("Two week intervals relative to onset")+
-  ylab(expression(paste("Anomalous Absolute Humidity "," (g/",m^{3},")",sep="")))+
+  ylab(expression(paste("Anomalous Absolute Humidity "," (g ",m^{-3},")",sep="")))+
   theme(strip.background = element_blank(),
         strip.text = element_text(size=20),
-        axis.title=element_text(size=20),
+        axis.title=element_text(size=18),
         axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
         axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
         axis.ticks.length = unit(0.4,"cm"),
         panel.border = element_rect(colour = "black"),
         legend.position="none",
+        plot.margin=margin(1.5,0,0,0,"cm"),
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())
 
-fig_S4<-grid.arrange(AT_plot4,AH_plot4,ncol=1)
+fig_S4<-ggarrange(AT_plot4, AH_plot4, 
+                  labels = c("a","b"),
+                  font.label = list(size=22),
+                  ncol = 1, nrow = 2)
 
 
 
@@ -1428,15 +1433,16 @@ AT_plot4a<-mean_stats4a%>%
   ylab(expression(paste("Anomalous Temperature ( ",degree,"C)")))+
   theme(strip.background = element_blank(),
         strip.text = element_text(size=20),
-        axis.title=element_text(size=20),
+        axis.title=element_text(size=18),
         axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
         axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
         axis.ticks.length = unit(0.4,"cm"),
         panel.border = element_rect(colour = "black"),
         legend.position="none",
-        panel.grid.major = element_blank(), 
+        plot.margin=margin(1.5,0,0,0,"cm"),
+        panel.grid.major = element_blank(),
         panel.grid.minor = element_blank())+
-  facet_grid(~city)
+  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
 
 AH_plot4a<-mean_stats4a%>%
   ggplot(data=.,aes(x=relative_fortnight,y=mean_d.AH))+
@@ -1468,17 +1474,21 @@ AH_plot4a<-mean_stats4a%>%
   ylab(expression(paste("Anomalous Absolute Humidity "," (g/",m^{3},")",sep="")))+
   theme(strip.background = element_blank(),
         strip.text = element_text(size=20),
-        axis.title=element_text(size=20),
+        axis.title=element_text(size=18),
         axis.text.x =element_text(size=15,margin=margin(t=5,r=0,b=0,l=0)),
         axis.text.y =element_text(size=15,margin=margin(t=0,r=5,b=0,l=0)),
         axis.ticks.length = unit(0.4,"cm"),
         panel.border = element_rect(colour = "black"),
         legend.position="none",
-        panel.grid.major = element_blank(), 
+        plot.margin=margin(1.5,0,0,0,"cm"),
+        panel.grid.major = element_blank(),
         panel.grid.minor = element_blank())+
-  facet_grid(~city)
+  facet_grid(~ as.factor(city),labeller = label_wrap_gen(width=10))
 
-fig_S5<-grid.arrange(AT_plot4a,AH_plot4a,ncol=1)
+fig_S5<-ggarrange(AT_plot4a, AH_plot4a, 
+                  labels = c("a","b"),
+                  font.label = list(size=22),
+                  ncol = 1, nrow = 2)
 
 # save plots --------------------------------------------------------------
 

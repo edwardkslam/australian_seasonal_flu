@@ -59,3 +59,6 @@ time_series_plot<-raw_table%>%
 
 ggsave(plot = time_series_plot,"./figures/main/figure_1.png",
        width=18, height=10,limitsize=FALSE)
+
+ggsave(plot = time_series_plot,"./figures/main/figure_1.eps", device=cairo_ps,
+       width=18, height=10,limitsize=FALSE)

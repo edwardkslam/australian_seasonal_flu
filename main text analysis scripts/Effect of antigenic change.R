@@ -181,6 +181,9 @@ ag_change_synchrony_plot<-synchrony_table%>%
 ggsave(plot = ag_change_incidence_plot,"./figures/main/figure_3.png",
        width=13, height=8,limitsize=FALSE)
 
+ggsave(plot = ag_change_incidence_plot,"./figures/main/figure_3.eps",
+       width=13, height=8,limitsize=FALSE,device = cairo_ps)
+
 ggsave(plot = ag_change_start_plot,"./figures/supp/figure_S6.png",
        width=13, height=8,limitsize=FALSE)
 

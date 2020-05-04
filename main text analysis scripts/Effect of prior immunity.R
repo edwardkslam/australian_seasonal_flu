@@ -343,6 +343,11 @@ aggregated_logistic_output$term<-row.names(aggregated_logistic_output)
 ggsave(plot = epi_size_cumulative_size_same_variant_plot,"./figures/main/figure_4.png",
        width=20, height=8,limitsize=FALSE)
 
+ggsave(plot = epi_size_cumulative_size_same_variant_plot,"./figures/main/figure_4.eps",
+       device = cairo_ps,
+       width=20, height=8,limitsize=FALSE)
+
+
 ggsave(plot = prob_successful_epi_cumulative_size_same_variant_plot,"./figures/supp/figure_S8.png",
        width=20, height=8,limitsize=FALSE)
 

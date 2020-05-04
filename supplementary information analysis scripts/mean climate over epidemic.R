@@ -257,6 +257,21 @@ yaxis_common<- textGrob(expression(paste("Lab confirmed incidence (",10^{-6},")"
                         gp = gpar(fontsize = 25),
                         rot = 90, vjust = 1)
 
+figS3<-ggarrange(yaxis_common,
+                 ggarrange(mean_epi_temp_plot+ theme(plot.margin=margin(1.5,0.5,0,0,"cm"),
+                                                     legend.position="none",axis.title.y = element_blank()),
+                           mean_epi_ah_plot + theme(plot.margin=margin(1.5,0,0.5,0,"cm"),
+                                                    legend.position="none",axis.title.y = element_blank()),
+                           early_epi_temp_plot + theme(plot.margin=margin(1.5,0.5,0,0,"cm"),
+                                                       legend.position="none",axis.title.y = element_blank()),
+                           early_epi_ah_plot + theme(plot.margin=margin(1.5,0,0.5,0,"cm"),
+                                                     legend.position="none",axis.title.y = element_blank()),
+                           labels = c("a","b","c","d"),
+                           font.label = list(size=22),
+                           nrow=2,ncol=2,align = "hv"),
+                 mylegend,
+                 ncol=3,nrow = 1,widths=c(1,14,2))
+
 figS3<-grid.arrange(yaxis_common,
                     arrangeGrob(mean_epi_temp_plot+ theme(legend.position="none",axis.title.y = element_blank()),
                                mean_epi_ah_plot + theme(legend.position="none",axis.title.y = element_blank()),

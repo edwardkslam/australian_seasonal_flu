@@ -57,6 +57,7 @@ log_prior_activity_vs_relative_size_plot<-epi_table %>%
         panel.border = element_rect(colour = "black"),
         legend.title=element_text(size=20), 
         legend.text=element_text(size=17),
+        plot.margin=margin(1.5,0.5,0,0,"cm"),
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())
 
@@ -90,6 +91,7 @@ log_delayed_delay_vs_relative_size_plot<-epi_table %>%
         panel.border = element_rect(colour = "black"),
         legend.title=element_text(size=20), 
         legend.text=element_text(size=17),
+        plot.margin=margin(1.5,0,0,0.5,"cm"),
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())
 
@@ -105,9 +107,15 @@ g_legend<-function(a.gplot){
 
 mylegend<-g_legend(log_prior_activity_vs_relative_size_plot)
 
-fig5<-grid.arrange(arrangeGrob(log_prior_activity_vs_relative_size_plot+ theme(legend.position="none"),
-                               log_delayed_delay_vs_relative_size_plot + theme(legend.position="none"),nrow=1),
-                   mylegend, ncol=2,widths=c(10,1))
+fig5<-ggarrange(log_prior_activity_vs_relative_size_plot+ theme(legend.position="none"),
+                log_delayed_delay_vs_relative_size_plot + theme(legend.position="none"),
+                mylegend,
+                labels = c("a","b",NA),
+                font.label = list(size=22),
+                ncol = 3, nrow = 1,widths = c(5,5,1))
 
 ggsave(plot = fig5,filename = "./figures/main/figure_5.png", 
        width=20, height=8,limitsize=FALSE)
+
+ggsave(plot = fig5,filename = "./figures/main/figure_5.eps", 
+       width=20, height=8,limitsize=FALSE,device = cairo_ps)
