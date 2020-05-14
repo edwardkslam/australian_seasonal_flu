@@ -43,13 +43,30 @@ dot_size <- 1
 
 fit <- readRDS(mcmc_fit_path)
 
-tidychains <- fit %>% gather_draws(effect_abs_humidity[subtype_id],
-                                   effect_rainfall[subtype_id],
-                                   effect_cumulative_prior_inc[subtype_id],
-                                   effect_antigenic_change[subtype_id],
-                                   effect_prior_season_activity[subtype_id],
-                                   effect_is_first_of_season[subtype_id],
-                                   effect_start_date[subtype_id])
+## determine whether temperature
+## or abs humidity is the climate
+## variable
+if(grepl("temp", mcmc_fit_path)){
+    tidychains <- fit %>% gather_draws(
+                              effect_temp[subtype_id],
+                              effect_rainfall[subtype_id],
+                              effect_cumulative_prior_inc[subtype_id],
+                              effect_antigenic_change[subtype_id],
+                              effect_prior_season_activity[subtype_id],
+                              effect_is_first_of_season[subtype_id],
+                              effect_start_date[subtype_id])
+    
+} else{
+    tidychains <- fit %>% gather_draws(
+                              effect_abs_humidity[subtype_id],
+                              effect_rainfall[subtype_id],
+                              effect_cumulative_prior_inc[subtype_id],
+                              effect_antigenic_change[subtype_id],
+                              effect_prior_season_activity[subtype_id],
+                              effect_is_first_of_season[subtype_id],
+                              effect_start_date[subtype_id])
+}
+
 
 ## SQL-ishly reintroduce subtype human-readable names
 tidychains <-

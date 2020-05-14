@@ -48,14 +48,28 @@ fig_n_col <- 3
 
 
 fit <- readRDS(mcmc_fit_path)
+
+## determine whether temperature
+## or abs humidity is the climate
+## variable
+if(grepl("temp", mcmc_fit_path)){
+    tidychains <- fit %>% gather_draws(mean_effect_temp,
+                                       mean_effect_rainfall,
+                                       mean_effect_antigenic_change,
+                                       mean_effect_cumulative_prior_inc,
+                                       mean_effect_prior_season_activity,
+                                       mean_effect_is_first_of_season,
+                                       mean_effect_start_date)
     
-tidychains <- fit %>% gather_draws(mean_effect_abs_humidity,
-                                   mean_effect_rainfall,
-                                   mean_effect_antigenic_change,
-                                   mean_effect_cumulative_prior_inc,
-                                   mean_effect_prior_season_activity,
-                                   mean_effect_is_first_of_season,
-                                   mean_effect_start_date)
+} else{
+    tidychains <- fit %>% gather_draws(mean_effect_abs_humidity,
+                                       mean_effect_rainfall,
+                                       mean_effect_antigenic_change,
+                                       mean_effect_cumulative_prior_inc,
+                                       mean_effect_prior_season_activity,
+                                       mean_effect_is_first_of_season,
+                                       mean_effect_start_date)
+}
 
 quants <- tidychains %>%
     do(tibble(post_quant = quantile(.$.value, ppoints(100))))

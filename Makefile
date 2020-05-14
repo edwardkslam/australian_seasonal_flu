@@ -83,9 +83,13 @@ CLEAN_STAN_DATA = $(CLEANED_DATA_DIR)/clean_stan_data.csv
 ################################
 MODEL_FITTING_SCRIPT = $(SRC)/fit_stan_model.R
 NORMED_INCIDENCE_MODEL_NAME = normed_multilevel_incidence_regression
+NORMED_WITH_TEMP_MODEL_NAME = normed_multilevel_incidence_regression_temp
 EPIDEMIC_PROBABILITY_MODEL_NAME = multilevel_epi_probability_model
+
 MODEL_DATA = $(CLEAN_STAN_DATA)
-MODELS = $(NORMED_INCIDENCE_MODEL_NAME)
+
+MODELS = $(NORMED_INCIDENCE_MODEL_NAME) $(NORMED_WITH_TEMP_MODEL_NAME)
+
 CHAINS = $(addsuffix $(CHAINS_SUFFIX), \
    $(addprefix $(MCMC_CHAINS)/, $(MODELS)))
 
@@ -131,19 +135,32 @@ PLOTTING_STYLE = $(SRC)/plotting_style.R
 
 FIG_CLEANUP = @$(RM) Rplots.pdf
 
-FIGURES := figure_posterior_effects.$(FIGEXT) figure_posterior_by_subtype.$(FIGEXT) figure_posterior_sds.$(FIGEXT) 
+FIGURES := figure_posterior_effects.$(FIGEXT) figure_posterior_by_subtype.$(FIGEXT) figure_posterior_sds.$(FIGEXT) figure_posterior_effects_temp.$(FIGEXT) figure_posterior_by_subtype_temp.$(FIGEXT) figure_posterior_sds_temp.$(FIGEXT)
 
 FIG_PATHS := $(addprefix $(OUT)/, $(FIGURES))
 
-FIG_DEPS = flu_final_size_model.py model_parameters.py
-FIG_DEP_PATHS = $(addprefix $(SRC)/, $(FIG_DEPS)) 
+.PHONY: figs
+figs: $(FIG_PATHS)
+	@echo $(FIG_PATHS)
+
 
 $(OUT)/figure_posterior_effects.$(FIGEXT): $(SRC)/figure_posterior_effects.$(SRCEXT) $(MCMC_CHAINS)/$(NORMED_INCIDENCE_MODEL_NAME)$(CHAINS_SUFFIX) $(CLEAN_STAN_DATA) $(PLOTTING_STYLE)
 	$(MKDIR) $(dir $@)
 	$(R_COMMAND) $^ $@
 	$(FIG_CLEANUP)
 
+$(OUT)/figure_posterior_effects_temp.$(FIGEXT): $(SRC)/figure_posterior_effects.$(SRCEXT) $(MCMC_CHAINS)/$(NORMED_WITH_TEMP_MODEL_NAME)$(CHAINS_SUFFIX) $(CLEAN_STAN_DATA) $(PLOTTING_STYLE)
+	$(MKDIR) $(dir $@)
+	$(R_COMMAND) $^ $@
+	$(FIG_CLEANUP)
+
+
 $(OUT)/figure_posterior_by_subtype.$(FIGEXT): $(SRC)/figure_posterior_by_subtype.$(SRCEXT) $(MCMC_CHAINS)/$(NORMED_INCIDENCE_MODEL_NAME)$(CHAINS_SUFFIX) $(CLEAN_STAN_DATA) $(PLOTTING_STYLE)
+	$(MKDIR) $(dir $@)
+	$(R_COMMAND) $^ $@
+	$(FIG_CLEANUP)
+
+$(OUT)/figure_posterior_by_subtype_temp.$(FIGEXT): $(SRC)/figure_posterior_by_subtype.$(SRCEXT) $(MCMC_CHAINS)/$(NORMED_WITH_TEMP_MODEL_NAME)$(CHAINS_SUFFIX) $(CLEAN_STAN_DATA) $(PLOTTING_STYLE)
 	$(MKDIR) $(dir $@)
 	$(R_COMMAND) $^ $@
 	$(FIG_CLEANUP)
@@ -154,11 +171,12 @@ $(OUT)/figure_posterior_sds.$(FIGEXT): $(SRC)/figure_posterior_sds.$(SRCEXT) $(M
 	$(R_COMMAND) $^ $@
 	$(FIG_CLEANUP)
 
+$(OUT)/figure_posterior_sds_temp.$(FIGEXT): $(SRC)/figure_posterior_sds.$(SRCEXT) $(MCMC_CHAINS)/$(NORMED_WITH_TEMP_MODEL_NAME)$(CHAINS_SUFFIX) $(CLEAN_STAN_DATA) $(PLOTTING_STYLE)
+	$(MKDIR) $(dir $@)
+	$(R_COMMAND) $^ $@
+	$(FIG_CLEANUP)
 
 
-.PHONY: figs
-figs: $(FIG_PATHS)
-	@echo $(FIG_PATHS)
 
 ##################################
 # reported quantities and diagnostics
