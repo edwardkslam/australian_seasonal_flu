@@ -4,7 +4,7 @@
 # <dhmorris@princeton.edu>
 #
 # Makefile to generate analyses
-# for Lam et al 2019 study of
+# for Lam et al 2020 study of
 # Australian influenza epidemiology
 #####################################
 
@@ -38,7 +38,7 @@ RAW_DATA_DIR := $(DAT)/raw
 CLEANED_DATA_DIR := $(DAT)/cleaned
 PLOT_PATH = $(OUT)/figures
 
-FIGEXT := png
+FIGEXT := .png .eps
 SRCEXT := R
 CHAINS_SUFFIX = _chains.Rds
 
@@ -135,43 +135,43 @@ PLOTTING_STYLE = $(SRC)/plotting_style.R
 
 FIG_CLEANUP = @$(RM) Rplots.pdf
 
-FIGURES := figure_posterior_effects.$(FIGEXT) figure_posterior_by_subtype.$(FIGEXT) figure_posterior_sds.$(FIGEXT) figure_posterior_effects_temp.$(FIGEXT) figure_posterior_by_subtype_temp.$(FIGEXT) figure_posterior_sds_temp.$(FIGEXT)
+FIGURES := figure_posterior_effects figure_posterior_by_subtype figure_posterior_sds figure_posterior_effects_temp figure_posterior_by_subtype_temp figure_posterior_sds_temp
 
-FIG_PATHS := $(addprefix $(OUT)/, $(FIGURES))
+FIG_PATHS := $(foreach EXT, $(FIGEXT), $(addsuffix $(EXT), $(addprefix $(OUT)/, $(FIGURES))))
 
 .PHONY: figs
 figs: $(FIG_PATHS)
 	@echo $(FIG_PATHS)
 
 
-$(OUT)/figure_posterior_effects.$(FIGEXT): $(SRC)/figure_posterior_effects.$(SRCEXT) $(MCMC_CHAINS)/$(NORMED_INCIDENCE_MODEL_NAME)$(CHAINS_SUFFIX) $(CLEAN_STAN_DATA) $(PLOTTING_STYLE)
+$(OUT)/figure_posterior_effects.%: $(SRC)/figure_posterior_effects.$(SRCEXT) $(MCMC_CHAINS)/$(NORMED_INCIDENCE_MODEL_NAME)$(CHAINS_SUFFIX) $(CLEAN_STAN_DATA) $(PLOTTING_STYLE)
 	$(MKDIR) $(dir $@)
 	$(R_COMMAND) $^ $@
 	$(FIG_CLEANUP)
 
-$(OUT)/figure_posterior_effects_temp.$(FIGEXT): $(SRC)/figure_posterior_effects.$(SRCEXT) $(MCMC_CHAINS)/$(NORMED_WITH_TEMP_MODEL_NAME)$(CHAINS_SUFFIX) $(CLEAN_STAN_DATA) $(PLOTTING_STYLE)
-	$(MKDIR) $(dir $@)
-	$(R_COMMAND) $^ $@
-	$(FIG_CLEANUP)
-
-
-$(OUT)/figure_posterior_by_subtype.$(FIGEXT): $(SRC)/figure_posterior_by_subtype.$(SRCEXT) $(MCMC_CHAINS)/$(NORMED_INCIDENCE_MODEL_NAME)$(CHAINS_SUFFIX) $(CLEAN_STAN_DATA) $(PLOTTING_STYLE)
-	$(MKDIR) $(dir $@)
-	$(R_COMMAND) $^ $@
-	$(FIG_CLEANUP)
-
-$(OUT)/figure_posterior_by_subtype_temp.$(FIGEXT): $(SRC)/figure_posterior_by_subtype.$(SRCEXT) $(MCMC_CHAINS)/$(NORMED_WITH_TEMP_MODEL_NAME)$(CHAINS_SUFFIX) $(CLEAN_STAN_DATA) $(PLOTTING_STYLE)
+$(OUT)/figure_posterior_effects_temp.%: $(SRC)/figure_posterior_effects.$(SRCEXT) $(MCMC_CHAINS)/$(NORMED_WITH_TEMP_MODEL_NAME)$(CHAINS_SUFFIX) $(CLEAN_STAN_DATA) $(PLOTTING_STYLE)
 	$(MKDIR) $(dir $@)
 	$(R_COMMAND) $^ $@
 	$(FIG_CLEANUP)
 
 
-$(OUT)/figure_posterior_sds.$(FIGEXT): $(SRC)/figure_posterior_sds.$(SRCEXT) $(MCMC_CHAINS)/$(NORMED_INCIDENCE_MODEL_NAME)$(CHAINS_SUFFIX) $(CLEAN_STAN_DATA) $(PLOTTING_STYLE)
+$(OUT)/figure_posterior_by_subtype.%: $(SRC)/figure_posterior_by_subtype.$(SRCEXT) $(MCMC_CHAINS)/$(NORMED_INCIDENCE_MODEL_NAME)$(CHAINS_SUFFIX) $(CLEAN_STAN_DATA) $(PLOTTING_STYLE)
 	$(MKDIR) $(dir $@)
 	$(R_COMMAND) $^ $@
 	$(FIG_CLEANUP)
 
-$(OUT)/figure_posterior_sds_temp.$(FIGEXT): $(SRC)/figure_posterior_sds.$(SRCEXT) $(MCMC_CHAINS)/$(NORMED_WITH_TEMP_MODEL_NAME)$(CHAINS_SUFFIX) $(CLEAN_STAN_DATA) $(PLOTTING_STYLE)
+$(OUT)/figure_posterior_by_subtype_temp.%: $(SRC)/figure_posterior_by_subtype.$(SRCEXT) $(MCMC_CHAINS)/$(NORMED_WITH_TEMP_MODEL_NAME)$(CHAINS_SUFFIX) $(CLEAN_STAN_DATA) $(PLOTTING_STYLE)
+	$(MKDIR) $(dir $@)
+	$(R_COMMAND) $^ $@
+	$(FIG_CLEANUP)
+
+
+$(OUT)/figure_posterior_sds.%: $(SRC)/figure_posterior_sds.$(SRCEXT) $(MCMC_CHAINS)/$(NORMED_INCIDENCE_MODEL_NAME)$(CHAINS_SUFFIX) $(CLEAN_STAN_DATA) $(PLOTTING_STYLE)
+	$(MKDIR) $(dir $@)
+	$(R_COMMAND) $^ $@
+	$(FIG_CLEANUP)
+
+$(OUT)/figure_posterior_sds_temp.%: $(SRC)/figure_posterior_sds.$(SRCEXT) $(MCMC_CHAINS)/$(NORMED_WITH_TEMP_MODEL_NAME)$(CHAINS_SUFFIX) $(CLEAN_STAN_DATA) $(PLOTTING_STYLE)
 	$(MKDIR) $(dir $@)
 	$(R_COMMAND) $^ $@
 	$(FIG_CLEANUP)
