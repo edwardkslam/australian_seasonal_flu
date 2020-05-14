@@ -20,6 +20,7 @@ parameter_basenames <- c(
     'effect_cumulative_prior_inc',
     'effect_prior_season_activity',
     'effect_start_date',
+    'effect_temp',
     'intercept')
 
 parameter_display_names <- c(
@@ -30,6 +31,7 @@ parameter_display_names <- c(
     'prior variant cases',
     'prior season cases',
     'start date',
+    'temperature',
     'intercept')
 
 

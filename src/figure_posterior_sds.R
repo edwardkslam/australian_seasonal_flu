@@ -48,16 +48,31 @@ fig_n_col <- 3
 sd_posterior_limits <- c(0, 1)
 
 fit <- readRDS(mcmc_fit_path)
-    
-tidychains <- fit %>% gather_draws(
-                          sd_intercept,
-                          sd_effect_abs_humidity,
-                          sd_effect_rainfall,
-                          sd_effect_antigenic_change,
-                          sd_effect_cumulative_prior_inc,
-                          sd_effect_prior_season_activity,
-                          sd_effect_is_first_of_season,
-                          sd_effect_start_date)
+
+## determine whether temperature
+## or abs humidity is the climate
+## variable
+if(grepl("temp", mcmc_fit_path)){
+    tidychains <- fit %>% gather_draws(
+                              sd_intercept,
+                              sd_effect_temp,
+                              sd_effect_rainfall,
+                              sd_effect_temp,
+                              sd_effect_cumulative_prior_inc,
+                              sd_effect_prior_season_activity,
+                              sd_effect_is_first_of_season,
+                              sd_effect_start_date)
+} else{
+    tidychains <- fit %>% gather_draws(
+                              sd_intercept,
+                              sd_effect_abs_humidity,
+                              sd_effect_rainfall,
+                              sd_effect_antigenic_change,
+                              sd_effect_cumulative_prior_inc,
+                              sd_effect_prior_season_activity,
+                              sd_effect_is_first_of_season,
+                              sd_effect_start_date)
+}
 
 quants <- tidychains %>%
     do(tibble(post_quant = quantile(.$.value, ppoints(100))))
